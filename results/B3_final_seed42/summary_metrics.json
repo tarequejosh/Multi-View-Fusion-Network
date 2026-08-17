@@ -1,0 +1,16 @@
+{
+  "checkpoint": "d:\\Research\\experiments\\paumt\\B3_final_seed42\\best_model.pth",
+  "seed": 42,
+  "accuracy": 0.993,
+  "f1_macro": 0.9939245968535975,
+  "auc_macro": 0.9991001547345567,
+  "brier": 0.019971490408403132,
+  "ece": 0.07396774435043336,
+  "dice": 0.8819631934165955,
+  "iou": 0.8177149891853333,
+  "sensitivity": 0.7611578203869656,
+  "specificity": 0.9984385768400997,
+  "precision_seg": 0.7446031508008671,
+  "hd95": 3.315220997416488,
+  "hd95_n_valid": 996
+}

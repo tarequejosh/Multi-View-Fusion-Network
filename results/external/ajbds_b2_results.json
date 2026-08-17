@@ -1,0 +1,12 @@
+{
+    "Slice_Mean_Dice": 0.595417646668509,
+    "Slice_Mean_IoU": 0.5808656842833674,
+    "Patient_Mean_Dice": 0.5938954745875421,
+    "Patient_Std_Dice": 0.06970426293961492,
+    "Patient_Mean_IoU": 0.5797929977276797,
+    "Patient_Mean_HD95": NaN,
+    "Empty_Mask_Total": 3580,
+    "FP_Mask_Rate": 0.32430167597765364,
+    "Mean_FP_Area": 211.0145251396648,
+    "Max_FP_Area": 4813.0
+}

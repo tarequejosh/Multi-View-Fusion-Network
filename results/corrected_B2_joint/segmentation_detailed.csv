@@ -1,0 +1,8 @@
+,Dice_Class,Dice_Plane
+glioma,0.7568539,
+meningioma,0.9346364,
+no_tumor,1.0,
+pituitary,0.8678554,
+axial,,0.86604196
+coronal,,0.8825039
+sagittal,,0.8914071

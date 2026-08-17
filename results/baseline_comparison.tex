@@ -1,0 +1,14 @@
+\begin{table}
+\caption{Comparison of Clean Baselines (B0-B3)}
+\label{tab:clean_baselines}
+\begin{tabular}{llllllll}
+\toprule
+Model & Accuracy & Macro_F1 & AUC & Dice & IoU & ECE & FP_Mask_Rate \\
+\midrule
+B0: Classification-only & 0.991000 & 0.992300 & - & - & - & 0.074800 & - \\
+B1: Segmentation-only & - & - & - & 0.879900 & 0.815700 & - & - \\
+B2: Joint Classification + Segmentation & 0.994000 & 0.994700 & 0.999200 & 0.878600 & 0.813900 & 0.075600 & 0.00% \\
+B3: Joint + Plane Awareness & 0.995000 & 0.995600 & 0.999000 & 0.877000 & 0.812900 & 0.074100 & 0.00% \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,64 @@
+# Multi-View Fusion Network — Default Configuration
+# All hyperparameters in one place
+
+data:
+  root: "d:/Research/Multi-View Fusion Network/datasets/brisc2025"
+  img_size: 224
+  num_workers: 4
+
+model:
+  feat_dim: 256
+  fusion: "cross_attn"        # cross_attn | concat | gated
+  pretrained: true
+  separate_encoders: false    # set true for separate encoder ablation
+
+training:
+  epochs: 50
+  warmup_epochs: 5            # seg decoder warmup epochs
+  lr_warmup_epochs: 3         # LR cosine warmup epochs
+  batch_size: 8               # safe for RTX 5060 8GB with 3x224x224 inputs
+  lr: 1.0e-4
+  weight_decay: 1.0e-4
+  grad_clip: 1.0
+  seed: 42
+  phase: "both"               # warmup -> joint training
+
+loss:
+  lambda_cls: 1.0
+  lambda_seg: 0.5
+  lambda_cons: 0.1
+  label_smoothing: 0.1
+  dice_weight: 0.5
+  focal_weight: 0.5
+  focal_alpha: 0.75
+  focal_gamma: 2.0
+
+output:
+  exp_dir: "d:/Research/experiments/mvfn"
+
+# Ablation experiment configurations
+ablations:
+  - name: "baseline_axial"
+    single_view: true
+    plane: "axial"
+
+  - name: "baseline_sagittal"
+    single_view: true
+    plane: "sagittal"
+
+  - name: "baseline_coronal"
+    single_view: true
+    plane: "coronal"
+
+  - name: "mvfn_concat"
+    fusion: "concat"
+
+  - name: "mvfn_gated"
+    fusion: "gated"
+
+  - name: "mvfn_cross_attn"
+    fusion: "cross_attn"
+
+  - name: "mvfn_separate_enc"
+    fusion: "cross_attn"
+    separate_encoders: true
