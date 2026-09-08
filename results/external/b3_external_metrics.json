@@ -1,0 +1,98 @@
+{
+  "pmram": {
+    "B2": {
+      "accuracy": 0.9205673758865248,
+      "macro_f1": 0.9204052043412139,
+      "macro_auc": 0.973028068978249,
+      "ece": 0.036977153509221206
+    },
+    "B3_zero_plane": {
+      "accuracy": 0.9241134751773049,
+      "macro_f1": 0.9229108652528425,
+      "macro_auc": 0.9736451836363849,
+      "ece": 0.044943363721489105
+    },
+    "B3_mean_plane": {
+      "accuracy": 0.9234042553191489,
+      "macro_f1": 0.9221383595528913,
+      "macro_auc": 0.9738221418024036,
+      "ece": 0.04395195586038821
+    }
+  },
+  "ajbds": {
+    "B2": {
+      "0.5": {
+        "all_slice_dice": 0.5954176423615829,
+        "tumor_slice_dice": 0.3647556517150874,
+        "empty_mask_fp_rate": 32.43016759776536,
+        "empty_mask_fp_count": 1161,
+        "empty_mask_total": 3580
+      },
+      "0.6": {
+        "all_slice_dice": 0.5968411368979533,
+        "tumor_slice_dice": 0.36384857678131843,
+        "empty_mask_fp_rate": 32.20670391061453,
+        "empty_mask_fp_count": 1153,
+        "empty_mask_total": 3580
+      },
+      "0.7": {
+        "all_slice_dice": 0.5986159932351295,
+        "tumor_slice_dice": 0.3626972579074917,
+        "empty_mask_fp_rate": 31.927374301675975,
+        "empty_mask_fp_count": 1143,
+        "empty_mask_total": 3580
+      },
+      "0.8": {
+        "all_slice_dice": 0.6054532547138816,
+        "tumor_slice_dice": 0.36108941191748983,
+        "empty_mask_fp_rate": 30.949720670391063,
+        "empty_mask_fp_count": 1108,
+        "empty_mask_total": 3580
+      },
+      "0.85": {
+        "all_slice_dice": 0.6076197906988468,
+        "tumor_slice_dice": 0.3598500079555652,
+        "empty_mask_fp_rate": 30.614525139664806,
+        "empty_mask_fp_count": 1096,
+        "empty_mask_total": 3580
+      }
+    },
+    "B3_mean_plane": {
+      "0.5": {
+        "all_slice_dice": 0.5714677146285824,
+        "tumor_slice_dice": 0.3835499123575751,
+        "empty_mask_fp_rate": 36.312849162011176,
+        "empty_mask_fp_count": 1300,
+        "empty_mask_total": 3580
+      },
+      "0.6": {
+        "all_slice_dice": 0.5733879315364337,
+        "tumor_slice_dice": 0.3829616032061229,
+        "empty_mask_fp_rate": 36.03351955307262,
+        "empty_mask_fp_count": 1290,
+        "empty_mask_total": 3580
+      },
+      "0.7": {
+        "all_slice_dice": 0.5760857448355472,
+        "tumor_slice_dice": 0.38217480303077944,
+        "empty_mask_fp_rate": 35.64245810055866,
+        "empty_mask_fp_count": 1276,
+        "empty_mask_total": 3580
+      },
+      "0.8": {
+        "all_slice_dice": 0.5801072809160299,
+        "tumor_slice_dice": 0.3808970607550245,
+        "empty_mask_fp_rate": 35.05586592178771,
+        "empty_mask_fp_count": 1255,
+        "empty_mask_total": 3580
+      },
+      "0.85": {
+        "all_slice_dice": 0.5829618635223565,
+        "tumor_slice_dice": 0.3799148903361896,
+        "empty_mask_fp_rate": 34.63687150837989,
+        "empty_mask_fp_count": 1240,
+        "empty_mask_total": 3580
+      }
+    }
+  }
+}
