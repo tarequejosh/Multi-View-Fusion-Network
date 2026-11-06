@@ -68,6 +68,14 @@ def seed_everything(seed: int = 42):
 # DataLoaders
 # ─────────────────────────────────────────────────────────────────────────────
 
+def load_exclusions(path):
+    """Read one filename stem per line; None if no exclusion list is given."""
+    if not path:
+        return None
+    with open(path, encoding="utf-8") as f:
+        return {line.strip() for line in f if line.strip()}
+
+
 def build_dataloaders(args) -> dict:
     root = args.data_root
     bs   = args.batch_size
@@ -78,6 +86,7 @@ def build_dataloaders(args) -> dict:
         val_ratio=args.val_ratio,
         seed=args.seed,
         plane=args.plane,
+        exclude_stems=load_exclusions(args.exclude_list),
     )
 
     return {
@@ -127,7 +136,8 @@ def train_warmup(model: PAUMTNet, args, writer, exp_dir: Path):
     seg_loss  = BinaryDiceFocalLoss().to(device)
     scaler    = GradScaler("cuda")
 
-    seg_train = BriscSegDataset(args.data_root, split="train")
+    seg_train = BriscSegDataset(args.data_root, split="train",
+                                exclude_stems=load_exclusions(args.exclude_list))
     warmup_loader = DataLoader(seg_train, args.batch_size, shuffle=True,
                                num_workers=args.num_workers, pin_memory=True,
                                drop_last=True)
@@ -517,6 +527,8 @@ def parse_args():
                    help="Comma-separated seeds (e.g., 42,123,456)")
     p.add_argument("--seed",     type=int, default=42)
     p.add_argument("--dry_run",  action="store_true")
+    p.add_argument("--exclude_list", default=None,
+                   help="Text file of development-image stems to exclude (leakage-free split)")
 
     args = p.parse_args()
 

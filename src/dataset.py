@@ -246,9 +246,10 @@ class BriscSegDataset(Dataset):
     decoder. Uses all annotated segmentation images independently.
     """
 
-    def __init__(self, root_dir: str, split: str = "train"):
+    def __init__(self, root_dir: str, split: str = "train", exclude_stems: Optional[set] = None):
         self.transform = JointTransform(split)
         df = load_manifest(root_dir)
+        exclude_stems = exclude_stems or set()
 
         seg_imgs  = df[(df["split"] == split) & (df["task"] == "segmentation") & (~df["is_mask"])]
         seg_masks = df[(df["split"] == split) & (df["task"] == "segmentation") & (df["is_mask"])]
@@ -260,7 +261,7 @@ class BriscSegDataset(Dataset):
         self.records = []
         for _, row in seg_imgs.iterrows():
             stem = os.path.splitext(row["filename"])[0]
-            if stem in mask_lookup:
+            if stem in mask_lookup and stem not in exclude_stems:
                 plane = row["plane_label"].lower()
                 self.records.append({
                     "img_path":    row["abs_path"],
@@ -312,6 +313,7 @@ def build_datasets(
     val_ratio: float = 0.2,
     seed: int = 42,
     plane: Optional[str] = None,
+    exclude_stems: Optional[set] = None,
 ) -> dict:
     """
     Build train/val/test datasets from BRISC2025.
@@ -321,6 +323,8 @@ def build_datasets(
         val_ratio: fraction of official train to hold out for validation
         seed: random seed for reproducible splits
         plane: if specified, only include images from this plane (for per-plane ablation)
+        exclude_stems: filename stems of development images to drop before the
+            train/val split (leakage-free split); the test set is never filtered
 
     Returns:
         dict with keys: train_ds, val_ds, test_ds, class_weights, train_records, val_records, test_records
@@ -330,6 +334,11 @@ def build_datasets(
     # Build all records
     train_all = build_records(df, split="train")
     test_recs = build_records(df, split="test")
+    if exclude_stems:
+        n_before = len(train_all)
+        train_all = [r for r in train_all
+                     if os.path.splitext(os.path.basename(r["abs_path"]))[0] not in exclude_stems]
+        print(f"[dataset] Excluded {n_before - len(train_all)} development images (leakage-free split)")
 
     # Filter by plane if specified
     if plane is not None:

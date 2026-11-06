@@ -23,7 +23,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-from scipy.ndimage import distance_transform_edt
+from scipy.ndimage import distance_transform_edt, binary_erosion
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent))
@@ -46,16 +46,22 @@ def iou_score(pred_bin: np.ndarray, gt_mask: np.ndarray, smooth: float = 1.0) ->
     return (intersection + smooth) / (union + smooth)
 
 def segmentation_stats(pred_bin: np.ndarray, gt_mask: np.ndarray):
-    """Returns (sensitivity, specificity, precision) for binary masks."""
+    """Returns (sensitivity, specificity, precision) for binary masks.
+
+    Undefined ratios (0/0) are returned as NaN rather than 0, so that healthy
+    slices (no GT foreground) do not drag down slice-averaged sensitivity, and
+    slices with no predicted foreground do not drag down precision. Callers
+    must aggregate with np.nanmean.
+    """
     pred = pred_bin.flatten().astype(bool)
     gt = gt_mask.flatten().astype(bool)
     TP = (pred & gt).sum()
     TN = (~pred & ~gt).sum()
     FP = (pred & ~gt).sum()
     FN = (~pred & gt).sum()
-    sensitivity = TP / (TP + FN + 1e-8)
-    specificity = TN / (TN + FP + 1e-8)
-    precision   = TP / (TP + FP + 1e-8)
+    sensitivity = TP / (TP + FN) if (TP + FN) > 0 else np.nan
+    specificity = TN / (TN + FP) if (TN + FP) > 0 else np.nan
+    precision   = TP / (TP + FP) if (TP + FP) > 0 else np.nan
     return float(sensitivity), float(specificity), float(precision)
 
 def compute_hd95(pred_bin: np.ndarray, gt_mask: np.ndarray) -> float:
@@ -80,24 +86,18 @@ def compute_hd95(pred_bin: np.ndarray, gt_mask: np.ndarray) -> float:
     if pred_empty or gt_empty:
         return np.nan  # Pathological case — exclude from mean
 
-    # Distance transform from each boundary
-    pred_dt = distance_transform_edt(~pred)
-    gt_dt   = distance_transform_edt(~gt)
+    # Boundary pixels: foreground pixels with at least one 8-connected background
+    # neighbour (image border counts as background).
+    struct = np.ones((3, 3), dtype=bool)
+    pred_surface = pred & ~binary_erosion(pred, structure=struct, border_value=0)
+    gt_surface   = gt   & ~binary_erosion(gt,   structure=struct, border_value=0)
 
-    # Surface distances from pred → gt and gt → pred
-    pred_surface = pred & (pred_dt == 0)  # boundary pixels of pred
-    gt_surface   = gt   & (gt_dt   == 0)
-
-    # Recompute distance transforms for directed surface distances
-    dist_from_gt   = distance_transform_edt(~gt)
-    dist_from_pred = distance_transform_edt(~pred)
-
-    # Directed distances: for each pred boundary pixel, distance to nearest gt boundary
-    # and vice versa
-    dist_pred_to_gt = dist_from_gt[pred]
-    dist_gt_to_pred = dist_from_pred[gt]
-
-    all_distances = np.concatenate([dist_pred_to_gt, dist_gt_to_pred])
+    # Directed surface distances pred→gt and gt→pred, pooled before taking the
+    # 95th percentile (medpy / MONAI convention). Distances are in pixels.
+    dist_to_gt_surface   = distance_transform_edt(~gt_surface)
+    dist_to_pred_surface = distance_transform_edt(~pred_surface)
+    all_distances = np.concatenate([dist_to_gt_surface[pred_surface],
+                                    dist_to_pred_surface[gt_surface]])
     return float(np.percentile(all_distances, 95))
 
 
@@ -357,9 +357,9 @@ def analyze(ckpt_path, data_root, out_dir, use_mc_dropout=False, mc_samples=10,
 
     mean_dice = float(np.mean(all_dice)) if all_dice else 0.0
     mean_iou  = float(np.mean(all_iou))  if all_iou  else 0.0
-    mean_sens = float(np.mean(all_sens)) if all_sens else 0.0
-    mean_spec = float(np.mean(all_spec)) if all_spec else 0.0
-    mean_prec_seg = float(np.mean(all_prec_seg)) if all_prec_seg else 0.0
+    mean_sens = float(np.nanmean(all_sens)) if all_sens else 0.0
+    mean_spec = float(np.nanmean(all_spec)) if all_spec else 0.0
+    mean_prec_seg = float(np.nanmean(all_prec_seg)) if all_prec_seg else 0.0
     mean_hd95 = float(np.mean(all_hd95)) if all_hd95 else float("nan")
 
     print(f"Seed:               {saved_seed}")
