@@ -1,0 +1,13 @@
+{
+  "n_development_images": 5000,
+  "excluded_matched_to_test": 394,
+  "excluded_internal_duplicate_copies": 38,
+  "excluded_total": 425,
+  "remaining": 4575,
+  "excluded_by_class": {
+    "meningioma": 174,
+    "pituitary": 174,
+    "glioma": 67,
+    "no_tumor": 10
+  }
+}

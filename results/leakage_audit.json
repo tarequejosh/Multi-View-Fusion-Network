@@ -1,0 +1,27 @@
+{
+  "n_train_files": 5000,
+  "n_test_files": 1000,
+  "test_with_exact_md5_match_in_train": 7,
+  "max_hamming": 4,
+  "test_with_phash_candidate_in_train": 321,
+  "phash_candidate_pairs": 435,
+  "phash_candidate_hamming_histogram": {
+    "0": 128,
+    "2": 84,
+    "4": 223
+  },
+  "ncc_duplicate_threshold": 0.98,
+  "random_pair_ncc": {
+    "n": 1000,
+    "mean": 0.39487424732186643,
+    "p99": 0.6589629788921734,
+    "max": 0.8633146700479014
+  },
+  "test_near_identical_to_train": 104,
+  "near_identical_by_class": {
+    "meningioma": 99,
+    "pituitary": 5
+  },
+  "near_identical_pairs_label_mismatch": 0,
+  "within_train_exact_duplicate_files": 73
+}

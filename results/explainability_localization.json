@@ -1,0 +1,15 @@
+{
+  "model": "B3_seed42",
+  "method": "LayerCAM (encoder layer3 + projected layer4), classification logit of reference class",
+  "n_slices": 856,
+  "energy_in_mask_mean": 0.07755162566900253,
+  "energy_in_mask_median": 0.049044713377952576,
+  "mask_area_fraction_mean": 0.019081804012492848,
+  "energy_ratio_over_uniform_median": 3.8045005312609024,
+  "pointing_game_hit_rate": 0.5899532710280374,
+  "per_class_pointing_game": {
+    "glioma": 0.5396825396825397,
+    "meningioma": 0.921311475409836,
+    "pituitary": 0.29431438127090304
+  }
+}

@@ -1,488 +1,3053 @@
 {
-  "mcnemar_classification": {
-    "seed42": {
-      "contingency_table": {
-        "both_correct": 991,
-        "b2_correct_b3_wrong": 3,
-        "b2_wrong_b3_correct": 2,
-        "both_wrong": 4
-      },
-      "statistic": 3.0,
-      "p_value": 1.0,
-      "discordant_pairs": 5
+  "settings": {
+    "n_bootstrap": 2000,
+    "rng_seed": 2026,
+    "ece_bins": 15,
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "equivalence_margins": {
+      "dice_tumor": 0.01,
+      "accuracy": 0.005
     },
-    "seed43": {
-      "contingency_table": {
-        "both_correct": 991,
-        "b2_correct_b3_wrong": 3,
-        "b2_wrong_b3_correct": 3,
-        "both_wrong": 3
-      },
-      "statistic": 3.0,
-      "p_value": 1.0,
-      "discordant_pairs": 6
-    },
-    "seed44": {
-      "contingency_table": {
-        "both_correct": 989,
-        "b2_correct_b3_wrong": 5,
-        "b2_wrong_b3_correct": 3,
-        "both_wrong": 3
-      },
-      "statistic": 5.0,
-      "p_value": 0.7265625,
-      "discordant_pairs": 8
-    },
-    "ensemble": {
-      "contingency_table": {
-        "both_correct": 992,
-        "b2_correct_b3_wrong": 2,
-        "b2_wrong_b3_correct": 3,
-        "both_wrong": 3
-      },
-      "statistic": 2.0,
-      "p_value": 1.0,
-      "discordant_pairs": 5
-    }
+    "plan": "reports/revision2_analysis_plan.md"
   },
-  "wilcoxon_segmentation": {
-    "seed42": {
-      "dice_all_slices": {
-        "statistic": 226530.0,
-        "p_value": 0.044189459996758024,
-        "mean_diff": 0.003366906504310002,
-        "std_diff": 0.061659755288253036,
-        "median_diff": 0.0,
-        "n_improved": 448,
-        "n_degraded": 406,
-        "n_tied": 146
-      },
-      "dice_tumor_only": {
-        "statistic": 169690.0,
-        "p_value": 0.034395280602968085,
-        "mean_diff": 0.003915007563151165,
-        "std_diff": 0.06647328556949582,
-        "median_diff": 0.0005518999999999941,
-        "n_improved": 448,
-        "n_degraded": 406,
-        "n_tied": 6
-      },
-      "iou_all_slices": {
-        "statistic": 226139.0,
-        "p_value": 0.03986390557088839,
-        "mean_diff": 0.003853013418109999,
-        "std_diff": 0.06356772386095894,
-        "median_diff": 0.0,
-        "n_improved": 448,
-        "n_degraded": 406,
-        "n_tied": 146
-      },
-      "iou_tumor_only": {
-        "statistic": 169299.0,
-        "p_value": 0.030077692238674215,
-        "mean_diff": 0.004480248160593023,
-        "std_diff": 0.06852633828210528,
-        "median_diff": 0.0009601850000000023,
-        "n_improved": 448,
-        "n_degraded": 406,
-        "n_tied": 6
+  "summary": {
+    "B2_seed42": {
+      "accuracy": 0.994,
+      "f1_macro": 0.9947471823375019,
+      "auc_macro": 0.9991715055995469,
+      "brier": 0.018550250783361057,
+      "nll": 0.10009929602784923,
+      "ece": 0.07559695217013365,
+      "ece_temperature_scaled": 0.0013344250321387597,
+      "nll_temperature_scaled": 0.03606625669136187,
+      "brier_temperature_scaled": 0.011901506990130317,
+      "dice_tumor": 0.8588279399153137,
+      "dice_all": 0.8785920283271699,
+      "iou_tumor": 0.7835560257913448,
+      "sensitivity_tumor": 0.8737923068034039,
+      "precision_tumor": 0.8766832692242179,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.914707993872961,
+      "missed_tumor_slices": 5,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7568680988693441,
+        "meningioma": 0.934642429591394,
+        "pituitary": 0.8678231591979663
       }
     },
-    "seed43": {
-      "dice_all_slices": {
-        "statistic": 240081.0,
-        "p_value": 0.609706600487645,
-        "mean_diff": 0.0006967541018900028,
-        "std_diff": 0.07474928253116742,
-        "median_diff": 0.0,
-        "n_improved": 433,
-        "n_degraded": 419,
-        "n_tied": 148
-      },
-      "dice_tumor_only": {
-        "statistic": 181421.0,
-        "p_value": 0.6139272609153722,
-        "mean_diff": 0.00081017918824419,
-        "std_diff": 0.08060365426485931,
-        "median_diff": 9.603769999999004e-05,
-        "n_improved": 433,
-        "n_degraded": 419,
-        "n_tied": 8
-      },
-      "iou_all_slices": {
-        "statistic": 239818.0,
-        "p_value": 0.589660476839664,
-        "mean_diff": 0.0013936590138899985,
-        "std_diff": 0.07805089651271127,
-        "median_diff": 0.0,
-        "n_improved": 433,
-        "n_degraded": 419,
-        "n_tied": 148
-      },
-      "iou_tumor_only": {
-        "statistic": 181158.0,
-        "p_value": 0.5888051724278404,
-        "mean_diff": 0.0016205337370813933,
-        "std_diff": 0.08416226202605882,
-        "median_diff": 0.0001198676999999925,
-        "n_improved": 433,
-        "n_degraded": 419,
-        "n_tied": 8
+    "B2_seed43": {
+      "accuracy": 0.994,
+      "f1_macro": 0.9946581254673212,
+      "auc_macro": 0.9989199822330614,
+      "brier": 0.018685428720337682,
+      "nll": 0.09976418234626931,
+      "ece": 0.07429226481914515,
+      "ece_temperature_scaled": 0.0009841722846031372,
+      "nll_temperature_scaled": 0.03919545317229848,
+      "brier_temperature_scaled": 0.01207340200568331,
+      "dice_tumor": 0.863496075697625,
+      "dice_all": 0.8826066250999575,
+      "iou_tumor": 0.7898112737522921,
+      "sensitivity_tumor": 0.8769393412083144,
+      "precision_tumor": 0.8791064532361927,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.272924856174937,
+      "missed_tumor_slices": 5,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7596786799192095,
+        "meningioma": 0.9385577834704343,
+        "pituitary": 0.8748318621950845
       }
     },
-    "seed44": {
-      "dice_all_slices": {
-        "statistic": 239371.0,
-        "p_value": 0.5617871419667007,
-        "mean_diff": -0.001865514576929998,
-        "std_diff": 0.0865817274756749,
-        "median_diff": 0.0,
-        "n_improved": 407,
-        "n_degraded": 444,
-        "n_tied": 149
-      },
-      "dice_tumor_only": {
-        "statistic": 182391.0,
-        "p_value": 0.710831065309601,
-        "mean_diff": -0.0021692029964302303,
-        "std_diff": 0.09335994981601882,
-        "median_diff": -0.0003561999999999732,
-        "n_improved": 407,
-        "n_degraded": 444,
-        "n_tied": 9
-      },
-      "iou_all_slices": {
-        "statistic": 238820.0,
-        "p_value": 0.5217801946161282,
-        "mean_diff": -0.0013329816819299997,
-        "std_diff": 0.08408176048394782,
-        "median_diff": 0.0,
-        "n_improved": 407,
-        "n_degraded": 444,
-        "n_tied": 149
-      },
-      "iou_tumor_only": {
-        "statistic": 181840.0,
-        "p_value": 0.6553396616748548,
-        "mean_diff": -0.0015499786999186044,
-        "std_diff": 0.09066583926981511,
-        "median_diff": -0.0006352749999999907,
-        "n_improved": 407,
-        "n_degraded": 444,
-        "n_tied": 9
+    "B2_seed44": {
+      "accuracy": 0.997,
+      "f1_macro": 0.9973722787454453,
+      "auc_macro": 0.9990095320176796,
+      "brier": 0.014067783623107623,
+      "nll": 0.09275590522992459,
+      "ece": 0.07809628272056582,
+      "ece_temperature_scaled": 0.001575490772724182,
+      "nll_temperature_scaled": 0.022586065475127388,
+      "brier_temperature_scaled": 0.0061809336853610175,
+      "dice_tumor": 0.8591483792808884,
+      "dice_all": 0.878867606181564,
+      "iou_tumor": 0.7849164596952696,
+      "sensitivity_tumor": 0.8766048552618678,
+      "precision_tumor": 0.871526509097331,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.286571848572281,
+      "missed_tumor_slices": 5,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7527037761720698,
+        "meningioma": 0.9361927656858575,
+        "pituitary": 0.8706862024466197
       }
     },
-    "ensemble": {
-      "dice_all_slices": {
-        "statistic": 244665.0,
-        "p_value": 0.9493497386139039,
-        "mean_diff": 0.000732715343089997,
-        "std_diff": 0.062276143068379475,
-        "median_diff": 0.0,
-        "n_improved": 428,
-        "n_degraded": 431,
-        "n_tied": 141
-      },
-      "dice_tumor_only": {
-        "statistic": 184325.0,
-        "p_value": 0.9137205147325494,
-        "mean_diff": 0.0008519945849883689,
-        "std_diff": 0.06715333545321048,
-        "median_diff": -5.849510000050537e-06,
-        "n_improved": 428,
-        "n_degraded": 431,
-        "n_tied": 1
-      },
-      "iou_all_slices": {
-        "statistic": 243320.0,
-        "p_value": 0.8329192468237256,
-        "mean_diff": 0.0013045635833566682,
-        "std_diff": 0.0628989285079407,
-        "median_diff": 0.0,
-        "n_improved": 429,
-        "n_degraded": 430,
-        "n_tied": 141
-      },
-      "iou_tumor_only": {
-        "statistic": 183120.0,
-        "p_value": 0.7843037325913216,
-        "mean_diff": 0.0015169343992519396,
-        "std_diff": 0.0678232840259399,
-        "median_diff": -2.6761766666666604e-06,
-        "n_improved": 429,
-        "n_degraded": 430,
-        "n_tied": 1
-      }
-    }
-  },
-  "stratified_analysis": {
-    "planes": {
-      "axial": {
-        "all_slices": {
-          "statistic": 37381.0,
-          "p_value": 0.4771889922886958,
-          "mean_diff": 0.0036508589747654917,
-          "std_diff": 0.04510007004745687,
-          "median_diff": 0.0,
-          "n_improved": 177,
-          "n_degraded": 169,
-          "n_tied": 52
-        },
-        "tumor_only": {
-          "statistic": 28593.0,
-          "p_value": 0.4448723445842019,
-          "mean_diff": 0.004199542982533716,
-          "std_diff": 0.04834668975164521,
-          "median_diff": 0.00013801833333332292,
-          "n_improved": 177,
-          "n_degraded": 169,
-          "n_tied": 0
-        },
-        "b2_mean_dice": 0.8660419747931909,
-        "b3_mean_dice": 0.8696928337679564
-      },
-      "sagittal": {
-        "all_slices": {
-          "statistic": 20688.0,
-          "p_value": 0.4869261909289272,
-          "mean_diff": 0.0012564719058361373,
-          "std_diff": 0.0798893373624599,
-          "median_diff": 0.0,
-          "n_improved": 123,
-          "n_degraded": 134,
-          "n_tied": 40
-        },
-        "tumor_only": {
-          "statistic": 15768.0,
-          "p_value": 0.49789450141697045,
-          "mean_diff": 0.0014520317355382615,
-          "std_diff": 0.08588001699747279,
-          "median_diff": -0.0003114499999999909,
-          "n_improved": 123,
-          "n_degraded": 134,
-          "n_tied": 0
-        },
-        "b2_mean_dice": 0.8914070279272728,
-        "b3_mean_dice": 0.8926634998331089
-      },
-      "coronal": {
-        "all_slices": {
-          "statistic": 22714.0,
-          "p_value": 0.9968876374373019,
-          "mean_diff": -0.0035852415898360705,
-          "std_diff": 0.0617790148392711,
-          "median_diff": 0.0,
-          "n_improved": 128,
-          "n_degraded": 128,
-          "n_tied": 49
-        },
-        "tumor_only": {
-          "statistic": 16570.0,
-          "p_value": 0.9959865753817269,
-          "mean_diff": -0.0042548586961089555,
-          "std_diff": 0.06728026665617318,
-          "median_diff": 0.0,
-          "n_improved": 128,
-          "n_degraded": 128,
-          "n_tied": 1
-        },
-        "b2_mean_dice": 0.8825039142914753,
-        "b3_mean_dice": 0.8789186727016394
+    "B2_seed45": {
+      "accuracy": 0.991,
+      "f1_macro": 0.992181762147111,
+      "auc_macro": 0.9978958577170391,
+      "brier": 0.02319937122041403,
+      "nll": 0.1073371238314629,
+      "ece": 0.0736413919329643,
+      "ece_temperature_scaled": 0.004833407282829328,
+      "nll_temperature_scaled": 0.05236805144712595,
+      "brier_temperature_scaled": 0.017858410029134696,
+      "dice_tumor": 0.859292317703461,
+      "dice_all": 0.8789913932249764,
+      "iou_tumor": 0.7856340892804478,
+      "sensitivity_tumor": 0.8755644958819332,
+      "precision_tumor": 0.8735431139235543,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.044399615153633,
+      "missed_tumor_slices": 6,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7579282502202395,
+        "meningioma": 0.9371342603862894,
+        "pituitary": 0.8657151133027704
       }
     },
-    "classes": {
-      "glioma": {
-        "dice": {
-          "statistic": 15609.0,
-          "p_value": 0.6188887603601714,
-          "mean_diff": -0.00024075798253280403,
-          "std_diff": 0.09849070251398698,
-          "median_diff": -3.266771666666677e-05,
-          "n_improved": 123,
-          "n_degraded": 130,
-          "n_tied": 1
-        },
-        "b2_mean_dice": 0.7568539118936614,
-        "b3_mean_dice": 0.7566131539111287,
-        "b2_acc": 0.9921259842519685,
-        "b3_acc": 0.9921259842519685
-      },
-      "meningioma": {
-        "dice": {
-          "statistic": 22473.0,
-          "p_value": 0.5133419201996122,
-          "mean_diff": 0.002084549882309361,
-          "std_diff": 0.05584653894625348,
-          "median_diff": 5.4528333333303536e-05,
-          "n_improved": 156,
-          "n_degraded": 150,
-          "n_tied": 0
-        },
-        "b2_mean_dice": 0.934636453888889,
-        "b3_mean_dice": 0.9367210037711982,
-        "b2_acc": 0.9901960784313726,
-        "b3_acc": 0.9934640522875817
-      },
-      "pituitary": {
-        "dice": {
-          "statistic": 22045.0,
-          "p_value": 0.724499066831789,
-          "mean_diff": 0.0005199853555555512,
-          "std_diff": 0.03912200015321927,
-          "median_diff": -0.0001805899999999805,
-          "n_improved": 149,
-          "n_degraded": 151,
-          "n_tied": 0
-        },
-        "b2_mean_dice": 0.8678554620333333,
-        "b3_mean_dice": 0.8683754473888888,
-        "b2_acc": 0.9966666666666667,
-        "b3_acc": 0.9966666666666667
-      },
-      "no_tumor": {
-        "dice": {
-          "statistic": 0.0,
-          "p_value": 1.0,
-          "mean_diff": 0.0,
-          "median_diff": 0.0
-        },
-        "b2_mean_dice": 1.0,
-        "b3_mean_dice": 1.0,
-        "b2_acc": 1.0,
-        "b3_acc": 1.0
+    "B2_seed46": {
+      "accuracy": 0.994,
+      "f1_macro": 0.9946556452747588,
+      "auc_macro": 0.9993408783991187,
+      "brier": 0.017240552589746563,
+      "nll": 0.09511284381475392,
+      "ece": 0.07270069605112074,
+      "ece_temperature_scaled": 0.002363448381423912,
+      "nll_temperature_scaled": 0.03253124444221838,
+      "brier_temperature_scaled": 0.01119564335062822,
+      "dice_tumor": 0.8624779189308038,
+      "dice_all": 0.8817310102804913,
+      "iou_tumor": 0.7878109961151833,
+      "sensitivity_tumor": 0.8763046499223843,
+      "precision_tumor": 0.878693876015631,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.979074825339636,
+      "missed_tumor_slices": 6,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7618121762618361,
+        "meningioma": 0.9400239239136378,
+        "pituitary": 0.8686113226413726
       }
-    }
-  },
-  "bootstrap_cis": {
-    "B2": {
-      "accuracy": {
-        "mean": 0.9939159999999999,
-        "std": 0.0024857481771088583,
-        "ci_lower": 0.988,
-        "ci_upper": 0.998
+    },
+    "B2_ensemble": {
+      "accuracy": 0.996,
+      "f1_macro": 0.9964638856981057,
+      "auc_macro": 0.9993532447552783,
+      "brier": 0.01423876911171602,
+      "nll": 0.0910799875624239,
+      "ece": 0.07957626622915269,
+      "ece_temperature_scaled": 0.005734663724899296,
+      "nll_temperature_scaled": 0.018371385538579834,
+      "brier_temperature_scaled": 0.006358584151407733,
+      "dice_tumor": 0.8650871073735775,
+      "dice_all": 0.8839749123412767,
+      "iou_tumor": 0.7922001432709337,
+      "sensitivity_tumor": 0.8782799368006804,
+      "precision_tumor": 0.8821587227267543,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.73389701681896,
+      "missed_tumor_slices": 7,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7644113529692166,
+        "meningioma": 0.9397262505261726,
+        "pituitary": 0.8741939867536227
       },
-      "dice_all": {
-        "mean": 0.8784993037878128,
-        "std": 0.005326323800219749,
-        "ci_lower": 0.8678039903028738,
-        "ci_upper": 0.888771733236554
-      },
-      "dice_tumor_only": {
-        "mean": 0.8590580694728308,
-        "std": 0.006157587125040716,
-        "ci_lower": 0.8473591475631296,
-        "ci_upper": 0.8705532693197646
-      },
-      "iou_all": {
-        "mean": 0.8137498139535478,
-        "std": 0.006235101141145997,
-        "ci_lower": 0.8009407245529369,
-        "ci_upper": 0.8255020361865739
+      "ci95": {
+        "accuracy": [
+          0.992,
+          0.999
+        ],
+        "dice_tumor": [
+          0.8527563163767322,
+          0.8757534290607771
+        ]
       }
     },
     "B3_seed42": {
-      "accuracy": {
-        "mean": 0.9929739999999999,
-        "std": 0.002674195953927089,
-        "ci_lower": 0.987,
-        "ci_upper": 0.998
-      },
-      "dice_all": {
-        "mean": 0.8818779417358946,
-        "std": 0.005205415933323827,
-        "ci_lower": 0.8719223846151499,
-        "ci_upper": 0.8918860012331276
-      },
-      "dice_tumor_only": {
-        "mean": 0.8628926609437795,
-        "std": 0.006029471824160502,
-        "ci_lower": 0.851038180238314,
-        "ci_upper": 0.8744965705501831
-      },
-      "iou_all": {
-        "mean": 0.817600392267824,
-        "std": 0.006080956160466861,
-        "ci_lower": 0.8056293662318974,
-        "ci_upper": 0.829756507895185
+      "accuracy": 0.993,
+      "f1_macro": 0.9939245968535975,
+      "auc_macro": 0.9991001547345567,
+      "brier": 0.019971490183521755,
+      "nll": 0.10303939841931628,
+      "ece": 0.07396777325868609,
+      "ece_temperature_scaled": 0.002137172162532862,
+      "nll_temperature_scaled": 0.041040699049788645,
+      "brier_temperature_scaled": 0.013272225867727548,
+      "dice_tumor": 0.8627478991354934,
+      "dice_all": 0.8819631932565244,
+      "iou_tumor": 0.7880406610555352,
+      "sensitivity_tumor": 0.8850672330285881,
+      "precision_tumor": 0.8698634939448802,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.0028044754377134,
+      "missed_tumor_slices": 4,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7661028063941314,
+        "meningioma": 0.9383988020077251,
+        "pituitary": 0.8674101567268372
       }
     },
     "B3_seed43": {
-      "accuracy": {
-        "mean": 0.993961,
-        "std": 0.002388614451936522,
-        "ci_lower": 0.989,
-        "ci_upper": 0.998
-      },
-      "dice_all": {
-        "mean": 0.8792097833217417,
-        "std": 0.00532624607522707,
-        "ci_lower": 0.868556570417352,
-        "ci_upper": 0.889019926998685
-      },
-      "dice_tumor_only": {
-        "mean": 0.85969827188509,
-        "std": 0.006194046327187395,
-        "ci_lower": 0.8478114730107529,
-        "ci_upper": 0.8713980527960233
-      },
-      "iou_all": {
-        "mean": 0.8151445078403167,
-        "std": 0.006130107540167895,
-        "ci_lower": 0.8030281973763734,
-        "ci_upper": 0.8271463580959095
+      "accuracy": 0.994,
+      "f1_macro": 0.9948137539771537,
+      "auc_macro": 0.9994083227710973,
+      "brier": 0.01925051319673306,
+      "nll": 0.10043945969298766,
+      "ece": 0.07265870475769041,
+      "ece_temperature_scaled": 0.004779915153980201,
+      "nll_temperature_scaled": 0.0396510954944988,
+      "brier_temperature_scaled": 0.01234423377663863,
+      "dice_tumor": 0.8596430712547708,
+      "dice_all": 0.8792930412791029,
+      "iou_tumor": 0.7851809477298534,
+      "sensitivity_tumor": 0.8752824986546673,
+      "precision_tumor": 0.8760857508750841,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.020085458227568,
+      "missed_tumor_slices": 7,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7503504095669867,
+        "meningioma": 0.9406222633871377,
+        "pituitary": 0.8695787488420804
       }
     },
     "B3_seed44": {
-      "accuracy": {
-        "mean": 0.9919939999999999,
-        "std": 0.0028722750564665663,
-        "ci_lower": 0.986,
-        "ci_upper": 0.997
-      },
-      "dice_all": {
-        "mean": 0.8767483700178701,
-        "std": 0.005629872405753474,
-        "ci_lower": 0.8657517240590474,
-        "ci_upper": 0.8881870358847614
-      },
-      "dice_tumor_only": {
-        "mean": 0.8567997116910125,
-        "std": 0.006244562424818538,
-        "ci_lower": 0.8444680465892169,
-        "ci_upper": 0.8686826372745379
-      },
-      "iou_all": {
-        "mean": 0.8125355844566171,
-        "std": 0.0064804966149923015,
-        "ci_lower": 0.799838009822085,
-        "ci_upper": 0.8254055817414025
+      "accuracy": 0.992,
+      "f1_macro": 0.992620944177231,
+      "auc_macro": 0.9993807249187056,
+      "brier": 0.0219495001219247,
+      "nll": 0.10527250533346276,
+      "ece": 0.07156927132606505,
+      "ece_temperature_scaled": 0.003790816128253921,
+      "nll_temperature_scaled": 0.05038149963702939,
+      "brier_temperature_scaled": 0.015909277076570482,
+      "dice_tumor": 0.8566636894128372,
+      "dice_all": 0.87673077289504,
+      "iou_tumor": 0.7820104360030856,
+      "sensitivity_tumor": 0.8736017277452979,
+      "precision_tumor": 0.8729913059919692,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.2341799310328865,
+      "missed_tumor_slices": 8,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7533862432414541,
+        "meningioma": 0.931141947257999,
+        "pituitary": 0.8681374375025431
+      }
+    },
+    "B3_seed45": {
+      "accuracy": 0.995,
+      "f1_macro": 0.9957272505709543,
+      "auc_macro": 0.9997694074889893,
+      "brier": 0.016993797966944117,
+      "nll": 0.0972090670187124,
+      "ece": 0.07445108181238169,
+      "ece_temperature_scaled": 0.0010907483100891513,
+      "nll_temperature_scaled": 0.03271936158625461,
+      "brier_temperature_scaled": 0.009923652797922155,
+      "dice_tumor": 0.8565569898216487,
+      "dice_all": 0.8766390112466179,
+      "iou_tumor": 0.7826010109561625,
+      "sensitivity_tumor": 0.8790359373995937,
+      "precision_tumor": 0.8674344856749447,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.210647359117635,
+      "missed_tumor_slices": 8,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.750539076549375,
+        "meningioma": 0.9398191601427552,
+        "pituitary": 0.8613914093313118
+      }
+    },
+    "B3_seed46": {
+      "accuracy": 0.992,
+      "f1_macro": 0.9925513876584177,
+      "auc_macro": 0.9997104847675713,
+      "brier": 0.021333443970034095,
+      "nll": 0.1024351388200643,
+      "ece": 0.07281623387336733,
+      "ece_temperature_scaled": 0.0026698127985000167,
+      "nll_temperature_scaled": 0.04412453615844501,
+      "brier_temperature_scaled": 0.015420468419252296,
+      "dice_tumor": 0.8576514707301232,
+      "dice_all": 0.877580264827906,
+      "iou_tumor": 0.7824281282080974,
+      "sensitivity_tumor": 0.87666380376794,
+      "precision_tumor": 0.8719101838312774,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.226705227421193,
+      "missed_tumor_slices": 6,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7566457034233502,
+        "meningioma": 0.9325077196344804,
+        "pituitary": 0.866816313167413
       }
     },
     "B3_ensemble": {
+      "accuracy": 0.996,
+      "f1_macro": 0.9964746832936069,
+      "auc_macro": 0.9994699195328915,
+      "brier": 0.015359680758442696,
+      "nll": 0.09372164602621509,
+      "ece": 0.07876795402169227,
+      "ece_temperature_scaled": 0.007586103379726477,
+      "nll_temperature_scaled": 0.02403860327629081,
+      "brier_temperature_scaled": 0.007485831698749109,
+      "dice_tumor": 0.8630765433960627,
+      "dice_all": 0.8822458273206139,
+      "iou_tumor": 0.7901132991977393,
+      "sensitivity_tumor": 0.8808237741544023,
+      "precision_tumor": 0.8768012331165425,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.845027732476949,
+      "missed_tumor_slices": 7,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7588017584199607,
+        "meningioma": 0.9415636436611998,
+        "pituitary": 0.8713056857387225
+      },
+      "ci95": {
+        "accuracy": [
+          0.9919749999999999,
+          0.999
+        ],
+        "dice_tumor": [
+          0.8505260544365474,
+          0.8742705645071404
+        ]
+      }
+    },
+    "B2_dedup_seed42": {
+      "accuracy": 0.971,
+      "f1_macro": 0.9686457476249692,
+      "auc_macro": 0.9986816291926528,
+      "brier": 0.05233297671136724,
+      "nll": 0.1533370384785776,
+      "ece": 0.06335387289524078,
+      "ece_temperature_scaled": 0.024431809961795895,
+      "nll_temperature_scaled": 0.14367674693855004,
+      "brier_temperature_scaled": 0.05379335300692123,
+      "dice_tumor": 0.835021720287782,
+      "dice_all": 0.8581186794474924,
+      "iou_tumor": 0.758796324592194,
+      "sensitivity_tumor": 0.8587939121885195,
+      "precision_tumor": 0.8593619527913819,
+      "hd95_median_px": 2.8284271247461903,
+      "hd95_mean_px": 6.985962277250332,
+      "missed_tumor_slices": 17,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7255481813661204,
+        "meningioma": 0.9040732865787802,
+        "pituitary": 0.8572767189579705
+      }
+    },
+    "B2_dedup_seed43": {
+      "accuracy": 0.972,
+      "f1_macro": 0.9713251600442996,
+      "auc_macro": 0.9967413761348146,
+      "brier": 0.05200042463633507,
+      "nll": 0.16076822149701536,
+      "ece": 0.06641272267699239,
+      "ece_temperature_scaled": 0.019329511523246752,
+      "nll_temperature_scaled": 0.14057935003335922,
+      "brier_temperature_scaled": 0.05097196760735332,
+      "dice_tumor": 0.8447623159618626,
+      "dice_all": 0.8664955917272018,
+      "iou_tumor": 0.7692431562332447,
+      "sensitivity_tumor": 0.8598877543739578,
+      "precision_tumor": 0.8735614997786741,
+      "hd95_median_px": 2.44339367903601,
+      "hd95_mean_px": 6.612902196515689,
+      "missed_tumor_slices": 16,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.744622631839868,
+        "meningioma": 0.9071062265951803,
+        "pituitary": 0.8659564596725007
+      }
+    },
+    "B2_dedup_seed44": {
+      "accuracy": 0.977,
+      "f1_macro": 0.975094072382862,
+      "auc_macro": 0.9972896115425032,
+      "brier": 0.043773166417076785,
+      "nll": 0.14314744667036233,
+      "ece": 0.06803403568267818,
+      "ece_temperature_scaled": 0.018197015106678018,
+      "nll_temperature_scaled": 0.11811780436716841,
+      "brier_temperature_scaled": 0.042332351448799835,
+      "dice_tumor": 0.8484847046259918,
+      "dice_all": 0.869696845978353,
+      "iou_tumor": 0.7740260805667657,
+      "sensitivity_tumor": 0.8620015264423244,
+      "precision_tumor": 0.8780233362172586,
+      "hd95_median_px": 2.3841577643113814,
+      "hd95_mean_px": 6.10972439035731,
+      "missed_tumor_slices": 12,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7472170515674098,
+        "meningioma": 0.9121694342378569,
+        "pituitary": 0.8692662266781553
+      }
+    },
+    "B2_dedup_seed45": {
+      "accuracy": 0.977,
+      "f1_macro": 0.9761611411029247,
+      "auc_macro": 0.9936267225463737,
+      "brier": 0.046456953095520455,
+      "nll": 0.15126836136059887,
+      "ece": 0.06490447300672529,
+      "ece_temperature_scaled": 0.01640281295776367,
+      "nll_temperature_scaled": 0.1252222052959273,
+      "brier_temperature_scaled": 0.043183936956581806,
+      "dice_tumor": 0.8494092179764858,
+      "dice_all": 0.8704919274597778,
+      "iou_tumor": 0.7741669634551346,
+      "sensitivity_tumor": 0.865587683813497,
+      "precision_tumor": 0.8764437652903212,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.554002284563118,
+      "missed_tumor_slices": 15,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.752234908503615,
+        "meningioma": 0.9131828134359595,
+        "pituitary": 0.8666343992948532
+      }
+    },
+    "B2_dedup_seed46": {
+      "accuracy": 0.989,
+      "f1_macro": 0.9888842766229408,
+      "auc_macro": 0.996803561310525,
+      "brier": 0.026628787360313096,
+      "nll": 0.11409676465933571,
+      "ece": 0.06659920918941505,
+      "ece_temperature_scaled": 0.004605798482894979,
+      "nll_temperature_scaled": 0.06492985168934205,
+      "brier_temperature_scaled": 0.021245703557029635,
+      "dice_tumor": 0.8531041713986481,
+      "dice_all": 0.8736695874028374,
+      "iou_tumor": 0.7773935527272717,
+      "sensitivity_tumor": 0.8610297654831462,
+      "precision_tumor": 0.881459589637857,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.5194836675577905,
+      "missed_tumor_slices": 9,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7500815549918073,
+        "meningioma": 0.9219282910319462,
+        "pituitary": 0.8701293845971425
+      }
+    },
+    "B2_dedup_ensemble": {
+      "accuracy": 0.981,
+      "f1_macro": 0.9794842554474241,
+      "auc_macro": 0.9989481448284978,
+      "brier": 0.03390283812354139,
+      "nll": 0.12287425008673958,
+      "ece": 0.07303037682175634,
+      "ece_temperature_scaled": 0.007589986830949836,
+      "nll_temperature_scaled": 0.06599359052910804,
+      "brier_temperature_scaled": 0.028255529367262965,
+      "dice_tumor": 0.8521853721928702,
+      "dice_all": 0.8728794200858684,
+      "iou_tumor": 0.7781369557030916,
+      "sensitivity_tumor": 0.8643174687806222,
+      "precision_tumor": 0.8817340280685511,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.027925789754284,
+      "missed_tumor_slices": 15,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7527191286156546,
+        "meningioma": 0.9151598739222239,
+        "pituitary": 0.8721661333243053
+      },
+      "ci95": {
+        "accuracy": [
+          0.972,
+          0.989
+        ],
+        "dice_tumor": [
+          0.8385669508767167,
+          0.8646972637423781
+        ]
+      }
+    },
+    "B3_dedup_seed42": {
+      "accuracy": 0.982,
+      "f1_macro": 0.9821222965605334,
+      "auc_macro": 0.9990778424931062,
+      "brier": 0.03728657736940739,
+      "nll": 0.1350969180072417,
+      "ece": 0.06626266026496885,
+      "ece_temperature_scaled": 0.011896298170089694,
+      "nll_temperature_scaled": 0.09977688051437633,
+      "brier_temperature_scaled": 0.0335542658873794,
+      "dice_tumor": 0.8442644376534465,
+      "dice_all": 0.8660674163819639,
+      "iou_tumor": 0.7687553681922551,
+      "sensitivity_tumor": 0.8633715143723442,
+      "precision_tumor": 0.8691027237310471,
+      "hd95_median_px": 2.38415776431139,
+      "hd95_mean_px": 6.53395968776192,
+      "missed_tumor_slices": 17,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.750176290158429,
+        "meningioma": 0.9035317450439371,
+        "pituitary": 0.8634730823275943
+      }
+    },
+    "B3_dedup_seed43": {
+      "accuracy": 0.983,
+      "f1_macro": 0.9817661111791602,
+      "auc_macro": 0.9980827543647104,
+      "brier": 0.03726832230710283,
+      "nll": 0.13422589105457283,
+      "ece": 0.06992231541872031,
+      "ece_temperature_scaled": 0.011422328114509541,
+      "nll_temperature_scaled": 0.09466758456789133,
+      "brier_temperature_scaled": 0.03331825046937866,
+      "dice_tumor": 0.8441327688722468,
+      "dice_all": 0.8659541812301322,
+      "iou_tumor": 0.766986877637405,
+      "sensitivity_tumor": 0.8582448297697584,
+      "precision_tumor": 0.871211934330532,
+      "hd95_median_px": 2.8284271247461903,
+      "hd95_mean_px": 6.83540857930772,
+      "missed_tumor_slices": 12,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7437115150554688,
+        "meningioma": 0.9099555988013296,
+        "pituitary": 0.862016810576121
+      }
+    },
+    "B3_dedup_seed44": {
+      "accuracy": 0.973,
+      "f1_macro": 0.9712686096636323,
+      "auc_macro": 0.9928102967001851,
+      "brier": 0.05038330988954996,
+      "nll": 0.15833897912289546,
+      "ece": 0.0677362341880799,
+      "ece_temperature_scaled": 0.02174572882056239,
+      "nll_temperature_scaled": 0.14486735448155913,
+      "brier_temperature_scaled": 0.049221782550321516,
+      "dice_tumor": 0.842233866743803,
+      "dice_all": 0.8643211253996705,
+      "iou_tumor": 0.7664545408429762,
+      "sensitivity_tumor": 0.8575313769543588,
+      "precision_tumor": 0.8748461151584683,
+      "hd95_median_px": 2.591483465847627,
+      "hd95_mean_px": 6.6360794091050535,
+      "missed_tumor_slices": 18,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7416550895206284,
+        "meningioma": 0.9008295451911217,
+        "pituitary": 0.8676229727764925
+      }
+    },
+    "B3_dedup_seed45": {
+      "accuracy": 0.978,
+      "f1_macro": 0.9766269946505124,
+      "auc_macro": 0.9956711436655566,
+      "brier": 0.0463956730857051,
+      "nll": 0.15290356233831187,
+      "ece": 0.06047361522912976,
+      "ece_temperature_scaled": 0.01798996728658676,
+      "nll_temperature_scaled": 0.13374732874498857,
+      "brier_temperature_scaled": 0.04329954600011928,
+      "dice_tumor": 0.8453708568492466,
+      "dice_all": 0.867018936890352,
+      "iou_tumor": 0.7695467269396664,
+      "sensitivity_tumor": 0.864594675780334,
+      "precision_tumor": 0.8666510072612473,
+      "hd95_median_px": 2.8284271247461903,
+      "hd95_mean_px": 6.44021023131899,
+      "missed_tumor_slices": 13,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7530645655437628,
+        "meningioma": 0.9005163517008115,
+        "pituitary": 0.8672751120726268
+      }
+    },
+    "B3_dedup_seed46": {
+      "accuracy": 0.97,
+      "f1_macro": 0.9674415723718871,
+      "auc_macro": 0.996989157325691,
+      "brier": 0.05382621495654043,
+      "nll": 0.16156142695238077,
+      "ece": 0.06287463775277137,
+      "ece_temperature_scaled": 0.02283658128976822,
+      "nll_temperature_scaled": 0.1459710967568331,
+      "brier_temperature_scaled": 0.05380949868565112,
+      "dice_tumor": 0.8416172291389579,
+      "dice_all": 0.8637908170595038,
+      "iou_tumor": 0.7668118958241478,
+      "sensitivity_tumor": 0.8589151513931738,
+      "precision_tumor": 0.8691771265557041,
+      "hd95_median_px": 2.6803373379345903,
+      "hd95_mean_px": 6.542103787795113,
+      "missed_tumor_slices": 17,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.740403517041338,
+        "meningioma": 0.9051843989630297,
+        "pituitary": 0.862472992161056
+      }
+    },
+    "B3_dedup_ensemble": {
+      "accuracy": 0.983,
+      "f1_macro": 0.9814974603924778,
+      "auc_macro": 0.9984904548332094,
+      "brier": 0.035935305148311,
+      "nll": 0.12945863473597133,
+      "ece": 0.07216027817130094,
+      "ece_temperature_scaled": 0.007507191359996796,
+      "nll_temperature_scaled": 0.07499849894535268,
+      "brier_temperature_scaled": 0.029519011566205854,
+      "dice_tumor": 0.8511908855363672,
+      "dice_all": 0.8720241615612758,
+      "iou_tumor": 0.7766590816254435,
+      "sensitivity_tumor": 0.8657911853717877,
+      "precision_tumor": 0.8791599446341687,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.902761283374078,
+      "missed_tumor_slices": 17,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.753710029834325,
+        "meningioma": 0.912861309676896,
+        "pituitary": 0.8708208440740903
+      },
+      "ci95": {
+        "accuracy": [
+          0.974,
+          0.99
+        ],
+        "dice_tumor": [
+          0.8373503683847763,
+          0.863814273177981
+        ]
+      }
+    }
+  },
+  "seed_mean_sd": {
+    "B2_official": {
       "accuracy": {
-        "mean": 0.9939159999999999,
-        "std": 0.0024857481771088583,
-        "ci_lower": 0.988,
-        "ci_upper": 0.998
+        "mean": 0.994,
+        "sd": 0.0021213203435596446
+      },
+      "f1_macro": {
+        "mean": 0.9947229987944276,
+        "sd": 0.0018361575262941647
+      },
+      "auc_macro": {
+        "mean": 0.9988675511932892,
+        "sd": 0.0005664633053152942
+      },
+      "brier": {
+        "mean": 0.018348677387393392,
+        "sd": 0.0032877521174872184
+      },
+      "nll": {
+        "mean": 0.099013870250052,
+        "sd": 0.005599057978431256
+      },
+      "ece": {
+        "mean": 0.07486551753878593,
+        "sd": 0.002090836826045773
+      },
+      "ece_temperature_scaled": {
+        "mean": 0.002218188750743864,
+        "sd": 0.0015473658238154536
+      },
+      "nll_temperature_scaled": {
+        "mean": 0.03654941424562642,
+        "sd": 0.010823412627170655
+      },
+      "brier_temperature_scaled": {
+        "mean": 0.011841979212187513,
+        "sd": 0.004144868102351021
+      },
+      "dice_tumor": {
+        "mean": 0.8606485263056184,
+        "sd": 0.0021713758650873053
       },
       "dice_all": {
-        "mean": 0.8792786983585021,
-        "std": 0.005224351410550967,
-        "ci_lower": 0.8693706712580271,
-        "ci_upper": 0.8895681785799245
+        "mean": 0.8801577326228319,
+        "sd": 0.0018673832439750613
       },
-      "dice_tumor_only": {
-        "mean": 0.8597968815066274,
-        "std": 0.005958162148666795,
-        "ci_lower": 0.8479977152997543,
-        "ci_upper": 0.8710097519942823
+      "iou_tumor": {
+        "mean": 0.7863457689269076,
+        "sd": 0.00247430262747287
       },
-      "iou_all": {
-        "mean": 0.8150934948549193,
-        "std": 0.00608850693356963,
-        "ci_lower": 0.8033960959187407,
-        "ci_upper": 0.8267791728145935
+      "sensitivity_tumor": {
+        "mean": 0.8758411298155806,
+        "sd": 0.0012528365594041237
+      },
+      "precision_tumor": {
+        "mean": 0.8759106442993854,
+        "sd": 0.0032932645039436556
+      },
+      "hd95_median_px": {
+        "mean": 2.23606797749979,
+        "sd": 0.0
+      },
+      "hd95_mean_px": {
+        "mean": 6.09953582782269,
+        "sd": 0.17084964989723875
+      },
+      "missed_tumor_slices": {
+        "mean": 5.4,
+        "sd": 0.5477225575051662
+      },
+      "healthy_fp_count": {
+        "mean": 0.0,
+        "sd": 0.0
       }
+    },
+    "B3_official": {
+      "accuracy": {
+        "mean": 0.9932000000000001,
+        "sd": 0.0013038404810405309
+      },
+      "f1_macro": {
+        "mean": 0.9939275866474709,
+        "sd": 0.0013806999959312363
+      },
+      "auc_macro": {
+        "mean": 0.999473818936184,
+        "sd": 0.00027201309141514925
+      },
+      "brier": {
+        "mean": 0.01989974908783155,
+        "sd": 0.0019447471725849044
+      },
+      "nll": {
+        "mean": 0.10167911385690868,
+        "sd": 0.003035311817639403
+      },
+      "ece": {
+        "mean": 0.07309261300563812,
+        "sd": 0.0011397998324844782
+      },
+      "ece_temperature_scaled": {
+        "mean": 0.0028936929106712305,
+        "sd": 0.0014348971738801662
+      },
+      "nll_temperature_scaled": {
+        "mean": 0.041583438385203286,
+        "sd": 0.006451035424937238
+      },
+      "brier_temperature_scaled": {
+        "mean": 0.013373971587622224,
+        "sd": 0.0024285456092899825
+      },
+      "dice_tumor": {
+        "mean": 0.8586526240709746,
+        "sd": 0.0026029846076737182
+      },
+      "dice_all": {
+        "mean": 0.8784412567010383,
+        "sd": 0.0022385667625994146
+      },
+      "iou_tumor": {
+        "mean": 0.7840522367905469,
+        "sd": 0.002554126664229164
+      },
+      "sensitivity_tumor": {
+        "mean": 0.8779302401192174,
+        "sd": 0.004458409176218266
+      },
+      "precision_tumor": {
+        "mean": 0.8716570440636311,
+        "sd": 0.0032597776009846043
+      },
+      "hd95_median_px": {
+        "mean": 2.23606797749979,
+        "sd": 0.0
+      },
+      "hd95_mean_px": {
+        "mean": 6.138884490247399,
+        "sd": 0.11680602799105527
+      },
+      "missed_tumor_slices": {
+        "mean": 6.6,
+        "sd": 1.6733200530681511
+      },
+      "healthy_fp_count": {
+        "mean": 0.0,
+        "sd": 0.0
+      }
+    },
+    "B2_dedup": {
+      "accuracy": {
+        "mean": 0.9772000000000001,
+        "sd": 0.007155417527999333
+      },
+      "f1_macro": {
+        "mean": 0.9760220795555993,
+        "sd": 0.007790827531016588
+      },
+      "auc_macro": {
+        "mean": 0.996628580145374,
+        "sd": 0.0018511120499979216
+      },
+      "brier": {
+        "mean": 0.044238461644122526,
+        "sd": 0.01050009614261252
+      },
+      "nll": {
+        "mean": 0.14452356653317797,
+        "sd": 0.01812968793193476
+      },
+      "ece": {
+        "mean": 0.06586086269021033,
+        "sd": 0.0017869012921709426
+      },
+      "ece_temperature_scaled": {
+        "mean": 0.016593389606475863,
+        "sd": 0.007335486895227501
+      },
+      "nll_temperature_scaled": {
+        "mean": 0.11850519166486942,
+        "sd": 0.03176657463870123
+      },
+      "brier_temperature_scaled": {
+        "mean": 0.042305462515337164,
+        "sd": 0.012760934783522391
+      },
+      "dice_tumor": {
+        "mean": 0.846156426050154,
+        "sd": 0.006895613047857186
+      },
+      "dice_all": {
+        "mean": 0.8676945264031325,
+        "sd": 0.00593022722115721
+      },
+      "iou_tumor": {
+        "mean": 0.7707252155149222,
+        "sd": 0.00727500856550692
+      },
+      "sensitivity_tumor": {
+        "mean": 0.8614601284602891,
+        "sd": 0.0026026960414182888
+      },
+      "precision_tumor": {
+        "mean": 0.8737700287430986,
+        "sd": 0.008544076534467256
+      },
+      "hd95_median_px": {
+        "mean": 2.425622904618632,
+        "sd": 0.24297558458964702
+      },
+      "hd95_mean_px": {
+        "mean": 6.556414963248848,
+        "sd": 0.31169051638526923
+      },
+      "missed_tumor_slices": {
+        "mean": 13.8,
+        "sd": 3.271085446759225
+      },
+      "healthy_fp_count": {
+        "mean": 0.0,
+        "sd": 0.0
+      }
+    },
+    "B3_dedup": {
+      "accuracy": {
+        "mean": 0.9771999999999998,
+        "sd": 0.005630275304103704
+      },
+      "f1_macro": {
+        "mean": 0.9758451168851451,
+        "sd": 0.00645438745509036
+      },
+      "auc_macro": {
+        "mean": 0.9965262389098498,
+        "sd": 0.0024334712372150813
+      },
+      "brier": {
+        "mean": 0.04503201952166114,
+        "sd": 0.0075514998769166865
+      },
+      "nll": {
+        "mean": 0.1484253554950805,
+        "sd": 0.012943750225113496
+      },
+      "ece": {
+        "mean": 0.06545389257073403,
+        "sd": 0.003784366162423808
+      },
+      "ece_temperature_scaled": {
+        "mean": 0.01717818073630332,
+        "sd": 0.005351801392423243
+      },
+      "nll_temperature_scaled": {
+        "mean": 0.12380604901312968,
+        "sd": 0.02479993962286056
+      },
+      "brier_temperature_scaled": {
+        "mean": 0.042640668718569995,
+        "sd": 0.009191818914063017
+      },
+      "dice_tumor": {
+        "mean": 0.8435238318515401,
+        "sd": 0.001551607752781168
+      },
+      "dice_all": {
+        "mean": 0.8654304953923244,
+        "sd": 0.0013343826673917797
+      },
+      "iou_tumor": {
+        "mean": 0.7677110818872901,
+        "sd": 0.0013575740691392933
+      },
+      "sensitivity_tumor": {
+        "mean": 0.8605315096539938,
+        "sd": 0.0032178121801232557
+      },
+      "precision_tumor": {
+        "mean": 0.8701977814073997,
+        "sd": 0.003060065656871796
+      },
+      "hd95_median_px": {
+        "mean": 2.6625665635171973,
+        "sd": 0.1856741219282511
+      },
+      "hd95_mean_px": {
+        "mean": 6.597552339057759,
+        "sd": 0.14994585035598287
+      },
+      "missed_tumor_slices": {
+        "mean": 15.4,
+        "sd": 2.701851217221259
+      },
+      "healthy_fp_count": {
+        "mean": 0.0,
+        "sd": 0.0
+      }
+    }
+  },
+  "plane_effect": {
+    "official": {
+      "pairs": [
+        {
+          "seed": 42,
+          "dice_tumor": {
+            "mean_diff": 0.003919959220179721,
+            "ci95": [
+              -0.00043160067856999894,
+              0.00850885097023714
+            ],
+            "ci90": [
+              0.00018613811617522092,
+              0.007602223586832535
+            ],
+            "wilcoxon_p": 0.03334707368660586,
+            "n": 860,
+            "holm_p": 0.13338829474642344
+          },
+          "dice_all": {
+            "mean_diff": 0.00337116492935456,
+            "ci95": [
+              -0.0005604852484306377,
+              0.007399343436025075
+            ],
+            "ci90": [
+              0.0001798537381982839,
+              0.006736854564171517
+            ],
+            "wilcoxon_p": 0.03334707368660586,
+            "n": 1000,
+            "holm_p": 0.13338829474642344
+          },
+          "accuracy": {
+            "acc_diff": -0.0010000000000000009,
+            "a_only_correct": 3,
+            "b_only_correct": 2,
+            "exact_p": 1.0,
+            "holm_p": 1.0
+          }
+        },
+        {
+          "seed": 43,
+          "dice_tumor": {
+            "mean_diff": -0.0038530044428541185,
+            "ci95": [
+              -0.00869710833182136,
+              0.0009353790211567163
+            ],
+            "ci90": [
+              -0.007822258425541462,
+              0.0002892284405733858
+            ],
+            "wilcoxon_p": 0.008589616800186507,
+            "n": 860,
+            "holm_p": 0.05153770080111904
+          },
+          "dice_all": {
+            "mean_diff": -0.003313583820854542,
+            "ci95": [
+              -0.0073953882250716516,
+              0.0008686645748806795
+            ],
+            "ci90": [
+              -0.0066768737942620605,
+              0.000229271237266948
+            ],
+            "wilcoxon_p": 0.008589616800186507,
+            "n": 1000,
+            "holm_p": 0.05153770080111904
+          },
+          "accuracy": {
+            "acc_diff": 0.0,
+            "a_only_correct": 4,
+            "b_only_correct": 4,
+            "exact_p": 1.0,
+            "holm_p": 1.0
+          }
+        },
+        {
+          "seed": 44,
+          "dice_tumor": {
+            "mean_diff": -0.0024846898680512207,
+            "ci95": [
+              -0.008075790532139063,
+              0.003055233012006324
+            ],
+            "ci90": [
+              -0.007262398612759617,
+              0.0022515073222369466
+            ],
+            "wilcoxon_p": 0.8064518506081647,
+            "n": 860,
+            "holm_p": 0.9322901552124624
+          },
+          "dice_all": {
+            "mean_diff": -0.00213683328652405,
+            "ci95": [
+              -0.007054290433551067,
+              0.002620634376024828
+            ],
+            "ci90": [
+              -0.006090766970482944,
+              0.0019977663706304185
+            ],
+            "wilcoxon_p": 0.8064518506081647,
+            "n": 1000,
+            "holm_p": 0.9322901552124624
+          },
+          "accuracy": {
+            "acc_diff": -0.0050000000000000044,
+            "a_only_correct": 6,
+            "b_only_correct": 1,
+            "exact_p": 0.125,
+            "holm_p": 0.75
+          }
+        },
+        {
+          "seed": 45,
+          "dice_tumor": {
+            "mean_diff": -0.0027353278818123346,
+            "ci95": [
+              -0.007800089238077161,
+              0.0022396539963597693
+            ],
+            "ci90": [
+              -0.006927646710144812,
+              0.0015040332804803537
+            ],
+            "wilcoxon_p": 0.3161377775672738,
+            "n": 860,
+            "holm_p": 0.9322901552124624
+          },
+          "dice_all": {
+            "mean_diff": -0.002352381978358608,
+            "ci95": [
+              -0.006550931247872361,
+              0.0018472144988670978
+            ],
+            "ci90": [
+              -0.005883604551036843,
+              0.001359473027262721
+            ],
+            "wilcoxon_p": 0.3161377775672738,
+            "n": 1000,
+            "holm_p": 0.9322901552124624
+          },
+          "accuracy": {
+            "acc_diff": 0.0040000000000000036,
+            "a_only_correct": 2,
+            "b_only_correct": 6,
+            "exact_p": 0.2890625,
+            "holm_p": 1.0
+          }
+        },
+        {
+          "seed": 46,
+          "dice_tumor": {
+            "mean_diff": -0.004826448200680692,
+            "ci95": [
+              -0.009959045831691216,
+              0.00016975874227280634
+            ],
+            "ci90": [
+              -0.009176736268574277,
+              -0.0005711969814035153
+            ],
+            "wilcoxon_p": 0.022697456550874538,
+            "n": 860,
+            "holm_p": 0.1134872827543727
+          },
+          "dice_all": {
+            "mean_diff": -0.0041507454525853945,
+            "ci95": [
+              -0.008511910091633032,
+              0.00029181951476785054
+            ],
+            "ci90": [
+              -0.007764211994774808,
+              -0.0003704688944955684
+            ],
+            "wilcoxon_p": 0.022697456550874538,
+            "n": 1000,
+            "holm_p": 0.1134872827543727
+          },
+          "accuracy": {
+            "acc_diff": -0.0020000000000000018,
+            "a_only_correct": 4,
+            "b_only_correct": 2,
+            "exact_p": 0.6875,
+            "holm_p": 1.0
+          }
+        },
+        {
+          "seed": "ensemble",
+          "dice_tumor": {
+            "mean_diff": -0.002010563977514829,
+            "ci95": [
+              -0.005335812282029047,
+              0.0007588962284624008
+            ],
+            "ci90": [
+              -0.004728508514137589,
+              0.0004384105368537622
+            ],
+            "wilcoxon_p": 0.3107633850708208,
+            "n": 860,
+            "holm_p": 0.9322901552124624
+          },
+          "dice_all": {
+            "mean_diff": -0.0017290850206627528,
+            "ci95": [
+              -0.004335014979870179,
+              0.0006875936757249283
+            ],
+            "ci90": [
+              -0.003867709495688905,
+              0.00036377887904527433
+            ],
+            "wilcoxon_p": 0.3107633850708208,
+            "n": 1000,
+            "holm_p": 0.9322901552124624
+          },
+          "accuracy": {
+            "acc_diff": 0.0,
+            "a_only_correct": 1,
+            "b_only_correct": 1,
+            "exact_p": 1.0,
+            "holm_p": 1.0
+          }
+        }
+      ],
+      "seed_level_dice_tumor": {
+        "diffs": [
+          0.003919959220179721,
+          -0.0038530044428541185,
+          -0.0024846898680512207,
+          -0.0027353278818123346,
+          -0.004826448200680692
+        ],
+        "mean": -0.001995902234643729,
+        "sd": 0.0034367098898698397,
+        "ci95": [
+          -0.006263141177165932,
+          0.0022713367078784743
+        ],
+        "ci90": [
+          -0.005272430054002799,
+          0.0012806255847153405
+        ],
+        "t_test_p": 0.26388143403855086,
+        "tost_p": 0.0032406870370137453,
+        "margin": 0.01,
+        "equivalent": true
+      },
+      "seed_level_accuracy": {
+        "diffs": [
+          -0.0010000000000000009,
+          0.0,
+          -0.0050000000000000044,
+          0.0040000000000000036,
+          -0.0020000000000000018
+        ],
+        "mean": -0.0008000000000000007,
+        "sd": 0.003271085446759228,
+        "ci95": [
+          -0.00486158903428921,
+          0.0032615890342892087
+        ],
+        "ci90": [
+          -0.003918622988050098,
+          0.002318622988050097
+        ],
+        "t_test_p": 0.6135457051575998,
+        "tost_p": 0.022710016337276984,
+        "margin": 0.005,
+        "equivalent": true
+      },
+      "ensemble_equivalent_dice_tumor": true
+    },
+    "dedup": {
+      "pairs": [
+        {
+          "seed": 42,
+          "dice_tumor": {
+            "mean_diff": 0.009242717365664566,
+            "ci95": [
+              0.0012495768422542256,
+              0.016881277772830543
+            ],
+            "ci90": [
+              0.0023969482713674037,
+              0.015659298893605053
+            ],
+            "wilcoxon_p": 0.0037789018097570105,
+            "n": 860,
+            "holm_p": 0.018894509048785053
+          },
+          "dice_all": {
+            "mean_diff": 0.007948736934471526,
+            "ci95": [
+              0.0012419175533726927,
+              0.014795380275448756
+            ],
+            "ci90": [
+              0.002266267715804855,
+              0.013580781603154901
+            ],
+            "wilcoxon_p": 0.0037789018097570105,
+            "n": 1000,
+            "holm_p": 0.018894509048785053
+          },
+          "accuracy": {
+            "acc_diff": 0.01100000000000001,
+            "a_only_correct": 5,
+            "b_only_correct": 16,
+            "exact_p": 0.02660369873046875,
+            "holm_p": 0.13301849365234375
+          }
+        },
+        {
+          "seed": 43,
+          "dice_tumor": {
+            "mean_diff": -0.0006295470896158001,
+            "ci95": [
+              -0.005894868838296915,
+              0.00482488334952375
+            ],
+            "ci90": [
+              -0.0051979633230058745,
+              0.003848624939627222
+            ],
+            "wilcoxon_p": 0.00023887656623401392,
+            "n": 860,
+            "holm_p": 0.0014332593974040835
+          },
+          "dice_all": {
+            "mean_diff": -0.0005414104970695886,
+            "ci95": [
+              -0.005142458847980736,
+              0.004061674390122791
+            ],
+            "ci90": [
+              -0.00429647977518034,
+              0.003250322601449441
+            ],
+            "wilcoxon_p": 0.00023887656623401392,
+            "n": 1000,
+            "holm_p": 0.0014332593974040835
+          },
+          "accuracy": {
+            "acc_diff": 0.01100000000000001,
+            "a_only_correct": 5,
+            "b_only_correct": 16,
+            "exact_p": 0.02660369873046875,
+            "holm_p": 0.13301849365234375
+          }
+        },
+        {
+          "seed": 44,
+          "dice_tumor": {
+            "mean_diff": -0.006250837882188809,
+            "ci95": [
+              -0.014727458016960284,
+              0.0022567155727614705
+            ],
+            "ci90": [
+              -0.013397462996435934,
+              0.0007666653753166899
+            ],
+            "wilcoxon_p": 0.09408378264805076,
+            "n": 860,
+            "holm_p": 0.09408378264805076
+          },
+          "dice_all": {
+            "mean_diff": -0.005375720578682376,
+            "ci95": [
+              -0.012598711252454087,
+              0.001427729337393977
+            ],
+            "ci90": [
+              -0.01130969959523936,
+              0.00035864890318334597
+            ],
+            "wilcoxon_p": 0.09408378264805076,
+            "n": 1000,
+            "holm_p": 0.09408378264805076
+          },
+          "accuracy": {
+            "acc_diff": -0.0040000000000000036,
+            "a_only_correct": 12,
+            "b_only_correct": 8,
+            "exact_p": 0.5034446716308594,
+            "holm_p": 1.0
+          }
+        },
+        {
+          "seed": 45,
+          "dice_tumor": {
+            "mean_diff": -0.00403836112723924,
+            "ci95": [
+              -0.009446113229721447,
+              0.0006181933524863425
+            ],
+            "ci90": [
+              -0.00841704644140961,
+              1.2778192196808714e-06
+            ],
+            "wilcoxon_p": 0.040732867138806854,
+            "n": 860,
+            "holm_p": 0.08146573427761371
+          },
+          "dice_all": {
+            "mean_diff": -0.0034729905694257457,
+            "ci95": [
+              -0.007970212316665856,
+              0.000695437785811372
+            ],
+            "ci90": [
+              -0.007143295589383346,
+              0.00016163505488948476
+            ],
+            "wilcoxon_p": 0.040732867138806854,
+            "n": 1000,
+            "holm_p": 0.08146573427761371
+          },
+          "accuracy": {
+            "acc_diff": 0.0010000000000000009,
+            "a_only_correct": 5,
+            "b_only_correct": 6,
+            "exact_p": 1.0,
+            "holm_p": 1.0
+          }
+        },
+        {
+          "seed": 46,
+          "dice_tumor": {
+            "mean_diff": -0.011486942259690233,
+            "ci95": [
+              -0.01842573957068454,
+              -0.00555296764921159
+            ],
+            "ci90": [
+              -0.01731410579956838,
+              -0.0063400486512402415
+            ],
+            "wilcoxon_p": 0.004270988830314768,
+            "n": 860,
+            "holm_p": 0.018894509048785053
+          },
+          "dice_all": {
+            "mean_diff": -0.009878770343333601,
+            "ci95": [
+              -0.016154219299866237,
+              -0.004376069391215795
+            ],
+            "ci90": [
+              -0.014943277536975079,
+              -0.005251262043346656
+            ],
+            "wilcoxon_p": 0.004270988830314768,
+            "n": 1000,
+            "holm_p": 0.018894509048785053
+          },
+          "accuracy": {
+            "acc_diff": -0.019000000000000017,
+            "a_only_correct": 19,
+            "b_only_correct": 0,
+            "exact_p": 3.814697265625e-06,
+            "holm_p": 2.288818359375e-05
+          }
+        },
+        {
+          "seed": "ensemble",
+          "dice_tumor": {
+            "mean_diff": -0.0009944866565029082,
+            "ci95": [
+              -0.0039032912114516697,
+              0.001854454260997997
+            ],
+            "ci90": [
+              -0.003323647722099004,
+              0.0015156051965137967
+            ],
+            "wilcoxon_p": 0.0214684951987689,
+            "n": 860,
+            "holm_p": 0.06440548559630671
+          },
+          "dice_all": {
+            "mean_diff": -0.0008552585245925013,
+            "ci95": [
+              -0.00328603713396151,
+              0.0015487265698204253
+            ],
+            "ci90": [
+              -0.0029282020115031617,
+              0.0011655438712652498
+            ],
+            "wilcoxon_p": 0.0214684951987689,
+            "n": 1000,
+            "holm_p": 0.06440548559630671
+          },
+          "accuracy": {
+            "acc_diff": 0.0020000000000000018,
+            "a_only_correct": 1,
+            "b_only_correct": 3,
+            "exact_p": 0.625,
+            "holm_p": 1.0
+          }
+        }
+      ],
+      "seed_level_dice_tumor": {
+        "diffs": [
+          0.009242717365664566,
+          -0.0006295470896158001,
+          -0.006250837882188809,
+          -0.00403836112723924,
+          -0.011486942259690233
+        ],
+        "mean": -0.0026325941986139034,
+        "sd": 0.007721764210133332,
+        "ci95": [
+          -0.012220430820954786,
+          0.006955242423726979
+        ],
+        "ci90": [
+          -0.009994453668803659,
+          0.004729265271575853
+        ],
+        "t_test_p": 0.48832909587206436,
+        "tost_p": 0.04990978692388759,
+        "margin": 0.01,
+        "equivalent": true
+      },
+      "seed_level_accuracy": {
+        "diffs": [
+          0.01100000000000001,
+          0.01100000000000001,
+          -0.0040000000000000036,
+          0.0010000000000000009,
+          -0.019000000000000017
+        ],
+        "mean": 0.0,
+        "sd": 0.012449899597988744,
+        "ci95": [
+          -0.015458592112074138,
+          0.015458592112074138
+        ],
+        "ci90": [
+          -0.011869620563923237,
+          0.011869620563923237
+        ],
+        "t_test_p": 1.0,
+        "tost_p": 0.2099699073330244,
+        "margin": 0.005,
+        "equivalent": false
+      },
+      "ensemble_equivalent_dice_tumor": true
+    }
+  },
+  "ensemble_vs_members": [
+    {
+      "setting": "official",
+      "cfg": "B2",
+      "seed": 42,
+      "dice_tumor": {
+        "mean_diff": 0.006259167458263745,
+        "ci95": [
+          0.001820659804227965,
+          0.010835569487317119
+        ],
+        "ci90": [
+          0.0025377101949510855,
+          0.010041368049518664
+        ],
+        "wilcoxon_p": 1.469841762306208e-17,
+        "n": 860,
+        "holm_p": 2.7926993483817954e-16
+      },
+      "accuracy": {
+        "acc_diff": 0.0020000000000000018,
+        "a_only_correct": 1,
+        "b_only_correct": 3,
+        "exact_p": 0.625
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B2",
+      "seed": 43,
+      "dice_tumor": {
+        "mean_diff": 0.001591031675952556,
+        "ci95": [
+          -0.002525284470129702,
+          0.005506840619460953
+        ],
+        "ci90": [
+          -0.0019117844570698823,
+          0.004920415920354322
+        ],
+        "wilcoxon_p": 4.088081953587485e-06,
+        "n": 860,
+        "holm_p": 8.17616390717497e-06
+      },
+      "accuracy": {
+        "acc_diff": 0.0020000000000000018,
+        "a_only_correct": 1,
+        "b_only_correct": 3,
+        "exact_p": 0.625
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B2",
+      "seed": 44,
+      "dice_tumor": {
+        "mean_diff": 0.005938728092689081,
+        "ci95": [
+          0.0026453415333517805,
+          0.009381955511328902
+        ],
+        "ci90": [
+          0.0031782186853169404,
+          0.00878403120534089
+        ],
+        "wilcoxon_p": 4.811136289138817e-17,
+        "n": 860,
+        "holm_p": 8.66004532044987e-16
+      },
+      "accuracy": {
+        "acc_diff": -0.0010000000000000009,
+        "a_only_correct": 2,
+        "b_only_correct": 1,
+        "exact_p": 1.0
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B2",
+      "seed": 45,
+      "dice_tumor": {
+        "mean_diff": 0.005794789670116465,
+        "ci95": [
+          0.0024487941905596915,
+          0.009709215205630452
+        ],
+        "ci90": [
+          0.0028610848300334975,
+          0.008933980295104296
+        ],
+        "wilcoxon_p": 9.796552642712318e-09,
+        "n": 860,
+        "holm_p": 7.837242114169854e-08
+      },
+      "accuracy": {
+        "acc_diff": 0.0050000000000000044,
+        "a_only_correct": 0,
+        "b_only_correct": 5,
+        "exact_p": 0.0625
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B2",
+      "seed": 46,
+      "dice_tumor": {
+        "mean_diff": 0.0026091884427736434,
+        "ci95": [
+          -0.0014360591287076244,
+          0.006844523333779223
+        ],
+        "ci90": [
+          -0.0006591806488502811,
+          0.006098487363291668
+        ],
+        "wilcoxon_p": 2.0778323794938464e-10,
+        "n": 860,
+        "holm_p": 2.285615617443231e-09
+      },
+      "accuracy": {
+        "acc_diff": 0.0020000000000000018,
+        "a_only_correct": 1,
+        "b_only_correct": 3,
+        "exact_p": 0.625
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B3",
+      "seed": 42,
+      "dice_tumor": {
+        "mean_diff": 0.00032864426056919584,
+        "ci95": [
+          -0.0026310801533691096,
+          0.003306580477280461
+        ],
+        "ci90": [
+          -0.00226472577821263,
+          0.002848639465607214
+        ],
+        "wilcoxon_p": 3.779020571183016e-07,
+        "n": 860,
+        "holm_p": 2.2674123427098096e-06
+      },
+      "accuracy": {
+        "acc_diff": 0.0030000000000000027,
+        "a_only_correct": 0,
+        "b_only_correct": 3,
+        "exact_p": 0.25
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B3",
+      "seed": 43,
+      "dice_tumor": {
+        "mean_diff": 0.0034334721412918458,
+        "ci95": [
+          0.0003938976459319834,
+          0.006053629712880846
+        ],
+        "ci90": [
+          0.0009488086820191502,
+          0.005664245320821105
+        ],
+        "wilcoxon_p": 1.7301401277594496e-10,
+        "n": 860,
+        "holm_p": 2.0761681533113393e-09
+      },
+      "accuracy": {
+        "acc_diff": 0.0020000000000000018,
+        "a_only_correct": 1,
+        "b_only_correct": 3,
+        "exact_p": 0.625
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B3",
+      "seed": 44,
+      "dice_tumor": {
+        "mean_diff": 0.006412853983225475,
+        "ci95": [
+          0.0012171520356651989,
+          0.011314340559450973
+        ],
+        "ci90": [
+          0.0020648927343427203,
+          0.010578193120992755
+        ],
+        "wilcoxon_p": 3.365808976999365e-14,
+        "n": 860,
+        "holm_p": 5.048713465499048e-13
+      },
+      "accuracy": {
+        "acc_diff": 0.0040000000000000036,
+        "a_only_correct": 0,
+        "b_only_correct": 4,
+        "exact_p": 0.125
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B3",
+      "seed": 45,
+      "dice_tumor": {
+        "mean_diff": 0.006519553574413972,
+        "ci95": [
+          0.0027980177796298232,
+          0.01054755779359216
+        ],
+        "ci90": [
+          0.00337212423046071,
+          0.009881392975556425
+        ],
+        "wilcoxon_p": 3.55703015157961e-13,
+        "n": 860,
+        "holm_p": 4.979842212211454e-12
+      },
+      "accuracy": {
+        "acc_diff": 0.0010000000000000009,
+        "a_only_correct": 1,
+        "b_only_correct": 2,
+        "exact_p": 1.0
+      }
+    },
+    {
+      "setting": "official",
+      "cfg": "B3",
+      "seed": 46,
+      "dice_tumor": {
+        "mean_diff": 0.005425072665939507,
+        "ci95": [
+          0.0018799253718282478,
+          0.009267294814247201
+        ],
+        "ci90": [
+          0.0025077492624692504,
+          0.008441472553736382
+        ],
+        "wilcoxon_p": 2.6706488316616517e-14,
+        "n": 860,
+        "holm_p": 4.273038130658643e-13
+      },
+      "accuracy": {
+        "acc_diff": 0.0040000000000000036,
+        "a_only_correct": 2,
+        "b_only_correct": 6,
+        "exact_p": 0.2890625
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B2",
+      "seed": 42,
+      "dice_tumor": {
+        "mean_diff": 0.01716365190508821,
+        "ci95": [
+          0.010393133060150474,
+          0.024019611140991947
+        ],
+        "ci90": [
+          0.011429598057391473,
+          0.02269960801343777
+        ],
+        "wilcoxon_p": 1.1942405311005676e-27,
+        "n": 860,
+        "holm_p": 2.3884810622011353e-26
+      },
+      "accuracy": {
+        "acc_diff": 0.010000000000000009,
+        "a_only_correct": 1,
+        "b_only_correct": 11,
+        "exact_p": 0.00634765625
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B2",
+      "seed": 43,
+      "dice_tumor": {
+        "mean_diff": 0.007423056231007565,
+        "ci95": [
+          0.003550633218878515,
+          0.011353299430829373
+        ],
+        "ci90": [
+          0.004192222285661085,
+          0.010802306009315737
+        ],
+        "wilcoxon_p": 2.03642694585509e-06,
+        "n": 860,
+        "holm_p": 6.371663473340508e-06
+      },
+      "accuracy": {
+        "acc_diff": 0.009000000000000008,
+        "a_only_correct": 2,
+        "b_only_correct": 11,
+        "exact_p": 0.0224609375
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B2",
+      "seed": 44,
+      "dice_tumor": {
+        "mean_diff": 0.0037006675668783636,
+        "ci95": [
+          -0.0016466611003209505,
+          0.008915463426565956
+        ],
+        "ci90": [
+          -0.0009530888126671,
+          0.008049759314441851
+        ],
+        "wilcoxon_p": 5.5019059461816696e-08,
+        "n": 860,
+        "holm_p": 3.8513341623271686e-07
+      },
+      "accuracy": {
+        "acc_diff": 0.0040000000000000036,
+        "a_only_correct": 4,
+        "b_only_correct": 8,
+        "exact_p": 0.3876953125
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B2",
+      "seed": 45,
+      "dice_tumor": {
+        "mean_diff": 0.00277615421638434,
+        "ci95": [
+          -0.0011563536331232233,
+          0.0067516670302050635
+        ],
+        "ci90": [
+          -0.0006260189935118294,
+          0.006052076104252737
+        ],
+        "wilcoxon_p": 5.732507054341682e-07,
+        "n": 860,
+        "holm_p": 2.866253527170841e-06
+      },
+      "accuracy": {
+        "acc_diff": 0.0040000000000000036,
+        "a_only_correct": 2,
+        "b_only_correct": 6,
+        "exact_p": 0.2890625
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B2",
+      "seed": 46,
+      "dice_tumor": {
+        "mean_diff": -0.000918799205777931,
+        "ci95": [
+          -0.006101378374842177,
+          0.0035825130993357842
+        ],
+        "ci90": [
+          -0.0052059403940041,
+          0.0029526202396613506
+        ],
+        "wilcoxon_p": 6.899711607094928e-05,
+        "n": 860,
+        "holm_p": 6.899711607094928e-05
+      },
+      "accuracy": {
+        "acc_diff": -0.008000000000000007,
+        "a_only_correct": 9,
+        "b_only_correct": 1,
+        "exact_p": 0.021484375
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B3",
+      "seed": 42,
+      "dice_tumor": {
+        "mean_diff": 0.0069264478829207405,
+        "ci95": [
+          0.002984635310378166,
+          0.011769347232152222
+        ],
+        "ci90": [
+          0.003562081771111523,
+          0.01111032915113123
+        ],
+        "wilcoxon_p": 3.89640881567196e-10,
+        "n": 860,
+        "holm_p": 3.89640881567196e-09
+      },
+      "accuracy": {
+        "acc_diff": 0.0010000000000000009,
+        "a_only_correct": 4,
+        "b_only_correct": 5,
+        "exact_p": 1.0
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B3",
+      "seed": 43,
+      "dice_tumor": {
+        "mean_diff": 0.007058116664120458,
+        "ci95": [
+          0.0019795057912770646,
+          0.012349843069222995
+        ],
+        "ci90": [
+          0.0026186385392387335,
+          0.011351491235985774
+        ],
+        "wilcoxon_p": 1.2083991514616744e-16,
+        "n": 860,
+        "holm_p": 2.0542785574848466e-15
+      },
+      "accuracy": {
+        "acc_diff": 0.0,
+        "a_only_correct": 7,
+        "b_only_correct": 7,
+        "exact_p": 1.0
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B3",
+      "seed": 44,
+      "dice_tumor": {
+        "mean_diff": 0.008957018792564263,
+        "ci95": [
+          0.003110401886875732,
+          0.01546042531765461
+        ],
+        "ci90": [
+          0.003918148409206355,
+          0.014290270508723165
+        ],
+        "wilcoxon_p": 9.210281829111331e-10,
+        "n": 860,
+        "holm_p": 8.289253646200198e-09
+      },
+      "accuracy": {
+        "acc_diff": 0.010000000000000009,
+        "a_only_correct": 1,
+        "b_only_correct": 11,
+        "exact_p": 0.00634765625
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B3",
+      "seed": 45,
+      "dice_tumor": {
+        "mean_diff": 0.005820028687120671,
+        "ci95": [
+          0.001235308325568582,
+          0.010805233470930745
+        ],
+        "ci90": [
+          0.0019054563602988917,
+          0.010043299259887978
+        ],
+        "wilcoxon_p": 1.0408459242736902e-10,
+        "n": 860,
+        "holm_p": 1.3530997015557972e-09
+      },
+      "accuracy": {
+        "acc_diff": 0.0050000000000000044,
+        "a_only_correct": 2,
+        "b_only_correct": 7,
+        "exact_p": 0.1796875
+      }
+    },
+    {
+      "setting": "dedup",
+      "cfg": "B3",
+      "seed": 46,
+      "dice_tumor": {
+        "mean_diff": 0.009573656397409395,
+        "ci95": [
+          0.004140576945585136,
+          0.015139444865185077
+        ],
+        "ci90": [
+          0.00505492769003721,
+          0.014317605168802993
+        ],
+        "wilcoxon_p": 1.592915868335127e-06,
+        "n": 860,
+        "holm_p": 6.371663473340508e-06
+      },
+      "accuracy": {
+        "acc_diff": 0.013000000000000012,
+        "a_only_correct": 0,
+        "b_only_correct": 13,
+        "exact_p": 0.000244140625
+      }
+    }
+  ],
+  "subgroups": {
+    "official": [
+      {
+        "mean_diff": 0.0005712044353642656,
+        "ci95": [
+          -0.004462770278310881,
+          0.005064551363621927
+        ],
+        "ci90": [
+          -0.0035204567857079223,
+          0.004392104862729555
+        ],
+        "wilcoxon_p": 0.8412096138398253,
+        "n": 346,
+        "subgroup": "axial",
+        "b2_dice": 0.8513039175844603,
+        "b3_dice": 0.8518751220198246,
+        "seed_diffs": [
+          0.009305133024698948,
+          -0.003951396045932468,
+          0.002791402776940252,
+          0.00046264347024773566,
+          -0.005396150602576199
+        ],
+        "holm_p": 1.0
+      },
+      {
+        "mean_diff": -0.001710561894565276,
+        "ci95": [
+          -0.005644217947194931,
+          0.0021953587274312555
+        ],
+        "ci90": [
+          -0.00495380541198283,
+          0.0015927773419720497
+        ],
+        "wilcoxon_p": 0.5438082485663558,
+        "n": 257,
+        "subgroup": "coronal",
+        "b2_dice": 0.8653978784600316,
+        "b3_dice": 0.8636873165654664,
+        "seed_diffs": [
+          0.0007717038653356172,
+          -0.005228993593414347,
+          -0.007021620561611561,
+          -0.004576656946111543,
+          -0.0013850863514728946
+        ],
+        "holm_p": 1.0
+      },
+      {
+        "mean_diff": -0.005786409915935847,
+        "ci95": [
+          -0.013217761033873255,
+          -0.0001203817858746696
+        ],
+        "ci90": [
+          -0.011746747446824453,
+          -0.0007858810010945945
+        ],
+        "wilcoxon_p": 0.32626874727751376,
+        "n": 257,
+        "subgroup": "sagittal",
+        "b2_dice": 0.8833326929681916,
+        "b3_dice": 0.8775462830522558,
+        "seed_diffs": [
+          -0.00018186377658571532,
+          -0.002344550332507475,
+          -0.005050981179031931,
+          -0.005199438847913066,
+          -0.007500817711149791
+        ],
+        "holm_p": 1.0
+      },
+      {
+        "mean_diff": -0.00560959454925592,
+        "ci95": [
+          -0.015323627314272056,
+          0.0030366527618896173
+        ],
+        "ci90": [
+          -0.013519829346919358,
+          0.0017127421546033555
+        ],
+        "wilcoxon_p": 0.28771159182692607,
+        "n": 254,
+        "subgroup": "glioma",
+        "b2_dice": 0.7644113529692166,
+        "b3_dice": 0.7588017584199607,
+        "seed_diffs": [
+          0.009234707524787309,
+          -0.0093282703522228,
+          0.0006824670693842615,
+          -0.0073891736708643786,
+          -0.005166472838485727
+        ],
+        "holm_p": 1.0
+      },
+      {
+        "mean_diff": 0.0018373931350271627,
+        "ci95": [
+          0.00032983003975518567,
+          0.004248509487879812
+        ],
+        "ci90": [
+          0.00047450718147302025,
+          0.003761060516429099
+        ],
+        "wilcoxon_p": 0.0006599985304357314,
+        "n": 306,
+        "subgroup": "meningioma",
+        "b2_dice": 0.9397262505261726,
+        "b3_dice": 0.9415636436611998,
+        "seed_diffs": [
+          0.0037563724163310877,
+          0.002064479916703481,
+          -0.00505081842785847,
+          0.0026848997564657673,
+          -0.0075162042791573225
+        ],
+        "holm_p": 0.003959991182614388
+      },
+      {
+        "mean_diff": -0.0028883010149002033,
+        "ci95": [
+          -0.005595030449330799,
+          -0.00030270765225091434
+        ],
+        "ci90": [
+          -0.005147074505686767,
+          -0.0006961303899685534
+        ],
+        "wilcoxon_p": 0.001398588054135663,
+        "n": 300,
+        "subgroup": "pituitary",
+        "b2_dice": 0.8741939867536227,
+        "b3_dice": 0.8713056857387225,
+        "seed_diffs": [
+          -0.0004130024711290973,
+          -0.005253113353004055,
+          -0.002548764944076535,
+          -0.004323703971458601,
+          -0.0017950094739595983
+        ],
+        "holm_p": 0.006992940270678315
+      }
+    ],
+    "dedup": [
+      {
+        "mean_diff": -0.00032190050585922367,
+        "ci95": [
+          -0.005913681281791771,
+          0.005711004991900082
+        ],
+        "ci90": [
+          -0.005017133192652149,
+          0.004577935887747942
+        ],
+        "wilcoxon_p": 0.0897560256250181,
+        "n": 346,
+        "subgroup": "axial",
+        "b2_dice": 0.829471298074047,
+        "b3_dice": 0.8291493975681877,
+        "seed_diffs": [
+          -0.0024316703790167606,
+          0.004239737884477295,
+          -0.010949185151977571,
+          -0.0006773822531750093,
+          -0.01715039078757232
+        ],
+        "holm_p": 0.3590241025000724
+      },
+      {
+        "mean_diff": -0.002538332684375062,
+        "ci95": [
+          -0.007398603341346508,
+          0.0019710258463196476
+        ],
+        "ci90": [
+          -0.006740385661325653,
+          0.001268376480173752
+        ],
+        "wilcoxon_p": 0.48770392099991333,
+        "n": 257,
+        "subgroup": "coronal",
+        "b2_dice": 0.857041623979238,
+        "b3_dice": 0.8545032912948629,
+        "seed_diffs": [
+          0.02443021297827862,
+          -0.0014724429082560231,
+          -0.0024399575419499363,
+          -0.0059770586327848926,
+          -0.01877613195947667
+        ],
+        "holm_p": 0.6405204228719632
+      },
+      {
+        "mean_diff": -0.0003561457186024078,
+        "ci95": [
+          -0.003659515899170284,
+          0.0032366589670466306
+        ],
+        "ci90": [
+          -0.0032379642131209257,
+          0.0027032794945887908
+        ],
+        "wilcoxon_p": 0.10973785756596681,
+        "n": 257,
+        "subgroup": "sagittal",
+        "b2_dice": 0.8779091579361242,
+        "b3_dice": 0.8775530122175218,
+        "seed_diffs": [
+          0.009772490856784902,
+          -0.006342186683567837,
+          -0.0037363168397548737,
+          -0.0066245612498111875,
+          0.0034269680262720786
+        ],
+        "holm_p": 0.3590241025000724
+      },
+      {
+        "mean_diff": 0.0009909012186704014,
+        "ci95": [
+          -0.006788774347431194,
+          0.009004242243162751
+        ],
+        "ci90": [
+          -0.005270604425115425,
+          0.007512005994325108
+        ],
+        "wilcoxon_p": 0.3202602114359816,
+        "n": 254,
+        "subgroup": "glioma",
+        "b2_dice": 0.7527191286156546,
+        "b3_dice": 0.753710029834325,
+        "seed_diffs": [
+          0.02462810879230855,
+          -0.0009111167843990725,
+          -0.005561962046781487,
+          0.0008296570401477432,
+          -0.009678037950469317
+        ],
+        "holm_p": 0.6405204228719632
+      },
+      {
+        "mean_diff": -0.0022985642453278274,
+        "ci95": [
+          -0.006195154658053084,
+          0.0014355899948699739
+        ],
+        "ci90": [
+          -0.005551843894676009,
+          0.0007436683456249031
+        ],
+        "wilcoxon_p": 0.0005291137226103948,
+        "n": 306,
+        "subgroup": "meningioma",
+        "b2_dice": 0.9151598739222239,
+        "b3_dice": 0.912861309676896,
+        "seed_diffs": [
+          -0.000541541534843114,
+          0.0028493722061492762,
+          -0.011339889046735298,
+          -0.012666461735148151,
+          -0.016743892068916476
+        ],
+        "holm_p": 0.003174682335662369
+      },
+      {
+        "mean_diff": -0.0013452892502148935,
+        "ci95": [
+          -0.004769550551970797,
+          0.0025828564316034332
+        ],
+        "ci90": [
+          -0.004218956847985577,
+          0.0019665786077578914
+        ],
+        "wilcoxon_p": 0.026381032197465695,
+        "n": 300,
+        "subgroup": "pituitary",
+        "b2_dice": 0.8721661333243053,
+        "b3_dice": 0.8708208440740903,
+        "seed_diffs": [
+          0.006196363369623819,
+          -0.003939649096379676,
+          -0.0016432539016629259,
+          0.0006407127777735359,
+          -0.007656392436086515
+        ],
+        "holm_p": 0.13190516098732846
+      }
+    ]
+  },
+  "leakage_test_subsets": {
+    "full": {
+      "n": 1000,
+      "n_tumor": 860,
+      "B2_official": {
+        "ens_accuracy": 0.996,
+        "ens_dice_tumor": 0.8650871073735775,
+        "ens_dice_meningioma": 0.9397262505261726,
+        "seed_mean_dice_tumor": 0.8606485263056184,
+        "seed_sd_dice_tumor": 0.0021713758650873053
+      },
+      "B3_official": {
+        "ens_accuracy": 0.996,
+        "ens_dice_tumor": 0.8630765433960627,
+        "ens_dice_meningioma": 0.9415636436611998,
+        "seed_mean_dice_tumor": 0.8586526240709746,
+        "seed_sd_dice_tumor": 0.0026029846076737182
+      },
+      "B2_dedup": {
+        "ens_accuracy": 0.981,
+        "ens_dice_tumor": 0.8521853721928702,
+        "ens_dice_meningioma": 0.9151598739222239,
+        "seed_mean_dice_tumor": 0.846156426050154,
+        "seed_sd_dice_tumor": 0.006895613047857186
+      },
+      "B3_dedup": {
+        "ens_accuracy": 0.983,
+        "ens_dice_tumor": 0.8511908855363672,
+        "ens_dice_meningioma": 0.912861309676896,
+        "seed_mean_dice_tumor": 0.8435238318515401,
+        "seed_sd_dice_tumor": 0.001551607752781168
+      },
+      "plane_effect_official": {
+        "mean_diff": -0.002010563977514829,
+        "ci95": [
+          -0.005335812282029047,
+          0.0007588962284624008
+        ],
+        "ci90": [
+          -0.004728508514137589,
+          0.0004384105368537622
+        ],
+        "wilcoxon_p": 0.3107633850708208,
+        "n": 860
+      },
+      "plane_effect_dedup": {
+        "mean_diff": -0.0009944866565029082,
+        "ci95": [
+          -0.0039032912114516697,
+          0.001854454260997997
+        ],
+        "ci90": [
+          -0.003323647722099004,
+          0.0015156051965137967
+        ],
+        "wilcoxon_p": 0.0214684951987689,
+        "n": 860
+      }
+    },
+    "deduplicated": {
+      "n": 896,
+      "n_tumor": 756,
+      "B2_official": {
+        "ens_accuracy": 0.9955357142857143,
+        "ens_dice_tumor": 0.8526856061903465,
+        "ens_dice_meningioma": 0.9319505445335222,
+        "seed_mean_dice_tumor": 0.848280482706372,
+        "seed_sd_dice_tumor": 0.0022103901016991946
+      },
+      "B3_official": {
+        "ens_accuracy": 0.9955357142857143,
+        "ens_dice_tumor": 0.8502374956103734,
+        "ens_dice_meningioma": 0.934096412382264,
+        "seed_mean_dice_tumor": 0.8461918864690233,
+        "seed_sd_dice_tumor": 0.0026780488199083133
+      },
+      "B2_dedup": {
+        "ens_accuracy": 0.9910714285714286,
+        "ens_dice_tumor": 0.8467903007478632,
+        "ens_dice_meningioma": 0.9276459585055022,
+        "seed_mean_dice_tumor": 0.8409503523046464,
+        "seed_sd_dice_tumor": 0.005828371240175193
+      },
+      "B3_dedup": {
+        "ens_accuracy": 0.9933035714285714,
+        "ens_dice_tumor": 0.8459200342778651,
+        "ens_dice_meningioma": 0.9252220809161337,
+        "seed_mean_dice_tumor": 0.8390926871860597,
+        "seed_sd_dice_tumor": 0.0029680572677193455
+      },
+      "plane_effect_official": {
+        "mean_diff": -0.002448110579973132,
+        "ci95": [
+          -0.0059988049632963905,
+          0.0007369830803774724
+        ],
+        "ci90": [
+          -0.005387850931803106,
+          0.0002663204236702559
+        ],
+        "wilcoxon_p": 0.08534408165303566,
+        "n": 756
+      },
+      "plane_effect_dedup": {
+        "mean_diff": -0.0008702664699980725,
+        "ci95": [
+          -0.003931313781013445,
+          0.0020309293920473884
+        ],
+        "ci90": [
+          -0.0033870318861017315,
+          0.0016196525250850987
+        ],
+        "wilcoxon_p": 0.02280291554996742,
+        "n": 756
+      }
+    },
+    "strict": {
+      "n": 679,
+      "n_tumor": 541,
+      "B2_official": {
+        "ens_accuracy": 0.9941089837997055,
+        "ens_dice_tumor": 0.8434298853149987,
+        "ens_dice_meningioma": 0.9254802456067043,
+        "seed_mean_dice_tumor": 0.8385017537612915,
+        "seed_sd_dice_tumor": 0.0034826877816353163
+      },
+      "B3_official": {
+        "ens_accuracy": 0.9941089837997055,
+        "ens_dice_tumor": 0.8404390267718346,
+        "ens_dice_meningioma": 0.9277936133948512,
+        "seed_mean_dice_tumor": 0.8358050220218607,
+        "seed_sd_dice_tumor": 0.00321037718801271
+      },
+      "B2_dedup": {
+        "ens_accuracy": 0.9882179675994109,
+        "ens_dice_tumor": 0.8377457966496729,
+        "ens_dice_meningioma": 0.9194733117347943,
+        "seed_mean_dice_tumor": 0.8318551002470123,
+        "seed_sd_dice_tumor": 0.0066603141536716514
+      },
+      "B3_dedup": {
+        "ens_accuracy": 0.9911634756995582,
+        "ens_dice_tumor": 0.8363418097155041,
+        "ens_dice_meningioma": 0.916680985575347,
+        "seed_mean_dice_tumor": 0.8285564781671976,
+        "seed_sd_dice_tumor": 0.0039866270697236
+      },
+      "plane_effect_official": {
+        "mean_diff": -0.0029908585431641286,
+        "ci95": [
+          -0.007692608023428705,
+          0.0010668783406702215
+        ],
+        "ci90": [
+          -0.006860003700585739,
+          0.0005133068550428855
+        ],
+        "wilcoxon_p": 0.10305076185339253,
+        "n": 541
+      },
+      "plane_effect_dedup": {
+        "mean_diff": -0.0014039869341687713,
+        "ci95": [
+          -0.005391396532876051,
+          0.0024350196797272216
+        ],
+        "ci90": [
+          -0.0046800719299570975,
+          0.0018098096350873346
+        ],
+        "wilcoxon_p": 0.0850987104616139,
+        "n": 541
+      }
+    },
+    "near_identical_only": {
+      "n": 104,
+      "n_tumor": 104,
+      "B2_official": {
+        "ens_accuracy": 1.0,
+        "ens_dice_tumor": 0.9552364813593718,
+        "ens_dice_meningioma": 0.9559845448744417,
+        "seed_mean_dice_tumor": 0.9505546893924475,
+        "seed_sd_dice_tumor": 0.003977294679461649
+      },
+      "B3_official": {
+        "ens_accuracy": 1.0,
+        "ens_dice_tumor": 0.9564065446074193,
+        "ens_dice_meningioma": 0.9571769454262473,
+        "seed_mean_dice_tumor": 0.9492326012543904,
+        "seed_sd_dice_tumor": 0.00776427659535887
+      },
+      "B2_dedup": {
+        "ens_accuracy": 0.8942307692307693,
+        "ens_dice_tumor": 0.8914033915431131,
+        "ens_dice_meningioma": 0.8890526061571871,
+        "seed_mean_dice_tumor": 0.8840005775078819,
+        "seed_sd_dice_tumor": 0.018596755037853636
+      },
+      "B3_dedup": {
+        "ens_accuracy": 0.8942307692307693,
+        "ens_dice_tumor": 0.8895059196847097,
+        "ens_dice_meningioma": 0.8870160607221264,
+        "seed_mean_dice_tumor": 0.875734844996763,
+        "seed_sd_dice_tumor": 0.014686495365731068
+      },
+      "plane_effect_official": {
+        "mean_diff": 0.0011700632480474511,
+        "ci95": [
+          -0.00038696398528722343,
+          0.002796971955551535
+        ],
+        "ci90": [
+          -0.00011777453697645962,
+          0.0025154666831860213
+        ],
+        "wilcoxon_p": 0.015978515285910294,
+        "n": 104
+      },
+      "plane_effect_dedup": {
+        "mean_diff": -0.0018974718584034455,
+        "ci95": [
+          -0.012816332689656602,
+          0.008987692203327947
+        ],
+        "ci90": [
+          -0.011040339585339938,
+          0.007189486270251023
+        ],
+        "wilcoxon_p": 0.43509678080987746,
+        "n": 104
+      }
+    }
+  },
+  "leakage_inflation_official_minus_dedup": {
+    "full_B2": {
+      "ensemble": {
+        "mean_diff": 0.01290173518070735,
+        "ci95": [
+          0.00733844709550224,
+          0.019114345257303506
+        ],
+        "ci90": [
+          0.008223280899293,
+          0.018132253969228646
+        ],
+        "wilcoxon_p": 1.75475246657168e-05,
+        "n": 860
+      },
+      "seed_level": {
+        "diffs": [
+          0.02380621962753171,
+          0.018733759735762412,
+          0.010663674654896593,
+          0.009883099726975209,
+          0.009373747532155696
+        ],
+        "mean": 0.014492100255464324,
+        "sd": 0.006458361980309323,
+        "ci95": [
+          0.006472984697146272,
+          0.022511215813782376
+        ],
+        "ci90": [
+          0.00833475693173796,
+          0.02064944357919069
+        ],
+        "t_test_p": 0.007397995960439173,
+        "tost_p": 0.9025731219818943,
+        "margin": 0.01,
+        "equivalent": false
+      },
+      "accuracy": {
+        "acc_diff": 0.015000000000000013,
+        "a_only_correct": 1,
+        "b_only_correct": 16,
+        "exact_p": 0.000274658203125
+      }
+    },
+    "full_B3": {
+      "ensemble": {
+        "mean_diff": 0.011885657859695427,
+        "ci95": [
+          0.006396614908469,
+          0.018253173644291167
+        ],
+        "ci90": [
+          0.007136570366597292,
+          0.01731390754485146
+        ],
+        "wilcoxon_p": 4.59427688567104e-09,
+        "n": 860
+      },
+      "seed_level": {
+        "diffs": [
+          0.018483461482046937,
+          0.015510302382524044,
+          0.014429822669034253,
+          0.011186132972402119,
+          0.016034241591165288
+        ],
+        "mean": 0.015128792219434528,
+        "sd": 0.0026576453300535432,
+        "ci95": [
+          0.011828889693112684,
+          0.018428694745756372
+        ],
+        "ci90": [
+          0.012595017435715457,
+          0.0176625670031536
+        ],
+        "t_test_p": 0.00021944262411700537,
+        "tost_p": 0.9937527883230511,
+        "margin": 0.01,
+        "equivalent": false
+      },
+      "accuracy": {
+        "acc_diff": 0.013000000000000012,
+        "a_only_correct": 1,
+        "b_only_correct": 14,
+        "exact_p": 0.0009765625
+      }
+    },
+    "deduplicated_B2": {
+      "ensemble": {
+        "mean_diff": 0.005895305442483362,
+        "ci95": [
+          0.002097687942187281,
+          0.010453444501750928
+        ],
+        "ci90": [
+          0.002590109557334152,
+          0.009718642375856505
+        ],
+        "wilcoxon_p": 0.0017581885818016615,
+        "n": 756
+      },
+      "seed_level": {
+        "diffs": [
+          0.016111982312823736,
+          0.01078343984566843,
+          0.0019977928166833303,
+          0.0023936364293424273,
+          0.005363800604110125
+        ],
+        "mean": 0.00733013040172561,
+        "sd": 0.00603563415966589,
+        "ci95": [
+          -0.0001640992406603545,
+          0.014824360044111574
+        ],
+        "ci90": [
+          0.001575811921160417,
+          0.013084448882290803
+        ],
+        "t_test_p": 0.05322549091727618,
+        "tost_p": 0.18929717264333437,
+        "margin": 0.01,
+        "equivalent": false
+      },
+      "accuracy": {
+        "acc_diff": 0.004464285714285698,
+        "a_only_correct": 1,
+        "b_only_correct": 5,
+        "exact_p": 0.21875
+      }
+    },
+    "deduplicated_B3": {
+      "ensemble": {
+        "mean_diff": 0.004317461332508302,
+        "ci95": [
+          0.0004201745048492012,
+          0.008886011543548736
+        ],
+        "ci90": [
+          0.0009295552076981194,
+          0.008253864982509095
+        ],
+        "wilcoxon_p": 5.0574666397240565e-05,
+        "n": 756
+      },
+      "seed_level": {
+        "diffs": [
+          0.012089957689996433,
+          0.008122370134091783,
+          0.006206312590471441,
+          -0.0005134430820357139,
+          0.009590799082293877
+        ],
+        "mean": 0.0070991992829635645,
+        "sd": 0.004767394153282323,
+        "ci95": [
+          0.0011796975975857868,
+          0.013018700968341342
+        ],
+        "ci90": [
+          0.002554009240847175,
+          0.011644389325079954
+        ],
+        "t_test_p": 0.02911209030155081,
+        "tost_p": 0.12263399360177225,
+        "margin": 0.01,
+        "equivalent": false
+      },
+      "accuracy": {
+        "acc_diff": 0.0022321428571429047,
+        "a_only_correct": 1,
+        "b_only_correct": 3,
+        "exact_p": 0.625
+      }
+    },
+    "strict_B2": {
+      "ensemble": {
+        "mean_diff": 0.005684088665325812,
+        "ci95": [
+          0.0014641968038524103,
+          0.010485533016254281
+        ],
+        "ci90": [
+          0.0020719437361663763,
+          0.009616203023393092
+        ],
+        "wilcoxon_p": 0.0032531217525905917,
+        "n": 541
+      },
+      "seed_level": {
+        "diffs": [
+          0.0160006990556949,
+          0.011807256291083368,
+          -0.0012255917302619324,
+          0.0008683866604322077,
+          0.0057825172944476755
+        ],
+        "mean": 0.006646653514279244,
+        "sd": 0.007249781607774986,
+        "ci95": [
+          -0.002355139302934757,
+          0.015648446331493246
+        ],
+        "ci90": [
+          -0.00026522205373738506,
+          0.013558529082295873
+        ],
+        "t_test_p": 0.10968485609980906,
+        "tost_p": 0.1797171939292272,
+        "margin": 0.01,
+        "equivalent": false
+      },
+      "accuracy": {
+        "acc_diff": 0.00589101620029453,
+        "a_only_correct": 1,
+        "b_only_correct": 5,
+        "exact_p": 0.21875
+      }
+    },
+    "strict_B3": {
+      "ensemble": {
+        "mean_diff": 0.004097217056330455,
+        "ci95": [
+          -0.00022948623971558887,
+          0.009194407054664948
+        ],
+        "ci90": [
+          0.00044738785730894214,
+          0.008093717382443867
+        ],
+        "wilcoxon_p": 0.0015833142461516353,
+        "n": 541
+      },
+      "seed_level": {
+        "diffs": [
+          0.014466534578176815,
+          0.00767767273815767,
+          0.006186634923917578,
+          -0.00258721826374686,
+          0.01049909529680959
+        ],
+        "mean": 0.007248543854662959,
+        "sd": 0.006338759606353703,
+        "ci95": [
+          -0.0006220657418146971,
+          0.015119153451140614
+        ],
+        "ci90": [
+          0.0012052283418618331,
+          0.013291859367464085
+        ],
+        "t_test_p": 0.06283713139216793,
+        "tost_p": 0.1933531905868202,
+        "margin": 0.01,
+        "equivalent": false
+      },
+      "accuracy": {
+        "acc_diff": 0.002945508100147265,
+        "a_only_correct": 1,
+        "b_only_correct": 3,
+        "exact_p": 0.625
+      }
+    },
+    "near_identical_only_B2": {
+      "ensemble": {
+        "mean_diff": 0.06383308981625865,
+        "ci95": [
+          0.0319805227850828,
+          0.10323270306773612
+        ],
+        "ci90": [
+          0.03674422499316278,
+          0.09673071501059055
+        ],
+        "wilcoxon_p": 0.00069390374761183,
+        "n": 104
+      },
+      "seed_level": {
+        "diffs": [
+          0.07973740626137171,
+          0.0765264697060607,
+          0.07365796955575488,
+          0.06432573677515252,
+          0.03852297712448771
+        ],
+        "mean": 0.0665541118845655,
+        "sd": 0.016691480884899603,
+        "ci95": [
+          0.04582890099307936,
+          0.08727932277605165
+        ],
+        "ci90": [
+          0.05064060646274329,
+          0.08246761730638771
+        ],
+        "t_test_p": 0.0008748216479146897,
+        "tost_p": 0.999186281498264,
+        "margin": 0.01,
+        "equivalent": false
+      },
+      "accuracy": {
+        "acc_diff": 0.10576923076923073,
+        "a_only_correct": 0,
+        "b_only_correct": 11,
+        "exact_p": 0.0009765625
+      }
+    },
+    "near_identical_only_B3": {
+      "ensemble": {
+        "mean_diff": 0.06690062492270954,
+        "ci95": [
+          0.03216181221452222,
+          0.11005893979188558
+        ],
+        "ci90": [
+          0.03733570326747632,
+          0.10186881975739825
+        ],
+        "wilcoxon_p": 3.8113116301881395e-09,
+        "n": 104
+      },
+      "seed_level": {
+        "diffs": [
+          0.0649593159704146,
+          0.06921488680382026,
+          0.07420841516320187,
+          0.0962330512142775,
+          0.0628731121364231
+        ],
+        "mean": 0.07349775625762747,
+        "sd": 0.013430652151374161,
+        "ci95": [
+          0.05682139900886825,
+          0.0901741135063867
+        ],
+        "ci90": [
+          0.06069309516713932,
+          0.08630241734811563
+        ],
+        "t_test_p": 0.00025610053240299495,
+        "tost_p": 0.9997735020525556,
+        "margin": 0.01,
+        "equivalent": false
+      },
+      "accuracy": {
+        "acc_diff": 0.10576923076923073,
+        "a_only_correct": 0,
+        "b_only_correct": 11,
+        "exact_p": 0.0009765625
+      }
+    }
+  },
+  "ablations_single_run": {
+    "ablation_A2_seg_guided": {
+      "accuracy": 0.991,
+      "f1_macro": 0.9915456827418613,
+      "auc_macro": 0.9993631206173699,
+      "brier": 0.021884906170213086,
+      "nll": 0.10480407630847666,
+      "ece": 0.07417045953869814,
+      "ece_temperature_scaled": 0.07417045953869814,
+      "nll_temperature_scaled": 0.10480407630847666,
+      "brier_temperature_scaled": 0.021884906170213086,
+      "dice_tumor": 0.8578581475080154,
+      "dice_all": 0.8777580068568932,
+      "iou_tumor": 0.782294565699805,
+      "sensitivity_tumor": 0.8713328262744819,
+      "precision_tumor": 0.8770260670831371,
+      "hd95_median_px": 2.3397308282679,
+      "hd95_mean_px": 6.286472317861039,
+      "missed_tumor_slices": 6,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7552829376045123,
+        "meningioma": 0.9357084751713509,
+        "pituitary": 0.8652978243430456
+      }
+    },
+    "ablation_A3_consistency": {
+      "accuracy": 0.988,
+      "f1_macro": 0.9886828523705343,
+      "auc_macro": 0.9990860678298145,
+      "brier": 0.027603796753730214,
+      "nll": 0.11326387779781648,
+      "ece": 0.06926147562265396,
+      "ece_temperature_scaled": 0.06926147562265396,
+      "nll_temperature_scaled": 0.11326387779781648,
+      "brier_temperature_scaled": 0.027603796753730214,
+      "dice_tumor": 0.8621335523284912,
+      "dice_all": 0.8809348550025025,
+      "iou_tumor": 0.7868909683312035,
+      "sensitivity_tumor": 0.8837512677661635,
+      "precision_tumor": 0.8702212681887525,
+      "hd95_median_px": 2.4137757216737,
+      "hd95_mean_px": 6.184908429098481,
+      "missed_tumor_slices": 5,
+      "healthy_fp_count": 1,
+      "per_class_dice": {
+        "glioma": 0.764853284303988,
+        "meningioma": 0.937623357071596,
+        "pituitary": 0.8674979117512703
+      }
+    },
+    "ablation_A5_uncertainty": {
+      "accuracy": 0.988,
+      "f1_macro": 0.9896275839254024,
+      "auc_macro": 0.9996598744659272,
+      "brier": 0.02631517932642964,
+      "nll": 0.11356003694672151,
+      "ece": 0.07265222957730294,
+      "ece_temperature_scaled": 0.07265222957730294,
+      "nll_temperature_scaled": 0.11356003694672151,
+      "brier_temperature_scaled": 0.02631517932642964,
+      "dice_tumor": 0.8629886590870948,
+      "dice_all": 0.8811715488982736,
+      "iou_tumor": 0.7885089029228385,
+      "sensitivity_tumor": 0.8915077252488384,
+      "precision_tumor": 0.8638623989660866,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.535044360031403,
+      "missed_tumor_slices": 2,
+      "healthy_fp_count": 1,
+      "per_class_dice": {
+        "glioma": 0.7620223231054934,
+        "meningioma": 0.9387205045402439,
+        "pituitary": 0.8712270078559716
+      }
+    },
+    "ablation_B0_cls_only": {
+      "accuracy": 0.991,
+      "f1_macro": 0.9922611131862425,
+      "auc_macro": 0.9989549560808902,
+      "brier": 0.020659367244541496,
+      "nll": 0.10175320643715602,
+      "ece": 0.07493630555272096,
+      "ece_temperature_scaled": 0.07493630555272096,
+      "nll_temperature_scaled": 0.10175320643715602,
+      "brier_temperature_scaled": 0.020659367244541496
+    },
+    "ablation_B1_seg_only": {
+      "dice_tumor": 0.860381313548579,
+      "dice_all": 0.8799279296517779,
+      "iou_tumor": 0.7856559961177016,
+      "sensitivity_tumor": 0.8919828290839651,
+      "precision_tumor": 0.8581580717622546,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.456863947647485,
+      "missed_tumor_slices": 3,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7665434711255036,
+        "meningioma": 0.93553238016328,
+        "pituitary": 0.8631765988531211
+      }
+    },
+    "ablation_B3_replicate": {
+      "accuracy": 0.995,
+      "f1_macro": 0.9956473627460752,
+      "auc_macro": 0.9990340485513447,
+      "brier": 0.016948096340471782,
+      "nll": 0.09651795206466873,
+      "ece": 0.07405421274900442,
+      "ece_temperature_scaled": 0.07405421274900442,
+      "nll_temperature_scaled": 0.09651795206466873,
+      "brier_temperature_scaled": 0.016948096340471782,
+      "dice_tumor": 0.8570189514085732,
+      "dice_all": 0.877036298211373,
+      "iou_tumor": 0.7824260744955905,
+      "sensitivity_tumor": 0.879164709680355,
+      "precision_tumor": 0.869915702803108,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.125766671090043,
+      "missed_tumor_slices": 8,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7465317195167263,
+        "meningioma": 0.9383121492231593,
+        "pituitary": 0.8676457459727923
+      }
+    }
+  },
+  "replicate_same_seed": {
+    "dice_tumor": {
+      "mean_diff": -0.005728947726920311,
+      "ci95": [
+        -0.011004894261006776,
+        -0.0004635117553021569
+      ],
+      "ci90": [
+        -0.010229116632081271,
+        -0.0012833075586714566
+      ],
+      "wilcoxon_p": 0.003581448680663748,
+      "n": 860
+    },
+    "accuracy": {
+      "acc_diff": 0.0020000000000000018,
+      "a_only_correct": 2,
+      "b_only_correct": 4,
+      "exact_p": 0.6875
     }
   }
 }

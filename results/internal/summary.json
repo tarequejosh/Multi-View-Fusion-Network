@@ -1,0 +1,942 @@
+{
+  "summary": {
+    "B2_seed42": {
+      "accuracy": 0.994,
+      "f1_macro": 0.9947471823375019,
+      "auc_macro": 0.9991715055995469,
+      "brier": 0.018550250783361057,
+      "nll": 0.10009929602784923,
+      "ece": 0.07559695217013365,
+      "ece_temperature_scaled": 0.0013344250321387597,
+      "nll_temperature_scaled": 0.03606625669136187,
+      "brier_temperature_scaled": 0.011901506990130317,
+      "dice_tumor": 0.8588279399153137,
+      "dice_all": 0.8785920283271699,
+      "iou_tumor": 0.7835560257913448,
+      "sensitivity_tumor": 0.8737923068034039,
+      "precision_tumor": 0.8766832692242179,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.914707993872961,
+      "missed_tumor_slices": 5,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7568680988693441,
+        "meningioma": 0.934642429591394,
+        "pituitary": 0.8678231591979663
+      }
+    },
+    "B2_seed43": {
+      "accuracy": 0.994,
+      "f1_macro": 0.9946581254673212,
+      "auc_macro": 0.9989199822330614,
+      "brier": 0.018685428720337682,
+      "nll": 0.09976418234626931,
+      "ece": 0.07429226481914515,
+      "ece_temperature_scaled": 0.0009841722846031372,
+      "nll_temperature_scaled": 0.03919545317229848,
+      "brier_temperature_scaled": 0.01207340200568331,
+      "dice_tumor": 0.863496075697625,
+      "dice_all": 0.8826066250999575,
+      "iou_tumor": 0.7898112737522921,
+      "sensitivity_tumor": 0.8769393412083144,
+      "precision_tumor": 0.8791064532361927,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.272924856174937,
+      "missed_tumor_slices": 5,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7596786799192095,
+        "meningioma": 0.9385577834704343,
+        "pituitary": 0.8748318621950845
+      }
+    },
+    "B2_seed44": {
+      "accuracy": 0.997,
+      "f1_macro": 0.9973722787454453,
+      "auc_macro": 0.9990095320176796,
+      "brier": 0.014067783623107623,
+      "nll": 0.09275590522992459,
+      "ece": 0.07809628272056582,
+      "ece_temperature_scaled": 0.001575490772724182,
+      "nll_temperature_scaled": 0.022586065475127388,
+      "brier_temperature_scaled": 0.0061809336853610175,
+      "dice_tumor": 0.8591483792808884,
+      "dice_all": 0.878867606181564,
+      "iou_tumor": 0.7849164596952696,
+      "sensitivity_tumor": 0.8766048552618678,
+      "precision_tumor": 0.871526509097331,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.286571848572281,
+      "missed_tumor_slices": 5,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7527037761720698,
+        "meningioma": 0.9361927656858575,
+        "pituitary": 0.8706862024466197
+      }
+    },
+    "B2_seed45": {
+      "accuracy": 0.991,
+      "f1_macro": 0.992181762147111,
+      "auc_macro": 0.9978958577170391,
+      "brier": 0.02319937122041403,
+      "nll": 0.1073371238314629,
+      "ece": 0.0736413919329643,
+      "ece_temperature_scaled": 0.004833407282829328,
+      "nll_temperature_scaled": 0.05236805144712595,
+      "brier_temperature_scaled": 0.017858410029134696,
+      "dice_tumor": 0.859292317703461,
+      "dice_all": 0.8789913932249764,
+      "iou_tumor": 0.7856340892804478,
+      "sensitivity_tumor": 0.8755644958819332,
+      "precision_tumor": 0.8735431139235543,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.044399615153633,
+      "missed_tumor_slices": 6,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7579282502202395,
+        "meningioma": 0.9371342603862894,
+        "pituitary": 0.8657151133027704
+      }
+    },
+    "B2_seed46": {
+      "accuracy": 0.994,
+      "f1_macro": 0.9946556452747588,
+      "auc_macro": 0.9993408783991187,
+      "brier": 0.017240552589746563,
+      "nll": 0.09511284381475392,
+      "ece": 0.07270069605112074,
+      "ece_temperature_scaled": 0.002363448381423912,
+      "nll_temperature_scaled": 0.03253124444221838,
+      "brier_temperature_scaled": 0.01119564335062822,
+      "dice_tumor": 0.8624779189308038,
+      "dice_all": 0.8817310102804913,
+      "iou_tumor": 0.7878109961151833,
+      "sensitivity_tumor": 0.8763046499223843,
+      "precision_tumor": 0.878693876015631,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.979074825339636,
+      "missed_tumor_slices": 6,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7618121762618361,
+        "meningioma": 0.9400239239136378,
+        "pituitary": 0.8686113226413726
+      }
+    },
+    "B2_ensemble": {
+      "accuracy": 0.996,
+      "f1_macro": 0.9964638856981057,
+      "auc_macro": 0.9993532447552783,
+      "brier": 0.01423876911171602,
+      "nll": 0.0910799875624239,
+      "ece": 0.07957626622915269,
+      "ece_temperature_scaled": 0.005734663724899296,
+      "nll_temperature_scaled": 0.018371385538579834,
+      "brier_temperature_scaled": 0.006358584151407733,
+      "dice_tumor": 0.8650871073735775,
+      "dice_all": 0.8839749123412767,
+      "iou_tumor": 0.7922001432709337,
+      "sensitivity_tumor": 0.8782799368006804,
+      "precision_tumor": 0.8821587227267543,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.73389701681896,
+      "missed_tumor_slices": 7,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7644113529692166,
+        "meningioma": 0.9397262505261726,
+        "pituitary": 0.8741939867536227
+      },
+      "ci95": {
+        "accuracy": [
+          0.992,
+          0.999
+        ],
+        "dice_tumor": [
+          0.8527563163767322,
+          0.8757534290607771
+        ]
+      }
+    },
+    "B3_seed42": {
+      "accuracy": 0.993,
+      "f1_macro": 0.9939245968535975,
+      "auc_macro": 0.9991001547345567,
+      "brier": 0.019971490183521755,
+      "nll": 0.10303939841931628,
+      "ece": 0.07396777325868609,
+      "ece_temperature_scaled": 0.002137172162532862,
+      "nll_temperature_scaled": 0.041040699049788645,
+      "brier_temperature_scaled": 0.013272225867727548,
+      "dice_tumor": 0.8627478991354934,
+      "dice_all": 0.8819631932565244,
+      "iou_tumor": 0.7880406610555352,
+      "sensitivity_tumor": 0.8850672330285881,
+      "precision_tumor": 0.8698634939448802,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.0028044754377134,
+      "missed_tumor_slices": 4,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7661028063941314,
+        "meningioma": 0.9383988020077251,
+        "pituitary": 0.8674101567268372
+      }
+    },
+    "B3_seed43": {
+      "accuracy": 0.994,
+      "f1_macro": 0.9948137539771537,
+      "auc_macro": 0.9994083227710973,
+      "brier": 0.01925051319673306,
+      "nll": 0.10043945969298766,
+      "ece": 0.07265870475769041,
+      "ece_temperature_scaled": 0.004779915153980201,
+      "nll_temperature_scaled": 0.0396510954944988,
+      "brier_temperature_scaled": 0.01234423377663863,
+      "dice_tumor": 0.8596430712547708,
+      "dice_all": 0.8792930412791029,
+      "iou_tumor": 0.7851809477298534,
+      "sensitivity_tumor": 0.8752824986546673,
+      "precision_tumor": 0.8760857508750841,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.020085458227568,
+      "missed_tumor_slices": 7,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7503504095669867,
+        "meningioma": 0.9406222633871377,
+        "pituitary": 0.8695787488420804
+      }
+    },
+    "B3_seed44": {
+      "accuracy": 0.992,
+      "f1_macro": 0.992620944177231,
+      "auc_macro": 0.9993807249187056,
+      "brier": 0.0219495001219247,
+      "nll": 0.10527250533346276,
+      "ece": 0.07156927132606505,
+      "ece_temperature_scaled": 0.003790816128253921,
+      "nll_temperature_scaled": 0.05038149963702939,
+      "brier_temperature_scaled": 0.015909277076570482,
+      "dice_tumor": 0.8566636894128372,
+      "dice_all": 0.87673077289504,
+      "iou_tumor": 0.7820104360030856,
+      "sensitivity_tumor": 0.8736017277452979,
+      "precision_tumor": 0.8729913059919692,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.2341799310328865,
+      "missed_tumor_slices": 8,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7533862432414541,
+        "meningioma": 0.931141947257999,
+        "pituitary": 0.8681374375025431
+      }
+    },
+    "B3_seed45": {
+      "accuracy": 0.995,
+      "f1_macro": 0.9957272505709543,
+      "auc_macro": 0.9997694074889893,
+      "brier": 0.016993797966944117,
+      "nll": 0.0972090670187124,
+      "ece": 0.07445108181238169,
+      "ece_temperature_scaled": 0.0010907483100891513,
+      "nll_temperature_scaled": 0.03271936158625461,
+      "brier_temperature_scaled": 0.009923652797922155,
+      "dice_tumor": 0.8565569898216487,
+      "dice_all": 0.8766390112466179,
+      "iou_tumor": 0.7826010109561625,
+      "sensitivity_tumor": 0.8790359373995937,
+      "precision_tumor": 0.8674344856749447,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.210647359117635,
+      "missed_tumor_slices": 8,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.750539076549375,
+        "meningioma": 0.9398191601427552,
+        "pituitary": 0.8613914093313118
+      }
+    },
+    "B3_seed46": {
+      "accuracy": 0.992,
+      "f1_macro": 0.9925513876584177,
+      "auc_macro": 0.9997104847675713,
+      "brier": 0.021333443970034095,
+      "nll": 0.1024351388200643,
+      "ece": 0.07281623387336733,
+      "ece_temperature_scaled": 0.0026698127985000167,
+      "nll_temperature_scaled": 0.04412453615844501,
+      "brier_temperature_scaled": 0.015420468419252296,
+      "dice_tumor": 0.8576514707301232,
+      "dice_all": 0.877580264827906,
+      "iou_tumor": 0.7824281282080974,
+      "sensitivity_tumor": 0.87666380376794,
+      "precision_tumor": 0.8719101838312774,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.226705227421193,
+      "missed_tumor_slices": 6,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7566457034233502,
+        "meningioma": 0.9325077196344804,
+        "pituitary": 0.866816313167413
+      }
+    },
+    "B3_ensemble": {
+      "accuracy": 0.996,
+      "f1_macro": 0.9964746832936069,
+      "auc_macro": 0.9994699195328915,
+      "brier": 0.015359680758442696,
+      "nll": 0.09372164602621509,
+      "ece": 0.07876795402169227,
+      "ece_temperature_scaled": 0.007586103379726477,
+      "nll_temperature_scaled": 0.02403860327629081,
+      "brier_temperature_scaled": 0.007485831698749109,
+      "dice_tumor": 0.8630765433960627,
+      "dice_all": 0.8822458273206139,
+      "iou_tumor": 0.7901132991977393,
+      "sensitivity_tumor": 0.8808237741544023,
+      "precision_tumor": 0.8768012331165425,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.845027732476949,
+      "missed_tumor_slices": 7,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7588017584199607,
+        "meningioma": 0.9415636436611998,
+        "pituitary": 0.8713056857387225
+      },
+      "ci95": {
+        "accuracy": [
+          0.9919749999999999,
+          0.999
+        ],
+        "dice_tumor": [
+          0.8505260544365474,
+          0.8742705645071404
+        ]
+      }
+    },
+    "B2_dedup_seed42": {
+      "accuracy": 0.971,
+      "f1_macro": 0.9686457476249692,
+      "auc_macro": 0.9986816291926528,
+      "brier": 0.05233297671136724,
+      "nll": 0.1533370384785776,
+      "ece": 0.06335387289524078,
+      "ece_temperature_scaled": 0.024431809961795895,
+      "nll_temperature_scaled": 0.14367674693855004,
+      "brier_temperature_scaled": 0.05379335300692123,
+      "dice_tumor": 0.835021720287782,
+      "dice_all": 0.8581186794474924,
+      "iou_tumor": 0.758796324592194,
+      "sensitivity_tumor": 0.8587939121885195,
+      "precision_tumor": 0.8593619527913819,
+      "hd95_median_px": 2.8284271247461903,
+      "hd95_mean_px": 6.985962277250332,
+      "missed_tumor_slices": 17,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7255481813661204,
+        "meningioma": 0.9040732865787802,
+        "pituitary": 0.8572767189579705
+      }
+    },
+    "B2_dedup_seed43": {
+      "accuracy": 0.972,
+      "f1_macro": 0.9713251600442996,
+      "auc_macro": 0.9967413761348146,
+      "brier": 0.05200042463633507,
+      "nll": 0.16076822149701536,
+      "ece": 0.06641272267699239,
+      "ece_temperature_scaled": 0.019329511523246752,
+      "nll_temperature_scaled": 0.14057935003335922,
+      "brier_temperature_scaled": 0.05097196760735332,
+      "dice_tumor": 0.8447623159618626,
+      "dice_all": 0.8664955917272018,
+      "iou_tumor": 0.7692431562332447,
+      "sensitivity_tumor": 0.8598877543739578,
+      "precision_tumor": 0.8735614997786741,
+      "hd95_median_px": 2.44339367903601,
+      "hd95_mean_px": 6.612902196515689,
+      "missed_tumor_slices": 16,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.744622631839868,
+        "meningioma": 0.9071062265951803,
+        "pituitary": 0.8659564596725007
+      }
+    },
+    "B2_dedup_seed44": {
+      "accuracy": 0.977,
+      "f1_macro": 0.975094072382862,
+      "auc_macro": 0.9972896115425032,
+      "brier": 0.043773166417076785,
+      "nll": 0.14314744667036233,
+      "ece": 0.06803403568267818,
+      "ece_temperature_scaled": 0.018197015106678018,
+      "nll_temperature_scaled": 0.11811780436716841,
+      "brier_temperature_scaled": 0.042332351448799835,
+      "dice_tumor": 0.8484847046259918,
+      "dice_all": 0.869696845978353,
+      "iou_tumor": 0.7740260805667657,
+      "sensitivity_tumor": 0.8620015264423244,
+      "precision_tumor": 0.8780233362172586,
+      "hd95_median_px": 2.3841577643113814,
+      "hd95_mean_px": 6.10972439035731,
+      "missed_tumor_slices": 12,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7472170515674098,
+        "meningioma": 0.9121694342378569,
+        "pituitary": 0.8692662266781553
+      }
+    },
+    "B2_dedup_seed45": {
+      "accuracy": 0.977,
+      "f1_macro": 0.9761611411029247,
+      "auc_macro": 0.9936267225463737,
+      "brier": 0.046456953095520455,
+      "nll": 0.15126836136059887,
+      "ece": 0.06490447300672529,
+      "ece_temperature_scaled": 0.01640281295776367,
+      "nll_temperature_scaled": 0.1252222052959273,
+      "brier_temperature_scaled": 0.043183936956581806,
+      "dice_tumor": 0.8494092179764858,
+      "dice_all": 0.8704919274597778,
+      "iou_tumor": 0.7741669634551346,
+      "sensitivity_tumor": 0.865587683813497,
+      "precision_tumor": 0.8764437652903212,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.554002284563118,
+      "missed_tumor_slices": 15,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.752234908503615,
+        "meningioma": 0.9131828134359595,
+        "pituitary": 0.8666343992948532
+      }
+    },
+    "B2_dedup_seed46": {
+      "accuracy": 0.989,
+      "f1_macro": 0.9888842766229408,
+      "auc_macro": 0.996803561310525,
+      "brier": 0.026628787360313096,
+      "nll": 0.11409676465933571,
+      "ece": 0.06659920918941505,
+      "ece_temperature_scaled": 0.004605798482894979,
+      "nll_temperature_scaled": 0.06492985168934205,
+      "brier_temperature_scaled": 0.021245703557029635,
+      "dice_tumor": 0.8531041713986481,
+      "dice_all": 0.8736695874028374,
+      "iou_tumor": 0.7773935527272717,
+      "sensitivity_tumor": 0.8610297654831462,
+      "precision_tumor": 0.881459589637857,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.5194836675577905,
+      "missed_tumor_slices": 9,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7500815549918073,
+        "meningioma": 0.9219282910319462,
+        "pituitary": 0.8701293845971425
+      }
+    },
+    "B2_dedup_ensemble": {
+      "accuracy": 0.981,
+      "f1_macro": 0.9794842554474241,
+      "auc_macro": 0.9989481448284978,
+      "brier": 0.03390283812354139,
+      "nll": 0.12287425008673958,
+      "ece": 0.07303037682175634,
+      "ece_temperature_scaled": 0.007589986830949836,
+      "nll_temperature_scaled": 0.06599359052910804,
+      "brier_temperature_scaled": 0.028255529367262965,
+      "dice_tumor": 0.8521853721928702,
+      "dice_all": 0.8728794200858684,
+      "iou_tumor": 0.7781369557030916,
+      "sensitivity_tumor": 0.8643174687806222,
+      "precision_tumor": 0.8817340280685511,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 6.027925789754284,
+      "missed_tumor_slices": 15,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7527191286156546,
+        "meningioma": 0.9151598739222239,
+        "pituitary": 0.8721661333243053
+      },
+      "ci95": {
+        "accuracy": [
+          0.972,
+          0.989
+        ],
+        "dice_tumor": [
+          0.8385669508767167,
+          0.8646972637423781
+        ]
+      }
+    },
+    "B3_dedup_seed42": {
+      "accuracy": 0.982,
+      "f1_macro": 0.9821222965605334,
+      "auc_macro": 0.9990778424931062,
+      "brier": 0.03728657736940739,
+      "nll": 0.1350969180072417,
+      "ece": 0.06626266026496885,
+      "ece_temperature_scaled": 0.011896298170089694,
+      "nll_temperature_scaled": 0.09977688051437633,
+      "brier_temperature_scaled": 0.0335542658873794,
+      "dice_tumor": 0.8442644376534465,
+      "dice_all": 0.8660674163819639,
+      "iou_tumor": 0.7687553681922551,
+      "sensitivity_tumor": 0.8633715143723442,
+      "precision_tumor": 0.8691027237310471,
+      "hd95_median_px": 2.38415776431139,
+      "hd95_mean_px": 6.53395968776192,
+      "missed_tumor_slices": 17,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.750176290158429,
+        "meningioma": 0.9035317450439371,
+        "pituitary": 0.8634730823275943
+      }
+    },
+    "B3_dedup_seed43": {
+      "accuracy": 0.983,
+      "f1_macro": 0.9817661111791602,
+      "auc_macro": 0.9980827543647104,
+      "brier": 0.03726832230710283,
+      "nll": 0.13422589105457283,
+      "ece": 0.06992231541872031,
+      "ece_temperature_scaled": 0.011422328114509541,
+      "nll_temperature_scaled": 0.09466758456789133,
+      "brier_temperature_scaled": 0.03331825046937866,
+      "dice_tumor": 0.8441327688722468,
+      "dice_all": 0.8659541812301322,
+      "iou_tumor": 0.766986877637405,
+      "sensitivity_tumor": 0.8582448297697584,
+      "precision_tumor": 0.871211934330532,
+      "hd95_median_px": 2.8284271247461903,
+      "hd95_mean_px": 6.83540857930772,
+      "missed_tumor_slices": 12,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7437115150554688,
+        "meningioma": 0.9099555988013296,
+        "pituitary": 0.862016810576121
+      }
+    },
+    "B3_dedup_seed44": {
+      "accuracy": 0.973,
+      "f1_macro": 0.9712686096636323,
+      "auc_macro": 0.9928102967001851,
+      "brier": 0.05038330988954996,
+      "nll": 0.15833897912289546,
+      "ece": 0.0677362341880799,
+      "ece_temperature_scaled": 0.02174572882056239,
+      "nll_temperature_scaled": 0.14486735448155913,
+      "brier_temperature_scaled": 0.049221782550321516,
+      "dice_tumor": 0.842233866743803,
+      "dice_all": 0.8643211253996705,
+      "iou_tumor": 0.7664545408429762,
+      "sensitivity_tumor": 0.8575313769543588,
+      "precision_tumor": 0.8748461151584683,
+      "hd95_median_px": 2.591483465847627,
+      "hd95_mean_px": 6.6360794091050535,
+      "missed_tumor_slices": 18,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7416550895206284,
+        "meningioma": 0.9008295451911217,
+        "pituitary": 0.8676229727764925
+      }
+    },
+    "B3_dedup_seed45": {
+      "accuracy": 0.978,
+      "f1_macro": 0.9766269946505124,
+      "auc_macro": 0.9956711436655566,
+      "brier": 0.0463956730857051,
+      "nll": 0.15290356233831187,
+      "ece": 0.06047361522912976,
+      "ece_temperature_scaled": 0.01798996728658676,
+      "nll_temperature_scaled": 0.13374732874498857,
+      "brier_temperature_scaled": 0.04329954600011928,
+      "dice_tumor": 0.8453708568492466,
+      "dice_all": 0.867018936890352,
+      "iou_tumor": 0.7695467269396664,
+      "sensitivity_tumor": 0.864594675780334,
+      "precision_tumor": 0.8666510072612473,
+      "hd95_median_px": 2.8284271247461903,
+      "hd95_mean_px": 6.44021023131899,
+      "missed_tumor_slices": 13,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.7530645655437628,
+        "meningioma": 0.9005163517008115,
+        "pituitary": 0.8672751120726268
+      }
+    },
+    "B3_dedup_seed46": {
+      "accuracy": 0.97,
+      "f1_macro": 0.9674415723718871,
+      "auc_macro": 0.996989157325691,
+      "brier": 0.05382621495654043,
+      "nll": 0.16156142695238077,
+      "ece": 0.06287463775277137,
+      "ece_temperature_scaled": 0.02283658128976822,
+      "nll_temperature_scaled": 0.1459710967568331,
+      "brier_temperature_scaled": 0.05380949868565112,
+      "dice_tumor": 0.8416172291389579,
+      "dice_all": 0.8637908170595038,
+      "iou_tumor": 0.7668118958241478,
+      "sensitivity_tumor": 0.8589151513931738,
+      "precision_tumor": 0.8691771265557041,
+      "hd95_median_px": 2.6803373379345903,
+      "hd95_mean_px": 6.542103787795113,
+      "missed_tumor_slices": 17,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.740403517041338,
+        "meningioma": 0.9051843989630297,
+        "pituitary": 0.862472992161056
+      }
+    },
+    "B3_dedup_ensemble": {
+      "accuracy": 0.983,
+      "f1_macro": 0.9814974603924778,
+      "auc_macro": 0.9984904548332094,
+      "brier": 0.035935305148311,
+      "nll": 0.12945863473597133,
+      "ece": 0.07216027817130094,
+      "ece_temperature_scaled": 0.007507191359996796,
+      "nll_temperature_scaled": 0.07499849894535268,
+      "brier_temperature_scaled": 0.029519011566205854,
+      "dice_tumor": 0.8511908855363672,
+      "dice_all": 0.8720241615612758,
+      "iou_tumor": 0.7766590816254435,
+      "sensitivity_tumor": 0.8657911853717877,
+      "precision_tumor": 0.8791599446341687,
+      "hd95_median_px": 2.23606797749979,
+      "hd95_mean_px": 5.902761283374078,
+      "missed_tumor_slices": 17,
+      "healthy_fp_count": 0,
+      "per_class_dice": {
+        "glioma": 0.753710029834325,
+        "meningioma": 0.912861309676896,
+        "pituitary": 0.8708208440740903
+      },
+      "ci95": {
+        "accuracy": [
+          0.974,
+          0.99
+        ],
+        "dice_tumor": [
+          0.8373503683847763,
+          0.863814273177981
+        ]
+      }
+    }
+  },
+  "seed_mean_sd": {
+    "B2_official": {
+      "accuracy": {
+        "mean": 0.994,
+        "sd": 0.0021213203435596446
+      },
+      "f1_macro": {
+        "mean": 0.9947229987944276,
+        "sd": 0.0018361575262941647
+      },
+      "auc_macro": {
+        "mean": 0.9988675511932892,
+        "sd": 0.0005664633053152942
+      },
+      "brier": {
+        "mean": 0.018348677387393392,
+        "sd": 0.0032877521174872184
+      },
+      "nll": {
+        "mean": 0.099013870250052,
+        "sd": 0.005599057978431256
+      },
+      "ece": {
+        "mean": 0.07486551753878593,
+        "sd": 0.002090836826045773
+      },
+      "ece_temperature_scaled": {
+        "mean": 0.002218188750743864,
+        "sd": 0.0015473658238154536
+      },
+      "nll_temperature_scaled": {
+        "mean": 0.03654941424562642,
+        "sd": 0.010823412627170655
+      },
+      "brier_temperature_scaled": {
+        "mean": 0.011841979212187513,
+        "sd": 0.004144868102351021
+      },
+      "dice_tumor": {
+        "mean": 0.8606485263056184,
+        "sd": 0.0021713758650873053
+      },
+      "dice_all": {
+        "mean": 0.8801577326228319,
+        "sd": 0.0018673832439750613
+      },
+      "iou_tumor": {
+        "mean": 0.7863457689269076,
+        "sd": 0.00247430262747287
+      },
+      "sensitivity_tumor": {
+        "mean": 0.8758411298155806,
+        "sd": 0.0012528365594041237
+      },
+      "precision_tumor": {
+        "mean": 0.8759106442993854,
+        "sd": 0.0032932645039436556
+      },
+      "hd95_median_px": {
+        "mean": 2.23606797749979,
+        "sd": 0.0
+      },
+      "hd95_mean_px": {
+        "mean": 6.09953582782269,
+        "sd": 0.17084964989723875
+      },
+      "missed_tumor_slices": {
+        "mean": 5.4,
+        "sd": 0.5477225575051662
+      },
+      "healthy_fp_count": {
+        "mean": 0.0,
+        "sd": 0.0
+      }
+    },
+    "B3_official": {
+      "accuracy": {
+        "mean": 0.9932000000000001,
+        "sd": 0.0013038404810405309
+      },
+      "f1_macro": {
+        "mean": 0.9939275866474709,
+        "sd": 0.0013806999959312363
+      },
+      "auc_macro": {
+        "mean": 0.999473818936184,
+        "sd": 0.00027201309141514925
+      },
+      "brier": {
+        "mean": 0.01989974908783155,
+        "sd": 0.0019447471725849044
+      },
+      "nll": {
+        "mean": 0.10167911385690868,
+        "sd": 0.003035311817639403
+      },
+      "ece": {
+        "mean": 0.07309261300563812,
+        "sd": 0.0011397998324844782
+      },
+      "ece_temperature_scaled": {
+        "mean": 0.0028936929106712305,
+        "sd": 0.0014348971738801662
+      },
+      "nll_temperature_scaled": {
+        "mean": 0.041583438385203286,
+        "sd": 0.006451035424937238
+      },
+      "brier_temperature_scaled": {
+        "mean": 0.013373971587622224,
+        "sd": 0.0024285456092899825
+      },
+      "dice_tumor": {
+        "mean": 0.8586526240709746,
+        "sd": 0.0026029846076737182
+      },
+      "dice_all": {
+        "mean": 0.8784412567010383,
+        "sd": 0.0022385667625994146
+      },
+      "iou_tumor": {
+        "mean": 0.7840522367905469,
+        "sd": 0.002554126664229164
+      },
+      "sensitivity_tumor": {
+        "mean": 0.8779302401192174,
+        "sd": 0.004458409176218266
+      },
+      "precision_tumor": {
+        "mean": 0.8716570440636311,
+        "sd": 0.0032597776009846043
+      },
+      "hd95_median_px": {
+        "mean": 2.23606797749979,
+        "sd": 0.0
+      },
+      "hd95_mean_px": {
+        "mean": 6.138884490247399,
+        "sd": 0.11680602799105527
+      },
+      "missed_tumor_slices": {
+        "mean": 6.6,
+        "sd": 1.6733200530681511
+      },
+      "healthy_fp_count": {
+        "mean": 0.0,
+        "sd": 0.0
+      }
+    },
+    "B2_dedup": {
+      "accuracy": {
+        "mean": 0.9772000000000001,
+        "sd": 0.007155417527999333
+      },
+      "f1_macro": {
+        "mean": 0.9760220795555993,
+        "sd": 0.007790827531016588
+      },
+      "auc_macro": {
+        "mean": 0.996628580145374,
+        "sd": 0.0018511120499979216
+      },
+      "brier": {
+        "mean": 0.044238461644122526,
+        "sd": 0.01050009614261252
+      },
+      "nll": {
+        "mean": 0.14452356653317797,
+        "sd": 0.01812968793193476
+      },
+      "ece": {
+        "mean": 0.06586086269021033,
+        "sd": 0.0017869012921709426
+      },
+      "ece_temperature_scaled": {
+        "mean": 0.016593389606475863,
+        "sd": 0.007335486895227501
+      },
+      "nll_temperature_scaled": {
+        "mean": 0.11850519166486942,
+        "sd": 0.03176657463870123
+      },
+      "brier_temperature_scaled": {
+        "mean": 0.042305462515337164,
+        "sd": 0.012760934783522391
+      },
+      "dice_tumor": {
+        "mean": 0.846156426050154,
+        "sd": 0.006895613047857186
+      },
+      "dice_all": {
+        "mean": 0.8676945264031325,
+        "sd": 0.00593022722115721
+      },
+      "iou_tumor": {
+        "mean": 0.7707252155149222,
+        "sd": 0.00727500856550692
+      },
+      "sensitivity_tumor": {
+        "mean": 0.8614601284602891,
+        "sd": 0.0026026960414182888
+      },
+      "precision_tumor": {
+        "mean": 0.8737700287430986,
+        "sd": 0.008544076534467256
+      },
+      "hd95_median_px": {
+        "mean": 2.425622904618632,
+        "sd": 0.24297558458964702
+      },
+      "hd95_mean_px": {
+        "mean": 6.556414963248848,
+        "sd": 0.31169051638526923
+      },
+      "missed_tumor_slices": {
+        "mean": 13.8,
+        "sd": 3.271085446759225
+      },
+      "healthy_fp_count": {
+        "mean": 0.0,
+        "sd": 0.0
+      }
+    },
+    "B3_dedup": {
+      "accuracy": {
+        "mean": 0.9771999999999998,
+        "sd": 0.005630275304103704
+      },
+      "f1_macro": {
+        "mean": 0.9758451168851451,
+        "sd": 0.00645438745509036
+      },
+      "auc_macro": {
+        "mean": 0.9965262389098498,
+        "sd": 0.0024334712372150813
+      },
+      "brier": {
+        "mean": 0.04503201952166114,
+        "sd": 0.0075514998769166865
+      },
+      "nll": {
+        "mean": 0.1484253554950805,
+        "sd": 0.012943750225113496
+      },
+      "ece": {
+        "mean": 0.06545389257073403,
+        "sd": 0.003784366162423808
+      },
+      "ece_temperature_scaled": {
+        "mean": 0.01717818073630332,
+        "sd": 0.005351801392423243
+      },
+      "nll_temperature_scaled": {
+        "mean": 0.12380604901312968,
+        "sd": 0.02479993962286056
+      },
+      "brier_temperature_scaled": {
+        "mean": 0.042640668718569995,
+        "sd": 0.009191818914063017
+      },
+      "dice_tumor": {
+        "mean": 0.8435238318515401,
+        "sd": 0.001551607752781168
+      },
+      "dice_all": {
+        "mean": 0.8654304953923244,
+        "sd": 0.0013343826673917797
+      },
+      "iou_tumor": {
+        "mean": 0.7677110818872901,
+        "sd": 0.0013575740691392933
+      },
+      "sensitivity_tumor": {
+        "mean": 0.8605315096539938,
+        "sd": 0.0032178121801232557
+      },
+      "precision_tumor": {
+        "mean": 0.8701977814073997,
+        "sd": 0.003060065656871796
+      },
+      "hd95_median_px": {
+        "mean": 2.6625665635171973,
+        "sd": 0.1856741219282511
+      },
+      "hd95_mean_px": {
+        "mean": 6.597552339057759,
+        "sd": 0.14994585035598287
+      },
+      "missed_tumor_slices": {
+        "mean": 15.4,
+        "sd": 2.701851217221259
+      },
+      "healthy_fp_count": {
+        "mean": 0.0,
+        "sd": 0.0
+      }
+    }
+  }
+}
