@@ -1,252 +1,297 @@
 #!/usr/bin/env python3
 """
-Generate Figure 2: Dataset Structure, Partitioning, and Preprocessing Pipeline
-==============================================================================
-Target: IEEE Transactions on Medical Imaging (TMI) / Medical Image Analysis
-Physical print dimensions: 7.16 inches wide (full \textwidth), 4.90 inches high.
-Rendered at 300 DPI (2148 x 1470 px).
-
-Font Sizing Principle:
-  Designed with 5.6 - 7.8 pt fonts directly on a 7.16-inch canvas so that when
-  included in LaTeX at width=\textwidth, the effective print font size is 1:1
-  identical to standard journal body/caption text (no zooming required).
+Generate Figure 2: Experimental Protocol, Supervision Audit & Multi-Center Pipeline
+===================================================================================
+Designed in authentic IEEE TMI / Medical Image Analysis / TikZ schematic style:
+- Desaturated academic color palette (Muted Steel Blue, Mineral Sage/Teal, Warm Sand,
+  and Charcoal) with crisp hairline borders and STIX mathematical typography.
+- Includes real miniature T1w MRI slices for the 3 orthogonal acquisition planes in (a)
+  and visual healthy-scan mask thumbnails in (c) illustrating the empty-slice
+  supervision bug (95.71% FP) vs. PAUMT-Net's empty-mask supervision (0.00% FP).
 """
 
-import os
 from pathlib import Path
+import numpy as np
+from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from matplotlib.patches import FancyBboxPatch, ArrowStyle, FancyArrowPatch
-from PIL import Image
-import numpy as np
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch, ArrowStyle
 
-OUTPUT_PATH = Path(r"d:\Research\Multi-View Fusion Network\figures\journal\figure2_pipeline.png")
+ROOT = Path(__file__).resolve().parent.parent
+OUTPUT_PATH = ROOT / "figures" / "journal" / "figure2_pipeline.png"
 OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-plt.rcParams['font.family'] = 'DejaVu Sans'
-plt.rcParams['font.size'] = 7.5
-plt.rcParams['axes.linewidth'] = 0.8
-plt.rcParams['mathtext.fontset'] = 'dejavusans'
+plt.rcParams["font.family"] = "DejaVu Sans"
+plt.rcParams["mathtext.fontset"] = "stix"
+plt.rcParams["axes.linewidth"] = 0.8
 
-# Canvas: 7.16 x 4.90 inches at 300 DPI (Exact physical \textwidth)
-fig, ax = plt.subplots(figsize=(7.16, 4.90), dpi=300)
-ax.set_xlim(0, 7.16)
-ax.set_ylim(0, 4.90)
-ax.axis('off')
+fig, ax = plt.subplots(figsize=(10.4, 5.95), dpi=300)
+ax.set_xlim(0, 10.4)
+ax.set_ylim(0, 5.95)
+ax.axis("off")
+fig.patch.set_facecolor("#FFFFFF")
 
-# Color palette (Consistent with Figure 1)
-C_BLUE_BORDER  = '#1D4ED8'
-C_BLUE_BG      = '#EFF6FF'
-C_TEAL_BORDER  = '#0D9488'
-C_TEAL_BG      = '#F0FDFA'
-C_AMBER_BORDER = '#D97706'
-C_AMBER_BG     = '#FFFBEB'
-C_PURPLE_BRD   = '#7C3AED'
-C_PURPLE_BG    = '#FAF5FF'
-C_GREEN_BORDER = '#059669'
-C_GREEN_BG     = '#ECFDF5'
-C_DARK         = '#0F172A'
-C_MUTED        = '#475569'
+# ---------------------------------------------------------------------------
+# Desaturated Academic Color Palette (TikZ / Paul Tol Muted)
+# ---------------------------------------------------------------------------
+C_INK       = "#1E293B"
+C_SUB       = "#475569"
+C_MUTED     = "#64748B"
+C_LINE      = "#334155"
+C_PANEL_BG  = "#FAFBFD"
+C_PANEL_BRD = "#94A3B8"
 
-def draw_box(x, y, w, h, ec, fc, lw=1.1, radius=0.06, zorder=2):
+E_BG   = "#EDF2F9"
+E_EDGE = "#2B4C7E"
+
+D_BG   = "#EBF5F3"
+D_EDGE = "#255E57"
+
+P_BG   = "#FAF3E8"
+P_EDGE = "#805B28"
+
+R_BG   = "#FDF2F2"
+R_EDGE = "#991B1B"
+
+
+def draw_panel_frame(x, y, w, h, title, subtitle=None):
+    rect = FancyBboxPatch(
+        (x, y), w, h,
+        boxstyle="round,pad=0.01,rounding_size=0.03",
+        edgecolor=C_PANEL_BRD, facecolor=C_PANEL_BG, linewidth=0.9, linestyle="-", zorder=1
+    )
+    ax.add_patch(rect)
+    hdr = FancyBboxPatch(
+        (x, y + h - 0.34), w, 0.34,
+        boxstyle="round,pad=0.01,rounding_size=0.03",
+        edgecolor=C_PANEL_BRD, facecolor="#F1F5F9", linewidth=0.8, zorder=2
+    )
+    ax.add_patch(hdr)
+    ax.text(x + 0.12, y + h - 0.17, title, ha="left", va="center", fontsize=7.9, fontweight="bold", color=C_INK, zorder=4)
+    if subtitle:
+        ax.text(x + w - 0.12, y + h - 0.17, subtitle, ha="right", va="center", fontsize=6.9, style="italic", color=C_SUB, zorder=4)
+
+
+def draw_box(x, y, w, h, fc="#FFFFFF", ec=C_LINE, lw=0.8, radius=0.02, ls="-", zorder=3):
     box = FancyBboxPatch(
         (x, y), w, h,
-        boxstyle=f"round,pad=0.010,rounding_size={radius}",
-        edgecolor=ec, facecolor=fc, linewidth=lw, zorder=zorder
+        boxstyle=f"round,pad=0.005,rounding_size={radius}",
+        edgecolor=ec, facecolor=fc, linewidth=lw, linestyle=ls, zorder=zorder
     )
     ax.add_patch(box)
     return box
 
-def draw_arrow(x1, y1, x2, y2, color='#334155', lw=1.3, style='-|>', rad=0.0, zorder=5):
-    connectionstyle = f"arc3,rad={rad}" if rad != 0.0 else "arc3,rad=0"
-    arrow = FancyArrowPatch(
+
+def draw_arrow(x1, y1, x2, y2, color=C_LINE, lw=1.0, ls="-", style="-|>", zorder=6):
+    arr = FancyArrowPatch(
         (x1, y1), (x2, y2),
-        arrowstyle=ArrowStyle(style, head_length=3.5, head_width=2.5),
-        color=color, linewidth=lw,
-        connectionstyle=connectionstyle,
-        zorder=zorder
+        arrowstyle=ArrowStyle(style, head_length=3.6, head_width=2.4),
+        color=color, linewidth=lw, linestyle=ls, zorder=zorder
     )
-    ax.add_patch(arrow)
-    return arrow
+    ax.add_patch(arr)
+    return arr
 
-# =============================================================================
-# PANEL 1: SOURCE BENCHMARK COHORT (Top-Left: x in [0.08, 3.52], y in [2.52, 4.82])
-# =============================================================================
-draw_box(0.08, 2.52, 3.44, 2.30, ec=C_BLUE_BORDER, fc=C_BLUE_BG, lw=1.3, radius=0.08)
-ax.text(1.80, 4.67, "1. SOURCE BENCHMARK COHORT", ha='center', va='center', weight='bold', fontsize=7.8, color=C_BLUE_BORDER)
-ax.text(1.80, 4.51, "BRISC2025: 6,000 2D T1w MRI Slices (Class × View Balanced)", ha='center', va='center', fontsize=6.3, color=C_MUTED)
 
-# Sub-box 1A: 4 Diagnostic Classes (Left half)
-draw_box(0.16, 2.76, 1.56, 1.62, ec='#3B82F6', fc='white', lw=0.9, radius=0.05)
-ax.text(0.94, 4.24, "4 Diagnostic Categories", ha='center', va='center', weight='bold', fontsize=6.8, color='#1D4ED8')
+def load_norm_mri(path):
+    if path and path.exists():
+        arr = np.array(Image.open(path).convert("L"), dtype=np.float32)
+        p1, p99 = np.percentile(arr, [1.0, 99.5])
+        return np.clip((arr - p1) / max(p99 - p1, 1e-5), 0, 1)
+    return np.zeros((64, 64), dtype=np.float32)
 
-class_items = [
-    ("Glioma", "1,500 slices", '#EF4444', '#FEF2F2'),
-    ("Meningioma", "1,500 slices", '#2563EB', '#EFF6FF'),
-    ("Pituitary", "1,500 slices", '#7C3AED', '#FAF5FF'),
-    ("Healthy", "1,500 slices", '#059669', '#ECFDF5'),
+
+# ===========================================================================
+# PANEL (a): SOURCE BENCHMARK COHORT (Top-Left: x in [0.15, 5.02], y in [3.10, 5.80])
+# ===========================================================================
+draw_panel_frame(0.15, 3.10, 4.87, 2.70, "(a) Source Benchmark Cohort (BRISC2025)", r"$N = 6,000$ T1w Slices")
+
+# Left sub-table: 4 Diagnostic Categories
+draw_box(0.28, 3.44, 2.22, 1.92, fc="#FFFFFF", ec="#CBD5E1", lw=0.8)
+ax.text(1.39, 5.20, "Diagnostic Class Distribution", ha="center", va="center", fontsize=7.2, fontweight="bold", color=E_EDGE)
+ax.plot([0.36, 2.42], [5.07, 5.07], color="#CBD5E1", lw=0.65, zorder=4)
+
+cls_items = [
+    ("Glioma",               "1,401 (23.4%)", 4.85),
+    ("Meningioma",           "1,635 (27.3%)", 4.50),
+    ("Pituitary",            "1,757 (29.3%)", 4.15),
+    ("No tumor",             "1,207 (20.1%)", 3.80),
 ]
-for i, (cname, ccount, ccol, cbg) in enumerate(class_items):
-    cy = 3.96 - i * 0.32
-    draw_box(0.22, cy - 0.11, 1.44, 0.24, ec=ccol, fc=cbg, lw=0.6, radius=0.03)
-    ax.text(0.30, cy, cname, ha='left', va='center', fontsize=6.3, weight='bold', color=C_DARK)
-    ax.text(1.58, cy, ccount, ha='right', va='center', fontsize=6.0, weight='bold', color=ccol)
+for c_lbl, c_cnt, cy in cls_items:
+    draw_box(0.36, cy - 0.12, 2.06, 0.25, fc="#F8FAFC", ec="#E2E8F0", lw=0.6, zorder=4)
+    ax.text(0.42, cy, c_lbl, ha="left", va="center", fontsize=6.5, color=C_INK, zorder=5)
+    ax.text(2.36, cy, c_cnt, ha="right", va="center", fontsize=6.4, fontweight="bold", color=C_SUB, zorder=5)
 
-# Sub-box 1B: 3 Acquisition Views with Real MRI Thumbnails (Right half)
-draw_box(1.88, 2.76, 1.56, 1.62, ec=C_AMBER_BORDER, fc='white', lw=0.9, radius=0.05)
-ax.text(2.66, 4.24, "3 Anatomical Planes", ha='center', va='center', weight='bold', fontsize=6.8, color=C_AMBER_BORDER)
+ax.text(1.39, 3.55, "Official split: 5,000 train / 1,000 test", ha="center", va="center", fontsize=6.3, style="italic", color=C_SUB, zorder=5)
 
-img_root = Path(r"d:\Research\Multi-View Fusion Network\datasets\brisc2025\classification_task\test\glioma")
-plane_samples = [
-    ("Axial (ax)", "2,000", img_root / "brisc2025_test_00001_gl_ax_t1.jpg"),
-    ("Coronal (co)", "2,000", img_root / "brisc2025_test_00086_gl_co_t1.jpg"),
-    ("Sagittal (sa)", "2,000", img_root / "brisc2025_test_00167_gl_sa_t1.jpg"),
+# Right sub-box: 3 Orthogonal Acquisition Planes with real MRI thumbnails
+draw_box(2.60, 3.44, 2.28, 1.92, fc="#FFFFFF", ec="#CBD5E1", lw=0.8)
+ax.text(3.74, 5.20, "Orthogonal Acquisition Planes", ha="center", va="center", fontsize=7.2, fontweight="bold", color=P_EDGE)
+ax.plot([2.68, 4.80], [5.07, 5.07], color="#CBD5E1", lw=0.65, zorder=4)
+
+test_dir = ROOT / "datasets" / "brisc2025" / "classification_task" / "test"
+ax_p = next((test_dir / "glioma").glob("*_ax_*.jpg"), None)
+co_p = next((test_dir / "meningioma").glob("*_co_*.jpg"), None)
+sa_p = next((test_dir / "pituitary").glob("*_sa_*.jpg"), None)
+
+plane_rows = [
+    (ax_p, r"Axial ($p=0$)",    "N = 1,993 slices", 4.63),
+    (co_p, r"Coronal ($p=2$)",  "N = 1,981 slices", 4.13),
+    (sa_p, r"Sagittal ($p=1$)", "N = 2,026 slices", 3.63),
 ]
+for img_p, p_title, p_sub, py in plane_rows:
+    mri = load_norm_mri(img_p)
+    ax.imshow(mri, cmap="gray", extent=[2.72, 3.14, py - 0.16, py + 0.26], zorder=4)
+    ax.add_patch(patches.Rectangle((2.72, py - 0.16), 0.42, 0.42, lw=0.65, edgecolor=C_INK, facecolor="none", zorder=5))
+    ax.text(3.24, py + 0.11, p_title, ha="left", va="center", fontsize=6.8, fontweight="bold", color=C_INK, zorder=5)
+    ax.text(3.24, py - 0.06, p_sub, ha="left", va="center", fontsize=6.4, color=C_SUB, zorder=5)
 
-for i, (pname, pcount, ppath) in enumerate(plane_samples):
-    py = 3.96 - i * 0.38
-    draw_box(1.94, py - 0.14, 1.44, 0.30, ec='#FDE68A', fc='#FFFBEB', lw=0.6, radius=0.03)
-    if ppath.exists():
-        thumb = Image.open(ppath).convert('L')
-        ax.imshow(thumb, cmap='gray', extent=[1.99, 2.25, py - 0.11, py + 0.13], zorder=4)
-        rect = patches.Rectangle((1.99, py - 0.11), 0.26, 0.24, linewidth=0.6, edgecolor='#B45309', facecolor='none', zorder=5)
-        ax.add_patch(rect)
-    ax.text(2.32, py + 0.03, pname, ha='left', va='center', fontsize=6.2, weight='bold', color=C_DARK)
-    ax.text(3.32, py - 0.04, f"N = {pcount}", ha='right', va='center', fontsize=5.8, color='#B45309')
+ax.text(2.585, 3.25, r"Train/val split stratified by Class $\times$ Plane  |  MD5 + perceptual-hash leakage audit", ha="center", va="center", fontsize=6.6, fontweight="bold", color=C_INK)
 
-ax.text(1.80, 2.62, "12 Strata: 500 Slices per (Class × Plane) Cell", ha='center', va='center', fontsize=6.3, weight='bold', color=C_BLUE_BORDER)
 
-# Arrow from Panel 1 to Panel 2
-draw_arrow(3.52, 3.65, 3.64, 3.65, color=C_BLUE_BORDER, lw=1.5)
+# ===========================================================================
+# PANEL (b): STRATIFIED PARTITIONING (Top-Right: x in [5.38, 10.25], y in [3.10, 5.80])
+# ===========================================================================
+draw_panel_frame(5.38, 3.10, 4.87, 2.70, "(b) Stratified 12-Strata Partitioning Protocol", "Seed-dependent val split")
 
-# =============================================================================
-# PANEL 2: STRATIFIED SPLIT ARCHITECTURE (Top-Right: x in [3.64, 7.08], y in [2.52, 4.82])
-# =============================================================================
-draw_box(3.64, 2.52, 3.44, 2.30, ec=C_TEAL_BORDER, fc=C_TEAL_BG, lw=1.3, radius=0.08)
-ax.text(5.36, 4.67, "2. STRATIFIED SPLIT ARCHITECTURE", ha='center', va='center', weight='bold', fontsize=7.8, color=C_TEAL_BORDER)
-ax.text(5.36, 4.51, "12-Strata Partitioning (4k Dev / 1k Held-Out Test)", ha='center', va='center', fontsize=6.3, color=C_MUTED)
+# Left branch: Development Set (N = 5,000)
+draw_box(5.51, 3.44, 2.22, 1.92, fc="#FFFFFF", ec="#CBD5E1", lw=0.8)
+ax.text(6.62, 5.20, r"Development Cohort ($N = 5,000$)", ha="center", va="center", fontsize=7.2, fontweight="bold", color=E_EDGE)
+ax.plot([5.60, 7.64], [5.07, 5.07], color="#CBD5E1", lw=0.65, zorder=4)
 
-# Sub-box 2A: Development Set (Left half)
-draw_box(3.72, 2.76, 1.56, 1.62, ec='#14B8A6', fc='white', lw=0.9, radius=0.05)
-ax.text(4.50, 4.24, "Development Set (N=5,000)", ha='center', va='center', weight='bold', fontsize=6.8, color='#0F766E')
+# Train box
+draw_box(5.61, 4.30, 2.02, 0.65, fc=E_BG, ec=E_EDGE, lw=0.8, zorder=4)
+ax.text(6.62, 4.78, "Training Partition (80%)", ha="center", va="center", fontsize=6.9, fontweight="bold", color=E_EDGE, zorder=5)
+ax.text(6.62, 4.59, r"$N = 4,000$ slices  |  Seeds $42$–$46$", ha="center", va="center", fontsize=6.5, color=C_INK, zorder=5)
+ax.text(6.62, 4.41, "AdamW (lr = 1e-4), 50 epochs, B = 16", ha="center", va="center", fontsize=6.2, color=C_SUB, zorder=5)
 
-draw_box(3.80, 3.52, 1.40, 0.58, ec='#2DD4BF', fc='#CCFBF1', lw=0.7, radius=0.04)
-ax.text(4.50, 3.94, "Training Set (80%)", ha='center', va='center', weight='bold', fontsize=6.6, color='#0F766E')
-ax.text(4.50, 3.77, "4,000 Slices | 10-Fold CV", ha='center', va='center', fontsize=6.1, color='#0F766E')
-ax.text(4.50, 3.62, "Class × Plane Stratified", ha='center', va='center', fontsize=5.8, color='#334155')
+# Val box
+draw_box(5.61, 3.53, 2.02, 0.65, fc="#F8FAFC", ec="#64748B", lw=0.8, zorder=4)
+ax.text(6.62, 4.01, "Validation Partition (20%)", ha="center", va="center", fontsize=6.9, fontweight="bold", color=C_INK, zorder=5)
+ax.text(6.62, 3.82, r"$N = 1,000$ slices  (12-Strata Stratified)", ha="center", va="center", fontsize=6.5, color=C_INK, zorder=5)
+ax.text(6.62, 3.64, "Checkpoint selection only", ha="center", va="center", fontsize=6.2, color=C_SUB, zorder=5)
 
-draw_box(3.80, 2.84, 1.40, 0.58, ec='#2DD4BF', fc='#CCFBF1', lw=0.7, radius=0.04)
-ax.text(4.50, 3.26, "Validation Set (20%)", ha='center', va='center', weight='bold', fontsize=6.6, color='#0F766E')
-ax.text(4.50, 3.09, "1,000 Slices | Early Stop", ha='center', va='center', fontsize=6.1, color='#0F766E')
-ax.text(4.50, 2.94, "Zero Hyperparameter Leak", ha='center', va='center', fontsize=5.8, color='#334155')
+# Right branch: Held-Out Official Test Set (N = 1,000)
+draw_box(7.83, 3.44, 2.28, 1.92, fc="#FFFFFF", ec="#CBD5E1", lw=0.8)
+ax.text(8.97, 5.20, r"Held-Out Test Set ($N = 1,000$)", ha="center", va="center", fontsize=7.2, fontweight="bold", color=D_EDGE)
+ax.plot([7.92, 10.02], [5.07, 5.07], color="#CBD5E1", lw=0.65, zorder=4)
 
-# Sub-box 2B: Held-Out Test Set (Right half)
-draw_box(5.44, 2.76, 1.56, 1.62, ec='#0D9488', fc='white', lw=0.9, radius=0.05)
-ax.text(6.22, 4.24, "Held-Out Test (N=1,000)", ha='center', va='center', weight='bold', fontsize=6.8, color='#0F766E')
+draw_box(7.93, 4.30, 2.08, 0.65, fc=D_BG, ec=D_EDGE, lw=0.8, zorder=4)
+ax.text(8.97, 4.78, "Class Breakdown (Test)", ha="center", va="center", fontsize=6.9, fontweight="bold", color=D_EDGE, zorder=5)
+ax.text(8.97, 4.59, "Glioma: 254  |  Meningioma: 306", ha="center", va="center", fontsize=6.4, color=C_INK, zorder=5)
+ax.text(8.97, 4.41, "Pituitary: 300  |  Healthy: 140", ha="center", va="center", fontsize=6.4, color=C_INK, zorder=5)
 
-draw_box(5.50, 3.52, 1.44, 0.58, ec='#99F6E4', fc='#F0FDFA', lw=0.6, radius=0.04)
-ax.text(6.22, 3.96, "Diagnostic Class Manifest:", ha='center', va='center', weight='bold', fontsize=6.0, color='#0F766E')
-ax.text(6.22, 3.79, "Glioma: 254 | Mening: 306", ha='center', va='center', fontsize=6.1, color='#1E293B')
-ax.text(6.22, 3.63, "Pituitary: 300 | Healthy: 140", ha='center', va='center', fontsize=6.1, color='#1E293B')
+draw_box(7.93, 3.53, 2.08, 0.65, fc="#F8FAFC", ec="#64748B", lw=0.8, zorder=4)
+ax.text(8.97, 4.01, "Plane Breakdown (Test)", ha="center", va="center", fontsize=6.9, fontweight="bold", color=C_INK, zorder=5)
+ax.text(8.97, 3.82, "Axial: 398  |  Coronal: 305", ha="center", va="center", fontsize=6.4, color=C_INK, zorder=5)
+ax.text(8.97, 3.64, "Sagittal: 297  (860 Tumor + 140 Empty)", ha="center", va="center", fontsize=6.3, color=C_SUB, zorder=5)
 
-draw_box(5.50, 2.84, 1.44, 0.58, ec='#99F6E4', fc='#F0FDFA', lw=0.6, radius=0.04)
-ax.text(6.22, 3.28, "Anatomical Plane Manifest:", ha='center', va='center', weight='bold', fontsize=6.0, color='#0F766E')
-ax.text(6.22, 3.11, "Axial: 398 | Coronal: 305", ha='center', va='center', fontsize=6.1, color='#1E293B')
-ax.text(6.22, 2.95, "Sagittal: 297 slices", ha='center', va='center', fontsize=6.1, color='#1E293B')
+ax.text(7.815, 3.25, "Audit: 104 test images near-identical to training; leakage-free retraining (4,575 dev.)", ha="center", va="center", fontsize=6.6, fontweight="bold", color=C_INK)
 
-ax.text(5.36, 2.62, "Guarantees Strict Patient/Slice Isolation", ha='center', va='center', fontsize=6.3, weight='bold', color='#0F766E')
 
-# Vertical Flow Arrows between Row 1 and Row 2
-draw_arrow(1.80, 2.52, 1.80, 2.38, color='#334155', lw=1.4)
-draw_arrow(5.36, 2.52, 5.36, 2.38, color='#334155', lw=1.4)
+# ===========================================================================
+# PANEL (c): SUPERVISION INTEGRITY AUDIT (Bottom-Left: x in [0.15, 5.02], y in [0.15, 2.78])
+# ===========================================================================
+draw_panel_frame(0.15, 0.15, 4.87, 2.63, "(c) Preprocessing & Empty-Mask Supervision", "Training only")
 
-# =============================================================================
-# PANEL 3: PREPROCESSING & SUPERVISION INTEGRITY (Btm-Left: x in [0.08, 3.52], y in [0.08, 2.38])
-# =============================================================================
-draw_box(0.08, 0.08, 3.44, 2.30, ec=C_GREEN_BORDER, fc=C_GREEN_BG, lw=1.3, radius=0.08)
-ax.text(1.80, 2.23, "3. PREPROCESSING & SUPERVISION INTEGRITY", ha='center', va='center', weight='bold', fontsize=7.6, color=C_GREEN_BORDER)
-ax.text(1.80, 2.07, "Joint Spatial Transforms & Empty-Mask Fix", ha='center', va='center', fontsize=6.3, color=C_MUTED)
+# Left sub-box: Spatial Transforms
+draw_box(0.28, 0.46, 1.82, 1.88, fc="#FFFFFF", ec="#CBD5E1", lw=0.8)
+ax.text(1.19, 2.19, "Synchronized Transforms", ha="center", va="center", fontsize=7.0, fontweight="bold", color=P_EDGE)
+ax.plot([0.36, 2.02], [2.06, 2.06], color="#CBD5E1", lw=0.65, zorder=4)
 
-# Sub-box 3A: Joint Augmentation (Left half)
-draw_box(0.16, 0.32, 1.56, 1.62, ec='#10B981', fc='white', lw=0.9, radius=0.05)
-ax.text(0.94, 1.80, "Joint Transforms (Train)", ha='center', va='center', weight='bold', fontsize=6.8, color='#065F46')
-
-aug_items = [
-    (r"Resize: $224 \times 224$", "Bilinear img / Nearest mask"),
-    (r"Random H/V Flips ($p=0.5$)", "Synchronous transform"),
-    (r"Random Rotation ($\pm 15^\circ$)", "Morphological bounds"),
-    ("Intensity Jitter & Norm", "Z-score normalization"),
+transforms = [
+    ("1. Spatial Resize",    r"$224 \times 224$ (Bilinear / NN)", 1.85),
+    ("2. Random Flips",      r"Coupled H/V ($p = 0.50$)",        1.49),
+    ("3. Affine Rotation",   r"$\theta \in [-15^\circ, +15^\circ]$", 1.13),
+    ("4. Intensity Jitter",  "Brightness / contrast ±0.2", 0.77),
 ]
-for i, (atitle, adesc) in enumerate(aug_items):
-    ay = 1.56 - i * 0.36
-    ax.text(0.22, ay + 0.05, f"• {atitle}", ha='left', va='center', fontsize=6.2, weight='bold', color=C_DARK)
-    ax.text(0.30, ay - 0.08, adesc, ha='left', va='center', fontsize=5.6, color=C_MUTED)
+for t_title, t_desc, ty in transforms:
+    ax.text(0.36, ty + 0.07, t_title, ha="left", va="center", fontsize=6.6, fontweight="bold", color=C_INK, zorder=5)
+    ax.text(0.36, ty - 0.08, t_desc, ha="left", va="center", fontsize=6.3, color=C_SUB, zorder=5)
 
-# Sub-box 3B: Supervision Integrity Audit (Right half)
-draw_box(1.88, 0.32, 1.56, 1.62, ec='#DC2626', fc='#FEF2F2', lw=0.9, radius=0.05)
-ax.text(2.66, 1.80, "Supervision Integrity Audit", ha='center', va='center', weight='bold', fontsize=6.8, color='#991B1B')
+# Right sub-box: Empty-Slice Supervision Comparison with Healthy MRI Thumbnails
+draw_box(2.20, 0.46, 2.68, 1.88, fc="#FFFFFF", ec="#CBD5E1", lw=0.8)
+ax.text(3.54, 2.19, "Healthy-Scan Supervision Audit", ha="center", va="center", fontsize=7.0, fontweight="bold", color=C_INK)
+ax.plot([2.28, 4.80], [2.06, 2.06], color="#CBD5E1", lw=0.65, zorder=4)
 
-draw_box(1.94, 1.10, 1.44, 0.58, ec='#F87171', fc='white', lw=0.7, radius=0.04)
-ax.text(2.66, 1.54, "Baseline Defect in Literature:", ha='center', va='center', weight='bold', fontsize=6.0, color='#DC2626')
-ax.text(2.66, 1.39, r"Healthy omitted ($\mathrm{mask\_valid}=0$)", ha='center', va='center', fontsize=5.7, color='#B91C1C')
-ax.text(2.66, 1.23, r"$\to \mathbf{95.71\%}$ False Positives!", ha='center', va='center', fontsize=6.1, weight='bold', color='#DC2626')
+healthy_p = next((test_dir / "no_tumor").glob("*.jpg"), None)
+h_mri = load_norm_mri(healthy_p)
 
-draw_box(1.94, 0.40, 1.44, 0.60, ec='#10B981', fc='#ECFDF5', lw=0.8, radius=0.04)
-ax.text(2.66, 0.86, "PAUMT-Net Rigorous Fix:", ha='center', va='center', weight='bold', fontsize=6.0, color='#047857')
-ax.text(2.66, 0.71, r"Healthy: $\mathbf{M}=\mathbf{0}$, $\mathrm{mask\_valid}=1.0$", ha='center', va='center', fontsize=5.7, color='#065F46')
-ax.text(2.66, 0.54, r"$\to \mathbf{0.00\%}$ False Positives!", ha='center', va='center', fontsize=6.1, weight='bold', color='#047857')
+# Uncorrected row (top)
+draw_box(2.28, 1.29, 2.52, 0.68, fc=R_BG, ec=R_EDGE, lw=0.75, zorder=4)
+h_bad = np.stack([h_mri, h_mri, h_mri], axis=-1)
+yy, xx = np.ogrid[:h_mri.shape[0], :h_mri.shape[1]]
+cy_h, cx_h = int(h_mri.shape[0] * 0.45), int(h_mri.shape[1] * 0.55)
+r_blob = ((yy - cy_h)**2 / (0.16 * h_mri.shape[0])**2 + (xx - cx_h)**2 / (0.12 * h_mri.shape[1])**2) <= 1.0
+h_bad[r_blob] = 0.45 * h_bad[r_blob] + 0.55 * np.array([0.88, 0.18, 0.18])
+ax.imshow(h_bad, extent=[2.35, 2.89, 1.36, 1.90], zorder=5)
+ax.add_patch(patches.Rectangle((2.35, 1.36), 0.54, 0.54, lw=0.65, edgecolor=R_EDGE, facecolor="none", zorder=6))
+ax.text(2.97, 1.79, "Omitted Healthy Supervision", ha="left", va="center", fontsize=6.5, fontweight="bold", color=R_EDGE, zorder=5)
+ax.text(2.97, 1.62, r"Unmasked ($\mathrm{mask\_valid}=0$)", ha="left", va="center", fontsize=6.3, color=C_INK, zorder=5)
+ax.text(2.97, 1.44, "Earlier run: 134/140 healthy FP", ha="left", va="center", fontsize=6.4, fontweight="bold", color=R_EDGE, zorder=5)
 
-ax.text(1.80, 0.18, "Prevents Phantom Tumor Hallucination on Healthy Scans", ha='center', va='center', fontsize=6.3, weight='bold', color='#047857')
+# Corrected PAUMT-Net row (bottom)
+draw_box(2.28, 0.53, 2.52, 0.68, fc=D_BG, ec=D_EDGE, lw=0.75, zorder=4)
+h_good = np.stack([h_mri, h_mri, h_mri], axis=-1)
+ax.imshow(h_good, extent=[2.35, 2.89, 0.60, 1.14], zorder=5)
+ax.add_patch(patches.Rectangle((2.35, 0.60), 0.54, 0.54, lw=0.65, edgecolor=D_EDGE, facecolor="none", zorder=6))
+ax.text(2.97, 1.03, "Empty-mask supervision", ha="left", va="center", fontsize=6.5, fontweight="bold", color=D_EDGE, zorder=5)
+ax.text(2.97, 0.86, r"Explicit $\mathbf{M}=\mathbf{0},\;\mathrm{mask\_valid}=1.0$", ha="left", va="center", fontsize=6.3, color=C_INK, zorder=5)
+ax.text(2.97, 0.68, "All final runs: 0/140 healthy FP", ha="left", va="center", fontsize=6.4, fontweight="bold", color=D_EDGE, zorder=5)
 
-# Arrow from Panel 3 to Panel 4
-draw_arrow(3.52, 1.22, 3.64, 1.22, color=C_GREEN_BORDER, lw=1.5)
+ax.text(2.585, 0.28, "Empty-mask supervision of healthy slices prevents false-positive masks", ha="center", va="center", fontsize=6.5, fontweight="bold", color=C_INK)
 
-# =============================================================================
-# PANEL 4: DUAL EVALUATION PATHWAYS (Btm-Right: x in [3.64, 7.08], y in [0.08, 2.38])
-# =============================================================================
-draw_box(3.64, 0.08, 3.44, 2.30, ec=C_PURPLE_BRD, fc=C_PURPLE_BG, lw=1.3, radius=0.08)
-ax.text(5.36, 2.23, "4. DUAL EVALUATION PATHWAYS", ha='center', va='center', weight='bold', fontsize=7.8, color=C_PURPLE_BRD)
-ax.text(5.36, 2.07, "Internal Multi-Seed vs External Generalization", ha='center', va='center', fontsize=6.3, color=C_MUTED)
 
-# Sub-box 4A: Internal Multi-Seed (Left half)
-draw_box(3.72, 0.32, 1.56, 1.62, ec='#8B5CF6', fc='white', lw=0.9, radius=0.05)
-ax.text(4.50, 1.80, "Internal Test (N=1,000)", ha='center', va='center', weight='bold', fontsize=6.8, color='#6D28D9')
-ax.text(4.50, 1.66, "Seeds 42, 43, 44 (Mean ± SD)", ha='center', va='center', fontsize=5.8, color=C_MUTED)
+# ===========================================================================
+# PANEL (d): INTERNAL & EXTERNAL EVALUATION (Bottom-Right: x in [5.38, 10.25], y in [0.15, 2.78])
+# ===========================================================================
+draw_panel_frame(5.38, 0.15, 4.87, 2.63, "(d) Multi-Seed Benchmark & External Generalization", "Internal & External")
 
-res_items = [
-    ("Accuracy", "99.30% ± 0.10%"),
-    ("Macro F1", "99.38% ± 0.11%"),
-    ("All Dice", "87.93% ± 0.26%"),
-    ("Tumor", "85.98% ± 0.31%"),
-    ("Healthy FP", "0.00% (0 / 140)"),
+# Left sub-box: Internal BRISC2025 Benchmark Table
+draw_box(5.51, 0.46, 2.22, 1.88, fc="#FFFFFF", ec="#CBD5E1", lw=0.8)
+ax.text(6.62, 2.19, "Internal Test (BRISC2025)", ha="center", va="center", fontsize=7.0, fontweight="bold", color=E_EDGE)
+ax.plot([5.60, 7.64], [2.06, 2.06], color="#CBD5E1", lw=0.65, zorder=4)
+
+int_metrics = [
+    ("Comparison",        "B2 vs B3, 5 seeds each", 1.85),
+    ("Training splits",   "Official + leakage-free", 1.55),
+    ("Primary endpoint",  "Tumor-slice Dice",       1.25),
+    ("Inference",         "Bootstrap, Holm, TOST",  0.95),
+    ("Ensembles",         "5-seed, matched size",   0.65),
 ]
-for i, (mname, mval) in enumerate(res_items):
-    my = 1.44 - i * 0.24
-    draw_box(3.80, my - 0.08, 1.40, 0.20, ec='#EDE9FE', fc='#FAF5FF', lw=0.5, radius=0.03)
-    ax.text(3.86, my + 0.01, mname, ha='left', va='center', fontsize=5.7, weight='bold', color=C_DARK)
-    val_col = '#047857' if 'FP' in mname else '#6D28D9'
-    ax.text(5.14, my + 0.01, mval, ha='right', va='center', fontsize=5.7, weight='bold', color=val_col)
+for m_k, m_v, my in int_metrics:
+    draw_box(5.59, my - 0.11, 2.06, 0.23, fc="#F8FAFC", ec="#E2E8F0", lw=0.55, zorder=4)
+    ax.text(5.65, my, m_k, ha="left", va="center", fontsize=6.3, fontweight="bold", color=C_INK, zorder=5)
+    ax.text(7.59, my, m_v, ha="right", va="center", fontsize=6.3, color=E_EDGE, fontweight="bold", zorder=5)
 
-# Sub-box 4B: External Zero-Shot (Right half)
-draw_box(5.44, 0.32, 1.56, 1.62, ec=C_AMBER_BORDER, fc='white', lw=0.9, radius=0.05)
-ax.text(6.22, 1.80, "Zero-Shot Deployment", ha='center', va='center', weight='bold', fontsize=6.8, color='#B45309')
-ax.text(6.22, 1.66, "Unseen Clinical Cohorts", ha='center', va='center', fontsize=5.8, color=C_MUTED)
+# Right sub-box: Zero-Shot External Cohorts
+draw_box(7.83, 0.46, 2.28, 1.88, fc="#FFFFFF", ec="#CBD5E1", lw=0.8)
+ax.text(8.97, 2.19, "External Validation", ha="center", va="center", fontsize=7.0, fontweight="bold", color=P_EDGE)
+ax.plot([7.92, 10.02], [2.06, 2.06], color="#CBD5E1", lw=0.65, zorder=4)
 
-# PMRAM sub-card
-draw_box(5.50, 1.08, 1.44, 0.52, ec='#F59E0B', fc='#FFFBEB', lw=0.6, radius=0.04)
-ax.text(6.22, 1.48, "PMRAM (Bangladesh)", ha='center', va='center', weight='bold', fontsize=6.1, color='#92400E')
-ax.text(6.22, 1.33, r"Acc: $\mathbf{92.41\%}$ | AUC: $\mathbf{97.36\%}$", ha='center', va='center', fontsize=5.9, weight='bold', color='#B45309')
-ax.text(6.22, 1.18, r"N=1,410 | Prior $\bar{\mathbf{e}}$ deployed", ha='center', va='center', fontsize=5.7, color='#78350F')
+# PMRAM
+draw_box(7.91, 1.29, 2.12, 0.68, fc=P_BG, ec=P_EDGE, lw=0.75, zorder=4)
+ax.text(8.97, 1.82, "1. PMRAM Cohort (Bangladesh)", ha="center", va="center", fontsize=6.7, fontweight="bold", color=P_EDGE, zorder=5)
+ax.text(8.97, 1.64, r"$N = 1,410$ unique images  |  Mean-Plane $\bar{\mathbf{e}}$", ha="center", va="center", fontsize=6.2, color=C_INK, zorder=5)
+ax.text(8.97, 1.44, "Classification, 4 classes, no plane labels", ha="center", va="center", fontsize=6.4, fontweight="bold", color=C_INK, zorder=5)
 
-# AJBDS-2023 sub-card
-draw_box(5.50, 0.44, 1.44, 0.54, ec='#F59E0B', fc='#FFFBEB', lw=0.6, radius=0.04)
-ax.text(6.22, 0.86, "AJBDS-2023 (Jordan)", ha='center', va='center', weight='bold', fontsize=6.1, color='#92400E')
-ax.text(6.22, 0.72, r"Default $\tau=0.5$: Dice 38.35%", ha='center', va='center', fontsize=5.7, color='#DC2626')
-ax.text(6.22, 0.56, r"Calib $\mathbf{\tau=0.85}$: Dice $\mathbf{58.30\%}$", ha='center', va='center', fontsize=5.8, weight='bold', color='#047857')
+# AJBDS-2023
+draw_box(7.91, 0.53, 2.12, 0.68, fc=D_BG, ec=D_EDGE, lw=0.75, zorder=4)
+ax.text(8.97, 1.06, "2. AJBDS-2023 Cohort (Pakistan)", ha="center", va="center", fontsize=6.7, fontweight="bold", color=D_EDGE, zorder=5)
+ax.text(8.97, 0.88, r"$N = 4,826$ slices (3,580 empty, 1,246 tumor)", ha="center", va="center", fontsize=6.1, color=C_INK, zorder=5)
+ax.text(8.97, 0.68, "Segmentation, 17 patients, + fine-tuning", ha="center", va="center", fontsize=6.3, fontweight="bold", color=D_EDGE, zorder=5)
 
-ax.text(5.36, 0.18, "Cross-Center Validation Under Clinical Domain Shift", ha='center', va='center', fontsize=6.3, weight='bold', color='#6D28D9')
+ax.text(7.815, 0.28, "Zero-shot and patient-wise cross-validated fine-tuning", ha="center", va="center", fontsize=6.5, fontweight="bold", color=C_INK)
 
-plt.tight_layout()
-plt.savefig(OUTPUT_PATH, dpi=300, bbox_inches='tight', pad_inches=0.03)
-plt.close()
-print(f"[SUCCESS] Figure 2 saved to: {OUTPUT_PATH}")
+
+# ===========================================================================
+# INTER-PANEL WORKFLOW ARROWS
+# ===========================================================================
+draw_arrow(5.02, 4.45, 5.38, 4.45, color=C_LINE, lw=1.15)
+draw_arrow(2.585, 3.10, 2.585, 2.78, color=C_LINE, lw=1.15)
+draw_arrow(7.815, 3.10, 7.815, 2.78, color=C_LINE, lw=1.15)
+draw_arrow(5.02, 1.46, 5.38, 1.46, color=C_LINE, lw=1.15)
+
+plt.subplots_adjust(left=0.005, right=0.995, top=0.99, bottom=0.01)
+fig.savefig(OUTPUT_PATH, dpi=300, facecolor="#FFFFFF")
+plt.close(fig)
+print(f"Saved Figure 2 to {OUTPUT_PATH}")

@@ -1,290 +1,251 @@
 #!/usr/bin/env python3
 """
-Model Calibration & Reliability Diagram Analysis
-================================================
-Compares calibration across:
-  - B0: Classification-only (Single-task baseline)
-  - B2: Joint Classification + Segmentation (No plane awareness)
-  - B3: Joint + Plane Awareness (Proposed, Seed 42, 43, 44 & Ensemble)
+Figure 6 (internal analysis) and Figure 7 (external domain shift), rendered
+entirely from result files - no hard-coded metric values.
 
-Computes:
-  - Expected Calibration Error (ECE)
-  - Maximum Calibration Error (MCE)
-  - Brier Score
-  - Reliability Diagrams (Empirical Accuracy vs Predicted Confidence)
-  - Confidence Distribution Histograms
-Saves 300 DPI publication figure to figures/journal/figure6_calibration_reliability_diagrams.png
+Inputs
+  results/internal/<model>/predictions.csv       (run_internal_evaluation.py)
+  results/statistical_significance_tests.json    (run_statistics.py)
+  results/external/external_evaluation.json      (run_external_evaluation.py)
+  datasets/*                                     (intensity distributions)
+
+Outputs
+  figures/journal/figure6_calibration_reliability_diagrams.png
+  figures/external/domain_shift_intensity.png
 """
 
 import json
+from functools import lru_cache
 from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import torch
-from torch.utils.data import DataLoader
+from PIL import Image
 
-import sys
-sys.path.append(r"d:\Research\Multi-View Fusion Network\src")
-from model import PAUMTNet
-from dataset import BriscDataset, load_manifest, build_records
+ROOT = Path(__file__).resolve().parent.parent
+IN_INT = ROOT / "results" / "internal"
+OUT_JOURNAL = ROOT / "figures" / "journal"
+OUT_EXT = ROOT / "figures" / "external"
+OUT_JOURNAL.mkdir(parents=True, exist_ok=True)
+OUT_EXT.mkdir(parents=True, exist_ok=True)
 
-# Styling
-plt.rcParams['font.family'] = 'DejaVu Sans'
-plt.rcParams['font.size'] = 10
-plt.rcParams['axes.titlesize'] = 11
-plt.rcParams['axes.labelsize'] = 10
+plt.rcParams.update({"font.family": "DejaVu Sans", "mathtext.fontset": "dejavusans", "font.size": 8.5,
+                     "axes.spines.top": False, "axes.spines.right": False, "axes.edgecolor": "#52514e",
+                     "axes.labelcolor": "#0b0b0b", "xtick.color": "#52514e", "ytick.color": "#52514e"})
 
-def compute_calibration_curve(confidences, accuracies, n_bins=10):
-    """Computes binned confidence vs accuracy calibration curve."""
-    bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
-    bin_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
-    
-    bin_accs = np.zeros(n_bins)
-    bin_confs = np.zeros(n_bins)
-    bin_counts = np.zeros(n_bins, dtype=int)
-    
-    for i in range(n_bins):
-        in_bin = (confidences > bin_edges[i]) & (confidences <= bin_edges[i+1])
-        bin_counts[i] = np.sum(in_bin)
-        if bin_counts[i] > 0:
-            bin_accs[i] = np.mean(accuracies[in_bin])
-            bin_confs[i] = np.mean(confidences[in_bin])
-        else:
-            bin_accs[i] = np.nan
-            bin_confs[i] = np.nan
-            
-    # ECE and MCE
-    valid = bin_counts > 0
-    total = len(confidences)
-    ece = np.sum((bin_counts[valid] / total) * np.abs(bin_accs[valid] - bin_confs[valid]))
-    mce = np.max(np.abs(bin_accs[valid] - bin_confs[valid]))
-    
-    return {
-        "bin_centers": bin_centers.tolist(),
-        "bin_accs": bin_accs.tolist(),
-        "bin_confs": bin_confs.tolist(),
-        "bin_counts": bin_counts.tolist(),
-        "ece": float(ece),
-        "mce": float(mce)
-    }
+# Validated categorical palette (dataviz reference slots 1-3); identity is also
+# carried by marker shape and legend, never by colour alone.
+C_B3 = "#2a78d6"   # blue
+C_B2 = "#eb6834"   # orange
+C_TS = "#1baf7a"   # aqua (leakage-free setting / AJBDS)
+C_CAL = "#6250d6"  # violet (temperature-scaled)
+C_INK, C_MUTED, C_GRID = "#0b0b0b", "#52514e", "#d9d8d4"
+CLASSES = ["glioma", "meningioma", "pituitary", "no_tumor"]
+SEEDS = [42, 43, 44, 45, 46]
 
-def get_predictions(model, loader, device):
-    """Gathers probabilities, confidences, and correctness on test set."""
-    model.eval()
-    all_probs = []
-    all_targets = []
-    
-    with torch.no_grad():
-        for batch in loader:
-            img = batch["image"].to(device)
-            plane = batch["plane_idx"].to(device)
-            target = batch["label"].to(device)
-            
-            out = model(img, plane)
-            probs = torch.softmax(out["logits_cls"], dim=1)
-            all_probs.append(probs.cpu().numpy())
-            all_targets.append(target.cpu().numpy())
-            
-    probs = np.concatenate(all_probs, axis=0)
-    targets = np.concatenate(all_targets, axis=0)
-    preds = np.argmax(probs, axis=1)
-    confs = np.max(probs, axis=1)
-    accs = (preds == targets).astype(float)
-    
-    # Brier score (multi-class one-hot)
-    one_hot = np.zeros_like(probs)
-    one_hot[np.arange(len(targets)), targets] = 1.0
-    brier = float(np.mean(np.sum((probs - one_hot) ** 2, axis=1)))
-    
-    return probs, confs, accs, targets, brier
 
-def main():
-    root = Path(r"d:\Research\Multi-View Fusion Network")
-    out_dir = root / "figures" / "journal"
-    out_dir.mkdir(parents=True, exist_ok=True)
-    res_dir = root / "results"
-    
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-    
-    data_root = root / "datasets" / "brisc2025"
-    df_manifest = load_manifest(data_root)
-    test_records = build_records(df_manifest, split="test")
-    test_ds = BriscDataset(test_records, split="test")
-    loader = DataLoader(test_ds, batch_size=32, shuffle=False, num_workers=0)
-    
-    models_config = {
-        "B0 (Cls-Only)": {
-            "path": Path(r"d:\Research\experiments\paumt\baseline_cls_only_seed42\best_model.pth"),
-            "kwargs": {"cls_only": True, "use_plane_emb": False},
-            "color": "#E66101",
-            "style": "--"
-        },
-        "B2 (Joint, No Plane)": {
-            "path": Path(r"d:\Research\experiments\paumt\corrected_B2_joint\best_model.pth"),
-            "kwargs": {"use_plane_emb": False},
-            "color": "#5E3C99",
-            "style": "-."
-        },
-        "B3 (Proposed Joint+Plane, Seed 42)": {
-            "path": Path(r"d:\Research\experiments\paumt\B3_final_seed42\best_model.pth"),
-            "kwargs": {"use_plane_emb": True},
-            "color": "#2B83BA",
-            "style": "-"
-        },
-        "B3 (Proposed Joint+Plane, Seed 43)": {
-            "path": Path(r"d:\Research\experiments\paumt\B3_final_seed43\best_model.pth"),
-            "kwargs": {"use_plane_emb": True},
-            "color": "#4DAC26",
-            "style": ":"
-        },
-        "B3 (Proposed Joint+Plane, Seed 44)": {
-            "path": Path(r"d:\Research\experiments\paumt\B3_final_seed44\best_model.pth"),
-            "kwargs": {"use_plane_emb": True},
-            "color": "#D7191C",
-            "style": ":"
-        }
-    }
-    
-    calib_results = {}
-    model_preds = {}
-    
-    for mname, cfg in models_config.items():
-        print(f"Evaluating calibration for {mname}...")
-        ckpt = torch.load(cfg["path"], map_location=device, weights_only=False)
-        state_dict = ckpt.get("model_state", ckpt.get("model_state_dict"))
-        
-        model = PAUMTNet(num_classes=4, feat_dim=256, **cfg["kwargs"]).to(device)
-        model.load_state_dict(state_dict)
-        
-        probs, confs, accs, targets, brier = get_predictions(model, loader, device)
-        calib_curve = compute_calibration_curve(confs, accs, n_bins=10)
-        calib_curve["brier_score"] = brier
-        calib_curve["mean_accuracy"] = float(np.mean(accs))
-        calib_curve["mean_confidence"] = float(np.mean(confs))
-        
-        calib_results[mname] = calib_curve
-        model_preds[mname] = {"probs": probs, "confs": confs, "accs": accs}
-        print(f"  Accuracy: {np.mean(accs)*100:.2f}%, ECE: {calib_curve['ece']:.4f}, MCE: {calib_curve['mce']:.4f}, Brier: {brier:.4f}")
-        
-    # B3 Ensemble
-    b3_probs = np.mean([
-        model_preds["B3 (Proposed Joint+Plane, Seed 42)"]["probs"],
-        model_preds["B3 (Proposed Joint+Plane, Seed 43)"]["probs"],
-        model_preds["B3 (Proposed Joint+Plane, Seed 44)"]["probs"]
-    ], axis=0)
-    b3_confs = np.max(b3_probs, axis=1)
-    b3_accs = (np.argmax(b3_probs, axis=1) == targets).astype(float)
-    
-    one_hot = np.zeros_like(b3_probs)
-    one_hot[np.arange(len(targets)), targets] = 1.0
-    brier_ens = float(np.mean(np.sum((b3_probs - one_hot) ** 2, axis=1)))
-    
-    calib_ens = compute_calibration_curve(b3_confs, b3_accs, n_bins=10)
-    calib_ens["brier_score"] = brier_ens
-    calib_ens["mean_accuracy"] = float(np.mean(b3_accs))
-    calib_ens["mean_confidence"] = float(np.mean(b3_confs))
-    calib_results["B3 (Ensemble)"] = calib_ens
-    model_preds["B3 (Ensemble)"] = {"probs": b3_probs, "confs": b3_confs, "accs": b3_accs}
-    print(f"B3 Ensemble: Accuracy: {np.mean(b3_accs)*100:.2f}%, ECE: {calib_ens['ece']:.4f}, MCE: {calib_ens['mce']:.4f}, Brier: {brier_ens:.4f}")
+@lru_cache(maxsize=None)
+def load(name):
+    return pd.read_csv(IN_INT / name / "predictions.csv").sort_values("abs_path").reset_index(drop=True)
 
-    # -------------------------------------------------------------
-    # PLOT FIGURE 6: Multi-Panel Calibration & Reliability Diagrams
-    # -------------------------------------------------------------
-    fig, axes = plt.subplots(1, 3, figsize=(18, 5.5))
-    
-    # 1. Reliability Diagram (Calibration Curve)
-    ax_rel = axes[0]
-    ax_rel.plot([0, 1], [0, 1], "k--", linewidth=1.5, label="Perfect Calibration", alpha=0.7)
-    
-    plot_models = [
-        ("B0 (Cls-Only)", "#E66101", "--", "s"),
-        ("B2 (Joint, No Plane)", "#5E3C99", "-.", "^"),
-        ("B3 (Proposed Joint+Plane, Seed 42)", "#2B83BA", "-", "o"),
-        ("B3 (Ensemble)", "#008837", "-", "D")
+
+def reliability(df, ts=False, n_bins=15, min_count=5):
+    cols = [f"prob_ts_{k}" if ts else f"prob_{k}" for k in range(4)]
+    p = df[cols].to_numpy()
+    y = df["true_label"].map({c: i for i, c in enumerate(CLASSES)}).to_numpy()
+    conf, correct = p.max(1), p.argmax(1) == y
+    edges = np.linspace(0, 1, n_bins + 1)
+    xs, ys, ns = [], [], []
+    for lo, hi in zip(edges[:-1], edges[1:]):
+        m = (conf > lo) & (conf <= hi)
+        if m.sum() >= min_count:
+            xs.append(conf[m].mean()); ys.append(correct[m].mean()); ns.append(int(m.sum()))
+    return np.array(xs), np.array(ys), np.array(ns)
+
+
+def generate_figure6():
+    stats = json.load(open(ROOT / "results" / "statistical_significance_tests.json"))
+    singles = {f"{c}_seed{s}": load(f"{c}_seed{s}") for c in ("B2", "B3") for s in SEEDS}
+    ens = {c: load(f"{c}_ensemble") for c in ("B2", "B3")}
+    temps = json.load(open(IN_INT / "temperatures.json"))
+    summ = stats["summary"]
+
+    fig = plt.figure(figsize=(13.2, 4.6), dpi=300)
+    gs = fig.add_gridspec(1, 3, left=0.125, right=0.985, top=0.88, bottom=0.25, wspace=0.36, width_ratios=[1.2, 1.0, 0.9])
+
+    # (A) Forest plot: B3 - B2 tumor-slice Dice, overall and per subgroup, both training settings
+    ax = fig.add_subplot(gs[0, 0])
+    tumor = (ens["B2"]["true_label"] != "no_tumor").to_numpy()
+    settings = [("official", C_B3, "o", "", "Official split"), ("dedup", C_TS, "D", "dedup_", "Leakage-free retraining")]
+    labels = ["All tumor slices"] + [g["subgroup"].capitalize() for g in stats["subgroups"]["official"]]
+    ypos = np.arange(len(labels))[::-1].astype(float)
+    ypos[1:] -= 0.4
+    ypos[4:] -= 0.4
+    margin = stats["settings"]["equivalence_margins"]["dice_tumor"] * 100
+    ax.axvspan(-margin, margin, color="#ecebe7", zorder=0)
+    for k, (setting, col, mk, pre, lab) in enumerate(settings):
+        rows = [(stats["plane_effect"][setting]["pairs"][-1]["dice_tumor"], tumor)]
+        for g in stats["subgroups"][setting]:
+            c = "plane" if g["subgroup"] in ("axial", "coronal", "sagittal") else "true_label"
+            rows.append((g, tumor & (ens["B2"][c] == g["subgroup"]).to_numpy()))
+        off = 0.17 - 0.34 * k
+        for yv, (r, m) in zip(ypos, rows):
+            ax.plot([r["ci95"][0] * 100, r["ci95"][1] * 100], [yv + off] * 2, color=col, lw=2, solid_capstyle="round")
+            ax.plot(r["mean_diff"] * 100, yv + off, mk, color=col, ms=6, mec="white", mew=1, zorder=3)
+            for s in SEEDS:
+                d = (load(f"B3_{pre}seed{s}").loc[m, "dice"] - load(f"B2_{pre}seed{s}").loc[m, "dice"]).mean() * 100
+                ax.plot(d, yv + off, marker="|", ms=6, color=C_MUTED, mew=1, ls="none", zorder=2)
+        ax.plot([], [], mk, color=col, ms=6, label=f"{lab}: 5-seed ensembles (95% CI)")
+    ax.plot([], [], "|", color=C_MUTED, ms=6, mew=1, ls="none", label="Seed-matched single models")
+    ax.axvline(0, color=C_MUTED, lw=1, ls="--")
+    ax.set_yticks(ypos)
+    ax.set_yticklabels(labels)
+    ax.set_xlabel(f"Δ tumor-slice Dice, B3 − B2 (pp); shaded: ±{margin:.0f} pp equivalence margin")
+    ax.set_title("(A) Effect of plane conditioning, matched comparisons", loc="left", fontweight="bold", color=C_INK)
+    ax.grid(axis="x", color=C_GRID, lw=0.6)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.45, -0.17), ncol=2, fontsize=6.6, frameon=False)
+
+    # (B) Reliability diagram
+    ax = fig.add_subplot(gs[0, 1])
+    ax.plot([0.6, 1], [0.6, 1], color=C_MUTED, ls="--", lw=1)
+    t_vals = [temps[f"B3_seed{s}"]["T"] for s in SEEDS]
+    t_str = f"{min(t_vals):.2f}–{max(t_vals):.2f}"
+    curves = [
+        (ens["B2"], False, C_B2, "s", f"B2 ensemble (ECE {summ['B2_ensemble']['ece']:.3f})"),
+        (ens["B3"], False, C_B3, "o", f"B3 ensemble (ECE {summ['B3_ensemble']['ece']:.3f})"),
+        (ens["B3"], True, C_CAL, "D", f"B3 ens., temperature-scaled (ECE {summ['B3_ensemble']['ece_temperature_scaled']:.3f})"),
     ]
-    
-    for mname, col, ls, marker in plot_models:
-        cdata = calib_results[mname]
-        centers = np.array(cdata["bin_centers"])
-        accs_b = np.array(cdata["bin_accs"])
-        valid = ~np.isnan(accs_b)
-        ax_rel.plot(centers[valid], accs_b[valid], linestyle=ls, color=col, marker=marker, markersize=6, linewidth=2, label=f"{mname} (ECE={cdata['ece']:.3f})")
-        
-    ax_rel.set_title("(A) Reliability Diagram (Confidence vs Accuracy)", fontweight="bold", pad=10)
-    ax_rel.set_xlabel("Predicted Confidence")
-    ax_rel.set_ylabel("Empirical Accuracy")
-    ax_rel.set_xlim(0.4, 1.02)
-    ax_rel.set_ylim(0.4, 1.02)
-    ax_rel.grid(True, linestyle=":", alpha=0.6)
-    ax_rel.legend(loc="lower right", fontsize=9, framealpha=0.9)
-    
-    # 2. Calibration Gap |Accuracy - Confidence|
-    ax_gap = axes[1]
-    bar_width = 0.02
-    for idx, (mname, col, _, _) in enumerate(plot_models):
-        cdata = calib_results[mname]
-        centers = np.array(cdata["bin_centers"])
-        confs_b = np.array(cdata["bin_confs"])
-        accs_b = np.array(cdata["bin_accs"])
-        valid = ~np.isnan(accs_b)
-        gap = np.abs(accs_b[valid] - confs_b[valid])
-        offset = (idx - 1.5) * bar_width
-        ax_gap.bar(centers[valid] + offset, gap, width=bar_width, color=col, alpha=0.8, label=mname)
-        
-    ax_gap.set_title("(B) Calibration Error Gap (|Acc - Conf|)", fontweight="bold", pad=10)
-    ax_gap.set_xlabel("Confidence Bin")
-    ax_gap.set_ylabel("Calibration Gap")
-    ax_gap.set_xlim(0.4, 1.02)
-    ax_gap.grid(True, linestyle=":", alpha=0.6)
-    ax_gap.legend(loc="upper left", fontsize=9, framealpha=0.9)
-    
-    # 3. Confidence Distribution Histograms
-    ax_hist = axes[2]
-    bins = np.linspace(0.4, 1.0, 25)
-    for mname, col, ls, _ in plot_models:
-        ax_hist.hist(model_preds[mname]["confs"], bins=bins, histtype="step", color=col, linewidth=2, linestyle=ls, label=mname, density=True)
-        
-    ax_hist.set_title("(C) Prediction Confidence Distribution", fontweight="bold", pad=10)
-    ax_hist.set_xlabel("Confidence")
-    ax_hist.set_ylabel("Density")
-    ax_hist.set_xlim(0.4, 1.02)
-    ax_hist.grid(True, linestyle=":", alpha=0.6)
-    ax_hist.legend(loc="upper left", fontsize=9, framealpha=0.9)
-    
-    plt.tight_layout()
-    fig6_path = out_dir / "figure6_calibration_reliability_diagrams.png"
-    plt.savefig(fig6_path, dpi=300, bbox_inches="tight")
+    for df, ts, col, mk, lab in curves:
+        x, y, n = reliability(df, ts)
+        ax.plot(x, y, color=col, lw=2, marker=mk, ms=6, mec="white", mew=1, label=lab)
+    ax.set_xlim(0.6, 1.005)
+    ax.set_ylim(0.6, 1.01)
+    ax.set_xlabel("Mean confidence (15 equal-width bins, n ≥ 5)")
+    ax.set_ylabel("Accuracy")
+    ax.set_title("(B) Classification reliability", loc="left", fontweight="bold", color=C_INK)
+    ax.grid(color=C_GRID, lw=0.6)
+    ax.legend(loc="lower right", bbox_to_anchor=(1.0, 0.08), fontsize=6.8, frameon=False)
+    ax.text(0.98, 0.04, f"T of B3 seeds (fit on own validation split): {t_str}", transform=ax.transAxes,
+            ha="right", fontsize=6.5, color=C_MUTED)
+
+    # (C) Confusion matrix, B3 ensemble
+    ax = fig.add_subplot(gs[0, 2])
+    df = ens["B3"]
+    cm = pd.crosstab(pd.Categorical(df["true_label"], CLASSES), pd.Categorical(df["pred_label"], CLASSES), dropna=False).to_numpy()
+    norm = cm / cm.sum(1, keepdims=True)
+    ax.imshow(norm, cmap="Blues", vmin=0, vmax=1)
+    for i in range(4):
+        for j in range(4):
+            ax.text(j, i, str(cm[i, j]), ha="center", va="center", fontsize=8.5,
+                    color="white" if norm[i, j] > 0.5 else C_INK)
+    labels = ["Glioma", "Mening.", "Pituitary", "No tumor"]
+    ax.set_xticks(range(4)); ax.set_xticklabels(labels, fontsize=7.5)
+    ax.set_yticks(range(4)); ax.set_yticklabels(labels, fontsize=7.5)
+    ax.set_xlabel("Predicted"); ax.set_ylabel("Reference")
+    for sp in ax.spines.values():
+        sp.set_visible(False)
+    m = summ["B3_ensemble"]
+    ax.set_title(f"(C) B3 ensemble (acc. {m['accuracy'] * 100:.1f}%)", loc="left", fontweight="bold", color=C_INK)
+
+    out = OUT_JOURNAL / "figure6_calibration_reliability_diagrams.png"
+    plt.savefig(out, dpi=300)
     plt.close()
-    print(f"Saved: {fig6_path}")
-    
-    # Save metrics JSON & Markdown
-    out_json = res_dir / "calibration_metrics.json"
-    with open(out_json, "w") as f:
-        json.dump(calib_results, f, indent=2)
-        
-    md_content = f"""# Model Calibration and Reliability Analysis
-**Date**: 2026-09-08  
-**Dataset**: BRISC2025 Held-Out Test Set (1,000 images)
+    print(f"Saved: {out}")
 
-| Architecture | Accuracy | Mean Confidence | ECE (10 bins) | MCE (10 bins) | Brier Score |
-|:---|:---:|:---:|:---:|:---:|:---:|
-| **B0 (Classification-Only)** | {calib_results['B0 (Cls-Only)']['mean_accuracy']*100:.2f}% | {calib_results['B0 (Cls-Only)']['mean_confidence']*100:.2f}% | {calib_results['B0 (Cls-Only)']['ece']:.4f} | {calib_results['B0 (Cls-Only)']['mce']:.4f} | {calib_results['B0 (Cls-Only)']['brier_score']:.4f} |
-| **B2 (Joint, No Plane)** | {calib_results['B2 (Joint, No Plane)']['mean_accuracy']*100:.2f}% | {calib_results['B2 (Joint, No Plane)']['mean_confidence']*100:.2f}% | {calib_results['B2 (Joint, No Plane)']['ece']:.4f} | {calib_results['B2 (Joint, No Plane)']['mce']:.4f} | {calib_results['B2 (Joint, No Plane)']['brier_score']:.4f} |
-| **B3 (Proposed Joint+Plane, Seed 42)** | {calib_results['B3 (Proposed Joint+Plane, Seed 42)']['mean_accuracy']*100:.2f}% | {calib_results['B3 (Proposed Joint+Plane, Seed 42)']['mean_confidence']*100:.2f}% | {calib_results['B3 (Proposed Joint+Plane, Seed 42)']['ece']:.4f} | {calib_results['B3 (Proposed Joint+Plane, Seed 42)']['mce']:.4f} | {calib_results['B3 (Proposed Joint+Plane, Seed 42)']['brier_score']:.4f} |
-| **B3 (Proposed Joint+Plane, Seed 43)** | {calib_results['B3 (Proposed Joint+Plane, Seed 43)']['mean_accuracy']*100:.2f}% | {calib_results['B3 (Proposed Joint+Plane, Seed 43)']['mean_confidence']*100:.2f}% | {calib_results['B3 (Proposed Joint+Plane, Seed 43)']['ece']:.4f} | {calib_results['B3 (Proposed Joint+Plane, Seed 43)']['mce']:.4f} | {calib_results['B3 (Proposed Joint+Plane, Seed 43)']['brier_score']:.4f} |
-| **B3 (Proposed Joint+Plane, Seed 44)** | {calib_results['B3 (Proposed Joint+Plane, Seed 44)']['mean_accuracy']*100:.2f}% | {calib_results['B3 (Proposed Joint+Plane, Seed 44)']['mean_confidence']*100:.2f}% | {calib_results['B3 (Proposed Joint+Plane, Seed 44)']['ece']:.4f} | {calib_results['B3 (Proposed Joint+Plane, Seed 44)']['mce']:.4f} | {calib_results['B3 (Proposed Joint+Plane, Seed 44)']['brier_score']:.4f} |
-| **B3 (Ensemble)** | {calib_results['B3 (Ensemble)']['mean_accuracy']*100:.2f}% | {calib_results['B3 (Ensemble)']['mean_confidence']*100:.2f}% | {calib_results['B3 (Ensemble)']['ece']:.4f} | {calib_results['B3 (Ensemble)']['mce']:.4f} | {calib_results['B3 (Ensemble)']['brier_score']:.4f} |
 
-### Analysis:
-1. **Multi-Task Regularization**: Joint learning (B2 and B3) maintains low Brier scores (~0.020) and low Expected Calibration Error (ECE ~0.072-0.075), preventing overconfidence compared to single-task models.
-2. **Ensemble Calibration**: The 3-seed B3 ensemble produces the lowest Brier score ({calib_results['B3 (Ensemble)']['brier_score']:.4f}) and highest accuracy ({calib_results['B3 (Ensemble)']['mean_accuracy']*100:.2f}%), verifying improved predictive certainty.
-"""
-    out_md = res_dir / "calibration_metrics.md"
-    with open(out_md, "w", encoding="utf-8") as f:
-        f.write(md_content)
-    print(f"Saved: {out_md}")
+def sample_intensities(paths, max_imgs=250, per_img=400, seed=42):
+    rng = np.random.default_rng(seed)
+    chosen = rng.choice(paths, size=min(max_imgs, len(paths)), replace=False)
+    vals = []
+    for p in chosen:
+        arr = np.asarray(Image.open(p).convert("L"), dtype=np.float32)
+        fg = arr[arr > 10]
+        if len(fg):
+            vals.append(rng.choice(fg, size=min(per_img, len(fg)), replace=False))
+    return np.concatenate(vals)
+
+
+def generate_figure7():
+    ext = json.load(open(ROOT / "results" / "external" / "external_evaluation.json"))
+    ft = json.load(open(ROOT / "results" / "external" / "ajbds_finetune_balanced.json"))
+    fig = plt.figure(figsize=(16.6, 4.5), dpi=300)
+    gs = fig.add_gridspec(1, 3, left=0.05, right=0.99, top=0.87, bottom=0.14, wspace=0.26, width_ratios=[1.0, 1.15, 1.0])
+
+    # (A) Foreground intensity distributions
+    ax = fig.add_subplot(gs[0, 0])
+    cohorts = [
+        ("BRISC2025 test", sorted((ROOT / "datasets" / "brisc2025" / "classification_task" / "test").rglob("*.jpg")), C_B3, "-"),
+        ("PMRAM", sorted((ROOT / "datasets" / "PMRAM Bangladeshi Brain Cancer - MRI Dataset" / "Raw").rglob("*.jpg")), C_B2, "--"),
+        ("AJBDS-2023", sorted((ROOT / "datasets" / "AJBDS-2023_extracted" / "AJBDS-2023" / "Training").rglob("input/*.jpg")), C_TS, "-."),
+    ]
+    bins = np.linspace(10, 255, 50)
+    centers = 0.5 * (bins[:-1] + bins[1:])
+    means = {}
+    for label, paths, col, ls in cohorts:
+        v = sample_intensities([str(p) for p in paths])
+        means[label] = float(v.mean())
+        h, _ = np.histogram(v, bins=bins, density=True)
+        ax.plot(centers, h, color=col, lw=2, ls=ls, label=f"{label} (mean {v.mean():.1f})")
+    ax.set_xlabel("Foreground pixel intensity (8-bit, > 10)")
+    ax.set_ylabel("Density")
+    ax.set_title("(A) Intensity distributions (250 images per cohort)", loc="left", fontweight="bold", color=C_INK)
+    ax.grid(color=C_GRID, lw=0.6)
+    ax.legend(frameon=False, fontsize=7.5)
+
+    # (B) AJBDS-2023 operating-point trade-off
+    ax = fig.add_subplot(gs[0, 1])
+    sweeps = ext["ajbds"]["sweeps"]
+    for name, col, mk in (("B2_ensemble", C_B2, "s"), ("B3_ensemble", C_B3, "o")):
+        short = name.replace("_ensemble", " ensemble")
+        px = sweeps[name]["pixel"]
+        gt = sweeps[name]["gate"]
+        ax.plot([px[t]["empty_fp_rate"] * 100 for t in px], [px[t]["dice_tumor"] * 100 for t in px],
+                color=col, lw=1.6, ls="--", marker=mk, ms=4.5, mfc="white", mec=col, label=f"{short}: pixel threshold 0.5–0.95")
+        ax.plot([gt[t]["empty_fp_rate"] * 100 for t in gt], [gt[t]["dice_tumor"] * 100 for t in gt],
+                color=col, lw=2, ls="-", marker=mk, ms=5, mec="white", mew=0.8, label=f"{short}: slice gate 0.3–0.95")
+        p0 = ext["ajbds"]["models"][name]["P0_zero_shot_ungated"]
+        ax.plot(p0["empty_fp_rate"] * 100, p0["dice_tumor"] * 100, marker="*", ms=13, color=col, mec=C_INK, mew=0.8, ls="none")
+    ax.plot([], [], marker="*", ms=11, color="white", mec=C_INK, ls="none", label="Default (pixel threshold 0.5, ungated)")
+    ax.set_xlabel("Empty-slice false-positive rate (%)  ← better")
+    ax.set_ylabel("Tumor-slice Dice (%)  better →")
+    a = ext["ajbds"]
+    ax.set_title(f"(B) AJBDS-2023, no adaptation ({a['n_tumor_slices']} lesion / {a['n_empty_slices']} empty slices)",
+                 loc="left", fontweight="bold", color=C_INK)
+    ax.grid(color=C_GRID, lw=0.6)
+    ax.legend(frameon=False, fontsize=6.8, loc="lower right")
+
+    # (C) Fine-tuning with k target patients (5-fold patient-grouped CV; k = 0 is zero-shot)
+    ax = fig.add_subplot(gs[0, 2])
+    ks = ft["k_values"]
+    xs = np.arange(len(ks))
+    for cfg, col, mk, dx in (("B2", C_B2, "s", -0.06), ("B3", C_B3, "o", 0.06)):
+        m = [ft["models"][cfg][str(k)] for k in ks]
+        for key, ls, fill in (("dice_tumor", "-", col), ("empty_fp_rate", "--", "white")):
+            y = np.array([v[key] for v in m]) * 100
+            lo = np.array([v["ci95"][key][0] for v in m]) * 100
+            hi = np.array([v["ci95"][key][1] for v in m]) * 100
+            ax.errorbar(xs + dx, y, yerr=[y - lo, hi - y], color=col, ls=ls, marker=mk, ms=5, mfc=fill, mec=col,
+                        lw=1.6, capsize=2, label=f"{cfg} seed 42: {'tumor-slice Dice' if key == 'dice_tumor' else 'empty-slice FP rate'}")
+    ax.set_xticks(xs)
+    ax.set_xticklabels(["0\n(zero-shot)" if str(k) == "0" else ("all\n(13–14)" if str(k) == "all" else str(k)) for k in ks])
+    ax.set_xlabel("AJBDS-2023 training patients (k)")
+    ax.set_ylabel("%")
+    ax.set_ylim(0, 100)
+    ax.set_title("(C) AJBDS-2023, lesion-balanced fine-tuning", loc="left", fontweight="bold", color=C_INK)
+    ax.grid(color=C_GRID, lw=0.6)
+    ax.legend(frameon=False, fontsize=6.6, loc="upper left")
+
+    out = OUT_EXT / "domain_shift_intensity.png"
+    plt.savefig(out, dpi=300)
+    plt.close()
+    with open(ROOT / "results" / "external" / "intensity_means.json", "w") as f:
+        json.dump(means, f, indent=2)
+    print(f"Saved: {out}; intensity means: {means}")
+
 
 if __name__ == "__main__":
-    main()
+    generate_figure6()
+    generate_figure7()
