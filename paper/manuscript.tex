@@ -1,426 +1,416 @@
-\documentclass[10pt,journal,compsoc]{IEEEtran}
+\documentclass[journal]{IEEEtran}
 
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithmic}
 \usepackage{graphicx}
-\usepackage{textcomp}
-\usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{array}
 \usepackage{url}
 \usepackage{cite}
-\usepackage{subcaption}
-\usepackage{hyperref}
-\usepackage{siunitx}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
 
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    citecolor=blue,
-    urlcolor=blue
-}
+\graphicspath{{../figures/journal/}{../figures/external/}}
 
 \begin{document}
 
-\title{Plane-Aware Joint Learning for Brain Tumor Classification and Delineation:\\ Multi-Task Benchmarking, Explainability, and External Generalization Under Domain Shift}
+\title{Acquisition-Plane Conditioning for Joint Brain Tumor Classification and Segmentation on 2-D MRI: A Controlled Multi-Seed Evaluation With Data-Leakage Audit and External Validation}
 
-\author{Tareque~Mohammad,~and~Collaborators%
-\thanks{Manuscript received September 8, 2026. This research was supported by the Advanced Biomedical Imaging and Computing Laboratory. (Corresponding author: Tareque Mohammad).}%
-\thanks{The authors are with the Department of Computer Science and Biomedical Engineering.}}
+\author{Tareque~Mohammad%
+\thanks{\textbf{[Authors: complete the author list, affiliations, funding, and corresponding-author details before submission.]}}%
+\thanks{Code and per-image predictions: \textbf{[repository URL]}.}}
 
-\markboth{IEEE Transactions on Medical Imaging,~Vol.~XX, No.~X, September~2026}%
-{Mohammad \MakeLowercase{\textit{et al.}}: Plane-Aware Joint Learning for Brain Tumor Analysis}
+\markboth{IEEE Transactions on Medical Imaging}%
+{Mohammad: Acquisition-Plane Conditioning for Brain Tumor Classification and Segmentation}
 
-\IEEEtitleabstractindextext{%
+\maketitle
+
 \begin{abstract}
-Accurate computational analysis of intracranial neoplasms from magnetic resonance imaging (MRI) demands both reliable histologic classification and precise spatial delineation of tumor margins. Most contemporary architectures treat these as decoupled pipelines and ignore the anatomical acquisition plane (axial, sagittal, coronal) in which each slice was acquired. We propose PAUMT-Net, a unified plane-aware joint learning architecture that processes individual 2D MRI slices via a shared ResNet34 backbone, a learned plane embedding, a two-layer classification head, and a UNet decoder modulated by Feature-wise Linear Modulation (FiLM). A plane-marginalized inference strategy enables zero-shot external deployment without plane annotations. We identify and correct a critical training-pipeline bug wherein healthy scans lacking mask files were silently excluded from segmentation supervision, causing a 95.71\% false-positive rate (reduced to 0.00\% post-correction). On the held-out BRISC2025 test set (1,000 slices), PAUMT-Net achieves 99.30\%\,$\pm$\,0.10\% classification accuracy (95\% CI: [98.70\%, 99.80\%]), 99.38\%\,$\pm$\,0.11\% macro F1, and 87.93\%\,$\pm$\,0.26\% segmentation Dice across three independent seeds. Paired Wilcoxon testing confirms statistically significant segmentation improvement from plane conditioning ($p = 0.0344$). Zero-shot evaluation on the PMRAM dataset (N=1,410) achieves 92.41\% accuracy, while AJBDS-2023 (N=4,826 slices) reveals severe segmentation domain degradation (38.35\% tumor Dice, 36.31\% empty-slice hallucination rate) mitigated via test-time threshold calibration ($\tau = 0.85$). These findings establish that joint multi-task learning provides foundational regularization while plane conditioning refines spatial boundaries, and highlight the pronounced vulnerability of dense segmentation to domain shift compared to classification.
+Public 2-D brain MRI benchmarks mix axial, sagittal and coronal slices. We tested whether conditioning a joint tumor classification and segmentation network on the acquisition plane improves performance, using a pre-specified analysis plan. A ResNet-34 encoder feeds a four-class classifier and a U-Net decoder; in the plane-aware variant a learned plane embedding conditions both heads. An otherwise identical model without the embedding served as control. Both were trained with five seeds on BRISC2025 (6,000 T1-weighted slices), on the official split and on a leakage-free split from which 425 development images that duplicated test images had been removed. External evaluation used PMRAM (1,410 images) and AJBDS-2023 (17 patients, 4,826 slices), including patient-wise fine-tuning. Supervising healthy slices with empty masks was essential (false masks on 134/140 healthy test slices without it, 0/140 with it). Plane conditioning had no effect: its seed-level effect on tumor-slice Dice was $-0.20$ percentage points (95\% CI $-0.63$ to 0.23), equivalent to zero within $\pm1$ point ($p=0.003$), and smaller than the 0.57-point difference between two identically configured runs. Ten percent of official test images were near-identical to training images; retraining without them lowered accuracy from 99.6\% to 98.1--98.3\% and tumor Dice by 1.2--1.3 points. Externally, ensembles classified 94.0--94.8\% of PMRAM images correctly, whereas AJBDS-2023 tumor Dice was 36.5--38.0\%; threshold calibration and fine-tuning on up to 14 patients reduced false positives but did not improve lesion delineation. Matched multi-seed comparisons, leakage-free splits and external validation are needed before attributing gains to architecture on this benchmark.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Brain tumor, MRI classification, tumor boundary delineation, multi-task learning, anatomical-plane conditioning, Grad-CAM explainability, model calibration, domain shift, external validation, BRISC2025.
-\end{IEEEkeywords}}
-
-\maketitle
-\IEEEdisplaynontitleabstractindextext
-\IEEEpeerreviewmaketitle
+Brain tumor, data leakage, domain shift, external validation, magnetic resonance imaging, multi-task learning, segmentation.
+\end{IEEEkeywords}
 
 \section{Introduction}
-\IEEEPARstart{P}{rimary} and metastatic intracranial neoplasms represent a severe healthcare burden globally. Magnetic resonance imaging (MRI) serves as the definitive non-invasive modality for neuro-oncological evaluation, facilitating tumor type differentiation, surgical margin delineation, mass-effect assessment, and longitudinal therapeutic monitoring. In routine diagnostic workflows, neuro-radiologists simultaneously determine tumor histopathology (e.g., distinguishing gliomas, meningiomas, and pituitary adenomas) and map structural lesion margins. In contrast, deep learning literature overwhelmingly bifurcates these tasks into isolated classification networks \cite{he2016deep, fateh2026brisc, tas2026attention, ahmed2026enhancing} or independent segmentation pipelines \cite{ronneberger2015u, fateh2025swinhafnet, alkharaan2026brain}.
+\IEEEPARstart{B}{rain} tumor assessment on magnetic resonance imaging (MRI) combines two tasks: deciding which type of lesion is present and delineating its extent. Most deep-learning studies on public 2-D benchmarks treat these tasks separately, training classifiers \cite{cheng2015enhanced,fateh2026brisc,ahmed2026enhancing} or segmentation networks \cite{ronneberger2015u,fateh2026brisc} in isolation. Multi-task learning (MTL) with a shared encoder is a natural alternative \cite{caruana1997multitask,zhang2018overview}, and joint classification--segmentation models have been reported for glioma grading \cite{chen2025cooperative}, pituitary adenoma invasion \cite{rui2025automatic}, and brain tumor analysis more broadly \cite{nazir2024end}.
 
-Multi-task learning (MTL) offers an appealing paradigm to unify these complementary objectives \cite{caruana1997multitask}. By optimizing a shared visual backbone across classification and segmentation targets, MTL provides an inductive bias that regularizes feature representations and mitigates overfitting to spurious non-pathological imaging shortcuts \cite{zhang2018overview, chen2025cooperative}. Nevertheless, naive multi-task formulations often trigger optimization conflicts and negative gradient interference when tasks exhibit divergent loss landscapes and convergence velocities \cite{sener2018multi, kendall2018multi}.
+Public 2-D brain MRI collections mix slices acquired in three orthogonal planes. The same lesion appears very differently in axial, sagittal, and coronal views, yet standard networks are plane-agnostic. Conditioning a network on acquisition metadata through feature-wise linear modulation (FiLM) \cite{perez2018film} is a lightweight way to inject such information and has been used for plane-aware spine segmentation \cite{stelzner2024recognition}. Whether plane conditioning measurably helps joint tumor classification and segmentation has, to our knowledge, not been tested under controlled conditions.
 
-A second fundamental, yet consistently neglected, dimension in 2D brain MRI analysis is anatomical slice acquisition orientation. Clinical brain protocols routinely acquire images across three mutually orthogonal planes:
+Answering this question is harder than it appears. On near-saturated benchmarks the differences between design variants are of the same order as run-to-run training variability \cite{bouthillier2021accounting}; comparing an ensemble of one variant with a single model of another conflates ensembling \cite{lakshminarayanan2017simple} with the design change; and slice-level datasets without patient identifiers are vulnerable to near-duplicate images shared between training and test splits. Reporting guidelines for medical image analysis therefore emphasise matched comparisons, appropriate metrics, and external validation \cite{maierhein2024metrics,mongan2020claim}.
+
+We study a plane-conditioned joint classification--segmentation network (PAUMT-Net) on the BRISC2025 benchmark \cite{fateh2026brisc} with these pitfalls in mind. Our contributions are:
 \begin{enumerate}
-    \item \textbf{Axial (transverse)}: Traverses superior to inferior, delineating hemispheric symmetry and ventricular boundaries.
-    \item \textbf{Sagittal}: Traverses lateral to medial, capturing the midline craniocervical junction, brainstem, and sellar compartment.
-    \item \textbf{Coronal}: Traverses anterior to posterior, visualizing temporal lobe anatomy, skull base structures, and cranial nerve trajectories.
+\item A joint network in which a learned plane embedding conditions both the classification head and, through FiLM, a U-Net decoder, together with plane-marginalised inference for data without plane labels.
+\item A controlled comparison against an otherwise identical model without plane embedding, using five training seeds per configuration, matched-size seed ensembles, a pre-specified equivalence analysis, and explicit quantification of run-to-run non-determinism and of the effect of ensembling alone.
+\item Two data-integrity findings that affect anyone using this benchmark: healthy slices must be supervised with empty masks to avoid false-positive segmentations, and 104 test images (10.4\%) of the official BRISC2025 split are near-identical to training images; we quantify their effect by retraining both models on a leakage-free development set.
+\item External evaluation on two independent cohorts with pre-specified zero-shot protocols, leave-one-patient-out threshold calibration, patient-grouped fine-tuning with 1 to 14 target patients, and patient-level confidence intervals, including an inference-time slice gate that combines the classification and segmentation outputs.
 \end{enumerate}
 
-Intracranial neoplasm morphology diverges drastically across these acquisition views. For instance, a pituitary adenoma in the sagittal orientation presents neatly confined within the sella turcica, whereas its coronal projection highlights suprasellar extension and optic chiasm compression. Conventional deep architectures operate in a plane-agnostic fashion, forcing the encoder to absorb orientation-driven appearance variance implicitly. Explicit conditioning on slice acquisition plane enables neural networks to allocate representational capacity selectively and adapt spatial filters dynamically \cite{stelzner2024recognition, perez2018film}.
+\section{Related Work}
+\textit{Brain tumor classification and segmentation.} Convolutional and transformer models reach accuracies close to 99\% on curated four-class brain MRI collections \cite{cheng2015enhanced,fateh2026brisc,ahmed2026enhancing,alkharaan2026brain}. The BRISC2025 release \cite{fateh2026brisc} provides 6{,}000 T1-weighted slices with expert tumor masks, an official 5{,}000/1{,}000 train/test split, and baseline results for both tasks. U-Net variants \cite{ronneberger2015u} remain the dominant segmentation architecture; multi-parametric 3-D benchmarks such as BraTS \cite{menze2014multimodal} address a different, volumetric setting.
 
-A naive inclination in multi-plane MRI datasets is to aggregate slices into multi-view triplets (axial, sagittal, coronal) under the assumption of synchronized patient anatomy. However, a forensic investigation into the benchmark BRISC2025 dataset \cite{fateh2026brisc} reveals that patient-level identifiers are absent; numeric file tokens represent sequential dataset counters rather than subject IDs. Enforcing artificial multi-view groupings across non-identical patient scans introduces fabricated anatomical correspondences devoid of clinical validity.
+\textit{Multi-task learning.} Shared encoders can regularise each task \cite{caruana1997multitask,zhang2018overview} but may also suffer from gradient conflicts \cite{sener2018multi}. Loss weighting by homoscedastic uncertainty \cite{kendall2018multi} and cross-task consistency terms \cite{luo2021semi} are common coupling mechanisms; we evaluate both as ablations.
 
-To resolve these challenges rigorously, we propose the \textbf{Plane-Aware Single-Image Joint Learning Framework (PAUMT-Net)}. Each slice is processed independently, with its anatomical acquisition plane supplied as categorical metadata that modulates the shared encoder and UNet decoder via learned embeddings and Feature-wise Linear Modulation (FiLM) \cite{perez2018film}. The overall architecture is illustrated in Fig.~\ref{fig:architecture}.
+\textit{Metadata conditioning.} FiLM \cite{perez2018film} modulates feature maps with an affine transform predicted from side information. Stelzner \textit{et al.} \cite{stelzner2024recognition} condition lumbar-spine segmentation on the MRI plane. We extend this idea to joint brain tumor classification and segmentation and test it with matched controls.
 
-\begin{figure*}[t]
+\textit{Evaluation methodology.} Metrics Reloaded \cite{maierhein2024metrics} discusses pitfalls such as empty reference masks and boundary-metric definitions; CLAIM \cite{mongan2020claim} lists reporting items for AI in medical imaging; and benchmark variance across training runs is analysed in \cite{bouthillier2021accounting}. Calibration of modern networks and temperature scaling are described in \cite{guo2017calibration,dawood2023uncertainty}.
+
+\section{Materials}
+\subsection{BRISC2025}
+BRISC2025 \cite{fateh2026brisc} contains 6{,}000 2-D contrast-enhanced T1-weighted slices in four classes (glioma 1{,}401; meningioma 1{,}635; pituitary tumor 1{,}757; no tumor 1{,}207) and three planes (axial 1{,}993; coronal 1{,}981; sagittal 2{,}026). We use the official split: 5{,}000 development and 1{,}000 test slices (glioma 254, meningioma 306, pituitary 300, no tumor 140; axial 398, coronal 305, sagittal 297). Tumor slices have expert binary masks; healthy slices have none. For each training seed the development set is split 80/20 into training and validation sets, stratified by class $\times$ plane. The dataset provides no patient identifiers, so all internal results are slice-level estimates and patient-level splitting is impossible.
+
+\textit{Leakage audit.} Because slices from one patient may appear in both official splits, we compared every test image with every development image using MD5 digests and a 64-bit DCT perceptual hash (Hamming distance $\le 4$), and verified each candidate pair by the normalised cross-correlation (NCC) of $128\times128$ grayscale images. Among 1{,}000 random test--development pairs the largest NCC was 0.86 (99th percentile 0.66). Seven test images are byte-identical to a development image, and 104 (10.4\%; 99 meningioma, 5 pituitary; all with the same label as their match) reach NCC $\ge 0.98$ and are called \textit{near-identical}. A further 217 test images have a weaker perceptual-hash match (NCC 0.59--0.97, median above the random-pair maximum), some of which may be neighbouring slices of the same patient. The main results are therefore also reported on the de-duplicated test set ($n=896$) and on a strict subset that excludes every hash candidate ($n=679$). The dataset structure and evaluation design are summarised in Fig.~\ref{fig:pipeline}.
+
+\begin{figure*}[!t]
 \centering
-\includegraphics[width=\textwidth]{../figures/journal/figure1_architecture.png}
-\caption{PAUMT-Net architecture overview. Input 2D MRI slices ($3 \times 224 \times 224$) are processed by a shared ResNet34 backbone producing hierarchical feature maps $\{\mathbf{p}_1, \ldots, \mathbf{p}_4\}$. A learned plane embedding $\mathbf{e}_p$ is added to the globally pooled bottleneck representation $\mathbf{f}_{\text{pooled}}$, yielding the plane-conditioned vector $\mathbf{f}_{\text{cond}}$. This conditions (a) a two-layer MLP classification head producing class logits $\hat{\mathbf{y}}$ and (b) a UNet decoder via FiLM modulation at the deepest skip connection, producing the segmentation logit map $\hat{\mathbf{M}}$. At external deployment without plane labels, $\mathbf{e}_p$ is replaced by the mean-plane prior $\bar{\mathbf{e}}$.}
-\label{fig:architecture}
-\end{figure*}
-
-The core contributions of this study are:
-\begin{enumerate}
-    \item \textbf{Unified Plane-Aware Multi-Task Framework}: We introduce a lightweight, end-to-end multi-task architecture (24.35M parameters) that concurrently classifies brain tumor categories and segments lesion margins, conditioning latent representations on anatomical plane metadata without unsupported patient-grouping assumptions.
-    \item \textbf{Supervision Integrity Discovery and Resolution}: We expose and resolve a training-pipeline omission wherein healthy scans lacking mask files were silently excluded from segmentation loss computation, producing a catastrophic 95.71\% false-positive rate on healthy tissue prior to correction (0.00\% post-correction).
-    \item \textbf{Rigorous Statistical and Calibration Auditing}: Through 1,000-sample bootstrap resampling, paired McNemar's tests, and Wilcoxon signed-rank tests, we demonstrate that plane conditioning delivers statistically significant segmentation gains on tumor-containing slices ($p = 0.0344$), establishing that joint learning anchors representation stability while plane conditioning refines spatial boundary delineation.
-    \item \textbf{Visual Saliency and Explainability}: We extract Grad-CAM heatmaps across all four diagnostic classes and all three acquisition planes, verifying that shared encoder representations focus on intra-axial and extra-axial neoplastic pathology rather than skull contours or background noise.
-    \item \textbf{Plane-Marginalized External Generalization \& Domain Shift Diagnostics}: We devise a plane-marginalized inference mechanism ($\mathbb{E}_p[e_p]$) enabling zero-shot external evaluation on PMRAM (N=1,410) and AJBDS-2023 (N=4,826 paired slices). We quantify the pronounced domain gap—where global classification transfers robustly ($>$92\%) while dense segmentation suffers severe degradation—and establish test-time threshold calibration ($\tau = 0.85$) as an actionable mitigation strategy.
-\end{enumerate}
-
-\section{Related Work and Benchmark Landscape}
-\subsection{Brain Tumor Classification}
-Convolutional and Transformer-based models have established strong benchmark results on curated brain MRI datasets \cite{cheng2015enhanced, menze2014multimodal, fateh2026brisc}. Fateh \textit{et al.} \cite{fateh2026brisc} introduced the BRISC2025 benchmark, evaluating ResNet50, EfficientNet-B0, and MobileViT as isolated classification baselines. Subsequent studies explored attention mechanisms \cite{tas2026attention}, artificial colormap transformations with Vision Transformers \cite{ahmed2026enhancing}, and cascaded dual-model pipelines \cite{alkharaan2026brain, linija2026transformer, srinivas2026dual}. However, these approaches address classification in isolation, omitting spatial tumor localization.
-
-\subsection{Brain Tumor Segmentation}
-UNet \cite{ronneberger2015u} and its variants remain foundational in medical image segmentation. On BRISC2025, Fateh \textit{et al.} \cite{fateh2025swinhafnet} introduced Swin-HAFNet, integrating Swin Transformer blocks with a hybrid attention decoder. While achieving high Dice scores, Swin-HAFNet operates exclusively on boundary delineation, discarding multi-class diagnostic context. Three-dimensional volumetric methods such as VoxResNet \cite{chen2018voxresnet} and multi-modal BraTS-based segmentation \cite{menze2014multimodal} remain dominant in fully volumetric settings, but require 3D data unavailable in 2D slice-level benchmarks such as BRISC2025.
-
-\subsection{Joint Multi-Task Architectures}
-Multi-task architectures combining classification and segmentation have shown efficacy in general medical imaging \cite{zhang2018overview, caruana1997multitask, chen2025cooperative, rui2025automatic, nazir2024end}. Chen \textit{et al.} \cite{chen2025cooperative} demonstrated cooperative multi-task learning for glioma molecular subtyping. Rui \textit{et al.} \cite{rui2025automatic} unified pituitary adenoma segmentation and cavernous sinus invasion. However, existing frameworks rarely account for anatomical slice acquisition geometry or evaluate zero-shot cross-hospital generalization under domain shift.
-
-\subsection{Plane-Aware Conditioning}
-Conditioning neural networks on acquisition-plane metadata has been explored for lumbar spine MRI segmentation \cite{stelzner2024recognition} and sMRI-based disease classification using plane-aware Mixture-of-Experts routing \cite{kumar2026pam}. The general framework of Feature-wise Linear Modulation (FiLM) \cite{perez2018film} provides a principled mechanism for injecting categorical conditioning information into convolutional feature maps. To our knowledge, no prior work applies plane-aware FiLM conditioning to joint classification and segmentation on brain tumor 2D slice benchmarks.
-
-\subsection{Domain Generalization in Medical Imaging}
-Cross-domain generalization represents a fundamental challenge in clinical AI deployment, where source and target distributions diverge due to scanner heterogeneity, imaging protocol variance, and institutional processing pipelines \cite{dawood2023uncertainty}. Test-time adaptation methods \cite{luo2021semi} and decision-threshold calibration are practical strategies for mitigating domain-induced performance degradation without requiring target-domain retraining.
-
-\subsection{State-of-the-Art Benchmark Comparison}
-Table~\ref{tab:sota_comparison} details a comprehensive audit of published 2024--2026 models on the BRISC2025 benchmark.
-
-\begin{table*}[t]
-\caption{State-of-the-Art Benchmark Comparison on the BRISC2025 Dataset}
-\label{tab:sota_comparison}
-\centering
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llccccc}
-\toprule
-\textbf{Method} & \textbf{Architecture} & \textbf{Task Formulation} & \textbf{Parameters} & \textbf{Cls Acc (\%)} & \textbf{Seg Dice (\%)} & \textbf{Healthy FP (\%)} \\
-\midrule
-Fateh \textit{et al.} (2026) \cite{fateh2026brisc} & ResNet50 & Classification-only & 25.6M & 98.60\% & --- & --- \\
-Fateh \textit{et al.} (2026) \cite{fateh2026brisc} & EfficientNet-B0 & Classification-only & 5.3M & 98.20\% & --- & --- \\
-Fateh \textit{et al.} (2026) \cite{fateh2026brisc} & Standard UNet & Segmentation-only & 31.0M & --- & 82.40\% & Not reported \\
-Swin-HAFNet (2025) \cite{fateh2025swinhafnet} & Swin + Hybrid Attn & Segmentation-only & $\sim$38.0M & --- & 86.50\% & Not reported \\
-Ta{\c{s}} \& {\"O}ztepe (2026) \cite{tas2026attention} & Attn-CNN & Classification-only & $\sim$28.0M & 98.90\% & --- & --- \\
-Ahmed (2026) \cite{ahmed2026enhancing} & Colormap + ViT-B/16 & Classification-only & 86.6M & 99.10\% & --- & --- \\
-Alkharaan \textit{et al.} (2026) \cite{alkharaan2026brain} & EfficientNet + UNet++ & Two-Stage Pipeline & 46.2M & 98.80\% & 85.20\% & Not reported \\
-Linija \& Rajesh (2026) \cite{linija2026transformer} & Multistage Transformer & Sequential Pipeline & 42.1M & 98.70\% & 84.80\% & Not reported \\
-Srinivas \textit{et al.} (2026) \cite{srinivas2026dual} & Dual-Encoder UNet++ & Dual-Encoder Pipeline & 54.7M & 99.00\% & 86.10\% & Not reported \\
-\midrule
-\textbf{Proposed B2 Baseline} & ResNet34 + UNet & Joint Cls + Seg & 24.35M & 99.40\% & 87.86\% & 0.00\% \\
-\textbf{Proposed B3 (Ours)} & Plane-Aware Joint UNet & \textbf{Unified Joint Cls + Seg} & \textbf{24.35M} & \textbf{99.30\% $\pm$ 0.10\%} & \textbf{87.93\% $\pm$ 0.26\%} & \textbf{0.00\%} \\
-\textbf{Proposed B3 Ensemble (Ours)} & Plane-Aware 3-Seed Ens & \textbf{Unified Joint Cls + Seg} & \textbf{24.35M} & \textbf{99.50\%} & \textbf{88.35\%} & \textbf{0.00\%} \\
-\bottomrule
-\end{tabular}%
-}
-\footnotesize{\\ $^\dagger$~All PAUMT-Net results use the official BRISC2025 train/test split. External papers reporting random splits are included for general context only and are not directly comparable on an equal footing.}
-\end{table*}
-
-\section{Materials and Dataset Integrity}
-\subsection{BRISC2025 Dataset Structure}
-The BRISC2025 dataset \cite{fateh2026brisc} comprises 6,000 2D T1-weighted brain MRI slices partitioned into an official split of 5,000 development and 1,000 held-out test images. Slices span four diagnostic categories:
-\begin{itemize}
-    \item \textbf{Glioma} ($N_{\text{test}} = 254$): Intra-axial, infiltrative primary glial neoplasm.
-    \item \textbf{Meningioma} ($N_{\text{test}} = 306$): Extra-axial, dural-based mass.
-    \item \textbf{Pituitary Adenoma} ($N_{\text{test}} = 300$): Sellar/suprasellar endocrine neoplasm.
-    \item \textbf{Healthy / No Tumor} ($N_{\text{test}} = 140$): Non-neoplastic brain MRI slices.
-\end{itemize}
-
-Acquisition planes in the test partition comprise 398 axial, 305 coronal, and 297 sagittal slices. The 5,000 development images were split into 4,000 training and 1,000 validation images using stratified sampling ($\text{Class} \times \text{Plane}$, 20\% ratio). A data summary and preprocessing pipeline is illustrated in Fig.~\ref{fig:pipeline}.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{../figures/journal/figure2_pipeline.png}
-\caption{Comprehensive dataset structure, stratified partitioning, and dual evaluation pipeline. (1) The source BRISC2025 benchmark comprises 6,000 balanced 2D T1w MRI slices across four diagnostic categories and three orthogonal acquisition planes (with representative axial, coronal, and sagittal slice exemplars). (2) Stratified 12-strata partitioning isolates 5,000 development slices (4,000 training, 1,000 validation) and 1,000 held-out test slices without subject/slice overlap. (3) Joint spatial transforms and the critical empty-mask supervision integrity audit: omitting healthy scans from segmentation loss triggers a catastrophic 95.71\% false-positive rate, whereas PAUMT-Net's empty-mask supervision ($\mathbf{M} = \mathbf{0}$, $\mathrm{mask\_valid} = 1.0$) guarantees 0.00\% false positives. (4) Dual evaluation framework spanning internal multi-seed testing and zero-shot cross-center generalization on PMRAM (Bangladesh, $N = 1,410$) and AJBDS-2023 (Jordan, $N = 4,826$).}
+\includegraphics[width=\textwidth]{figure2_pipeline.png}
+\caption{Data and evaluation design. (a) BRISC2025 class and plane composition. (b) Official train/test split; the validation split is drawn per seed, stratified by class $\times$ plane. (c) Augmentation and empty-mask supervision of healthy slices. (d) Internal comparison design and external cohorts.}
 \label{fig:pipeline}
 \end{figure*}
 
-\subsection{Absence of Patient IDs and Slice-Level Validity}
-Cryptographic MD5 hash audits confirm that numeric file indices repeat across distinct tumor classes and anatomical orientations, confirming that indices do not track individual patients. Consequently, images are processed strictly as independent 2D slices, and all internal metrics are reported as slice-level benchmark estimates. Patient-level partitioning, which is standard for volumetric datasets, is methodologically unsupported in BRISC2025 and is deliberately avoided.
+\subsection{External Cohorts}
+\textit{PMRAM} \cite{prottoy2024pmram} contains four-class brain MRI images (glioma, meningioma, pituitary, normal) from three hospitals in Bangladesh, distributed as $512\times512$ JPEG files. The raw subset of our copy contained 1{,}505 files; removing exact (MD5) duplicates left 1{,}410 images, which we use for external classification.
 
-\subsection{External Benchmark Cohorts}
-To evaluate real-world clinical transferability, we incorporate two independent external benchmarks:
-\begin{enumerate}
-    \item \textbf{PMRAM Dataset (Bangladesh)} \cite{rahman2024pmram}: 1,505 brain MRI JPEG images. MD5 hashing eliminated 95 exact duplicates, leaving \textbf{1,410 unique images} for external classification evaluation.
-    \item \textbf{AJBDS-2023 Dataset (Jordan)} \cite{ali2023ajbds}: 14,326 brain MRI slices across 24 patient cohorts. Following paired slice validation and exclusion of corrupt images, \textbf{4,826 valid paired slices across 17 patients} were established for external segmentation evaluation. Of these, 3,580 slices are empty (no tumor) and 1,246 are tumor-containing, providing a challenging clinical deployment scenario with high empty-slice prevalence.
-\end{enumerate}
+\textit{AJBDS-2023} \cite{amin2023ajbds} was acquired on a 1.5-T scanner at a hospital in Pakistan and contains slices from several sequences (T1-weighted, T2-weighted, FLAIR, contrast-enhanced T1, ADC, DWI) in all three planes, distributed as $320\times320$ JPEG images with binary lesion masks. The dataset paper describes annotation of tumor core and edema, so its lesion definition may differ from BRISC2025's tumor masks. Pairing input images with masks yielded 4{,}826 slices from 17 patients (1{,}246 with lesion, 3{,}580 without), which we use for external segmentation. Sequence labels are not provided per slice; most slices therefore differ from the training distribution in contrast as well as in scanner and population.
 
-\section{Proposed Method: PAUMT-Net}
-\subsection{Shared Backbone and Plane Conditioning}
-Given an input slice $\mathbf{x} \in \mathbb{R}^{3 \times H \times W}$ ($H=W=224$), a shared ResNet34 backbone extracts hierarchical feature representations:
+All three datasets are public and de-identified; this retrospective study used no other data, and no ethics approval was required.
+
+\section{Methods}
+\subsection{Network}
+A ResNet-34 encoder \cite{he2016deep} (ImageNet initialisation) maps a $224\times224$ input $\mathbf{x}$ to features $\mathbf{p}_1,\dots,\mathbf{p}_3$ (64, 128, 256 channels at strides 4, 8, 16) and to $\mathbf{p}_4\in\mathbb{R}^{256\times7\times7}$ after a $1\times1$ projection of the last stage. Global average pooling gives $\mathbf{f}\in\mathbb{R}^{256}$.
+
+\textit{Plane conditioning (B3).} The plane index $p\in\{\text{axial},\text{sagittal},\text{coronal}\}$ selects a learned embedding $\mathbf{e}_p=\mathbf{E}[p]$, $\mathbf{E}\in\mathbb{R}^{3\times256}$ (initialised from $\mathcal{N}(0,0.02^2)$), and $\mathbf{f}_c=\mathbf{f}+\mathbf{e}_p$. The classifier is $\mathrm{LN}\rightarrow\mathrm{Linear}(256,128)\rightarrow\mathrm{GELU}\rightarrow\mathrm{Dropout}(0.3)\rightarrow\mathrm{Linear}(128,4)$ applied to $\mathbf{f}_c$. The decoder modulates the deepest features with FiLM,
 \begin{equation}
-\begin{aligned}
-\mathbf{p}_1 &\in \mathbb{R}^{64 \times \frac{H}{4} \times \frac{W}{4}}, \quad \mathbf{p}_2 \in \mathbb{R}^{128 \times \frac{H}{8} \times \frac{W}{8}}, \\
-\mathbf{p}_3 &\in \mathbb{R}^{256 \times \frac{H}{16} \times \frac{W}{16}}, \quad \mathbf{p}_4 \in \mathbb{R}^{512 \times \frac{H}{32} \times \frac{W}{32}}
-\end{aligned}
+\tilde{\mathbf{p}}_4=\mathbf{p}_4\odot\sigma(\mathbf{W}_s\mathbf{f}_c)+\mathbf{W}_b\mathbf{f}_c,
 \end{equation}
-The deepest features $\mathbf{p}_4$ are projected to dimension $D=256$ via $1 \times 1$ convolution, Batch Normalization, and ReLU, followed by global average pooling to yield $\mathbf{f}_{\text{pooled}} \in \mathbb{R}^D$.
+and three U-Net up-blocks with skip connections from $\mathbf{p}_3,\mathbf{p}_2,\mathbf{p}_1$ followed by bilinear upsampling produce a $224\times224$ logit map $\hat{\mathbf{M}}$ (Fig.~\ref{fig:architecture}). The model has 24.35\,M parameters.
 
-The acquisition plane index $p \in \{0, 1, 2\}$ is mapped through a learned embedding matrix $\mathbf{E} \in \mathbb{R}^{3 \times D}$, initialized from $\mathcal{N}(0, 0.02^2)$, with $\mathbf{e}_p = \mathbf{E}[p]$. Additive conditioning yields:
-\begin{equation}
-\mathbf{f}_{\text{cond}} = \mathbf{f}_{\text{pooled}} + \mathbf{e}_p
-\end{equation}
+\textit{Control (B2).} B2 is identical except that $\mathbf{e}_p$ is removed ($\mathbf{f}_c=\mathbf{f}$); the FiLM path is kept and conditioned on $\mathbf{f}$ alone. The B2--B3 comparison therefore isolates the 768-parameter plane embedding.
 
-For boundary delineation, $\mathbf{f}_{\text{cond}}$ modulates the deepest decoder activations via FiLM \cite{perez2018film}:
-\begin{equation}
-\mathbf{p}_4^{\text{mod}} = \mathbf{p}_4 \odot \sigma\left(\mathbf{W}_{\text{scale}} \mathbf{f}_{\text{cond}}\right) + \mathbf{W}_{\text{bias}} \mathbf{f}_{\text{cond}}
-\end{equation}
-where $\mathbf{W}_{\text{scale}}, \mathbf{W}_{\text{bias}} \in \mathbb{R}^{D \times D}$ are learned linear projections and $\sigma(\cdot)$ is the sigmoid activation. The modulated tensor is upsampled through UNet skip connections $\{\mathbf{p}_3, \mathbf{p}_2, \mathbf{p}_1\}$ to generate the segmentation logit map $\hat{\mathbf{M}} \in \mathbb{R}^{1 \times H \times W}$.
+\textit{Plane-marginalised inference.} External cohorts lack plane labels. For B3 we replace $\mathbf{e}_p$ by the mean embedding $\bar{\mathbf{e}}=\frac13\sum_k\mathbf{E}[k]$ (pre-specified) or by $\mathbf{0}$ (sensitivity analysis).
 
-The classification logits $\hat{\mathbf{y}} \in \mathbb{R}^4$ are produced via a two-layer MLP with LayerNorm, GELU, and Dropout ($p=0.3$):
-\begin{equation}
-\hat{\mathbf{y}} = \mathbf{W}_2 \, \text{Dropout}\left(\text{GELU}\left(\mathbf{W}_1 \, \text{LayerNorm}(\mathbf{f}_{\text{cond}})\right)\right)
-\end{equation}
-
-\subsection{Plane-Marginalized Inference for Clinical Deployment}
-When deploying on unannotated external datasets, direct conditioning is unavailable. We introduce two plane-agnostic inference modes:
-\begin{enumerate}
-    \item \textbf{Zero-Plane Fallback}: $\mathbf{e}_p = \mathbf{0}$, operating as a neutral baseline prior that removes plane-specific modulation.
-    \item \textbf{Marginal Mean-Plane Prior}:
-    \begin{equation}
-    \mathbf{e}_p = \mathbb{E}_{k \sim \{0,1,2\}}\left[\mathbf{E}[k]\right] = \frac{1}{3} \sum_{k=0}^{2} \mathbf{E}[k]
-    \end{equation}
-    This marginalizes over the training plane distribution, preserving multi-plane conditioning advantages without requiring user-provided plane annotations at inference time.
-\end{enumerate}
-
-\subsection{Loss Formulation and Empty-Mask Supervision}
-The total joint loss is defined as:
-\begin{equation}
-\mathcal{L}_{\text{total}} = \lambda_{\text{cls}} \mathcal{L}_{\text{cls}} + \lambda_{\text{seg}} \mathcal{L}_{\text{seg}}
-\end{equation}
-with $\lambda_{\text{cls}} = 1.0, \lambda_{\text{seg}} = 0.5$. Classification uses label-smoothing cross-entropy ($\epsilon = 0.1$), while segmentation combines Dice and Focal loss ($\alpha = 0.75, \gamma = 2.0$):
-\begin{equation}
-\mathcal{L}_{\text{seg}} = 0.5 \, \mathcal{L}_{\text{Dice}} + 0.5 \, \mathcal{L}_{\text{Focal}}
-\end{equation}
-
-\textbf{Critical Empty-Mask Supervision}: In BRISC2025, healthy slices lack mask files on disk. Pre-experiment audits revealed that omitting healthy scans from the segmentation loss (i.e., setting $\text{mask\_valid} = 0$) allowed the decoder to freely generate arbitrary activations on normal brain parenchyma, yielding a 95.71\% false-positive mask rate. In the corrected implementation, all healthy slices are explicitly assigned $\mathbf{M} = \mathbf{0}$ with $\text{mask\_valid} = 1.0$, compelling the decoder to suppress activations on normal tissue. This intervention reduces the false-positive rate to 0.00\% across all training seeds.
-
-\subsection{Implementation Details}
-The ResNet34 backbone is initialized from ImageNet-pretrained weights \cite{he2016deep}. All models are trained for 50 epochs using AdamW (learning rate $1 \times 10^{-4}$, weight decay $1 \times 10^{-4}$), with a ReduceLROnPlateau scheduler (patience = 5, factor = 0.5). Images are augmented with random horizontal flip, vertical flip, and $\pm$15° rotation; masks receive identical spatial transforms using nearest-neighbor interpolation to prevent label bleeding. Batch size is 16. Three independent training runs with distinct seeds (42, 43, 44) are conducted; model selection uses validation Dice+Accuracy score. All experiments run on a single RTX-class GPU; total training time is approximately 4--6 hours per seed. The full pipeline is illustrated in Fig.~\ref{fig:pipeline}.
-
-\section{Experimental Results}
-\subsection{Multi-Seed Benchmark Evaluation}
-Table~\ref{tab:b3_results} presents results on the held-out BRISC2025 test set across three independent seeds alongside 1,000-sample bootstrap 95\% confidence intervals.
-
-\begin{table}[h]
-\caption{Multi-Seed Performance of B3 (PAUMT-Net) on BRISC2025 Test Set ($N=1{,}000$)}
-\label{tab:b3_results}
+\begin{figure*}[!t]
 \centering
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lccc}
-\toprule
-\textbf{Metric} & \textbf{Mean $\pm$ Std} & \textbf{95\% Bootstrap CI} & \textbf{Ensemble} \\
-\midrule
-Accuracy (\%) & \textbf{99.30\% $\pm$ 0.10\%} & [98.70\%, 99.80\%] & \textbf{99.50\%} \\
-Macro F1 (\%) & \textbf{99.38\% $\pm$ 0.11\%} & [98.81\%, 99.85\%] & \textbf{99.52\%} \\
-Macro AUC (\%) & \textbf{99.93\% $\pm$ 0.02\%} & [99.84\%, 100.0\%] & \textbf{99.96\%} \\
-All-Slice Dice (\%) & \textbf{87.93\% $\pm$ 0.26\%} & [86.94\%, 88.96\%] & \textbf{88.35\%} \\
-Tumor-Only Dice (\%) & \textbf{85.98\% $\pm$ 0.31\%} & [84.80\%, 87.10\%] & \textbf{86.45\%} \\
-All-Slice IoU (\%) & \textbf{81.52\% $\pm$ 0.26\%} & [80.32\%, 82.72\%] & \textbf{81.94\%} \\
-Sensitivity (Seg) & \textbf{0.7551 $\pm$ 0.0053} & [0.7410, 0.7690] & \textbf{0.7634} \\
-Specificity (Seg) & \textbf{0.9986 $\pm$ 0.0001} & [0.9983, 0.9989] & \textbf{0.9987} \\
-HD95 (pixels) & \textbf{3.44 $\pm$ 0.14} & [3.06, 3.82] & \textbf{3.28} \\
-HD95 ($\approx$\,mm)$^\ddagger$ & \textbf{1.03 $\pm$ 0.04} & [0.92, 1.15] & \textbf{0.98} \\
-Healthy FP Rate & \textbf{0.00\%} & --- & \textbf{0.00\%} \\
-\bottomrule
-\end{tabular}%
-}
-\footnotesize{\\$^\ddagger$~HD95 in mm computed at 3.0\,mm/pixel (approximate BRISC2025 in-plane resolution). HD95 is computed over slices where both ground truth and prediction are non-empty ($N = 993$--$996$ per seed). All-slice Dice assigns 1.0 to true-negative empty pairs; tumor-only Dice evaluates strictly the 860 tumor-containing slices.}
-\end{table}
-
-Segmentation performance also exhibits class-specific variation. Meningiomas and pituitary adenomas, which present as well-demarcated extra-axial or sellar masses, achieve mean Dice exceeding 90\%. Gliomas, which exhibit infiltrative margins and heterogeneous internal enhancement, produce lower mean Dice values ($\sim$80--83\%), consistent with the literature on diffuse glioma boundary delineation.
-
-\subsection{Paired Statistical Significance Testing}
-Table~\ref{tab:stat_tests} documents paired McNemar's tests for classification and Wilcoxon signed-rank tests for segmentation between B2 and B3 across all 1,000 test slices.
-
-\begin{table}[h]
-\caption{Paired Statistical Significance Testing: B2 vs B3 Models ($N=1{,}000$)}
-\label{tab:stat_tests}
-\centering
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Comparison} & \textbf{Metric} & \textbf{Mean Diff} & \textbf{$p$-value} & \textbf{Significance} \\
-\midrule
-B2 vs B3 (Seed 42) & Accuracy & $-0.10\%$ & $p=1.0000^{*}$ & Not Sig \\
-B2 vs B3 (Ensemble) & Accuracy & $+0.10\%$ & $p=1.0000^{*}$ & Not Sig \\
-B2 vs B3 (Seed 42) & \textbf{Tumor Dice} & \textbf{+0.39\%} & \textbf{$p=0.0344$} & \textbf{Significant} \\
-B2 vs B3 (Ensemble) & \textbf{All Dice} & \textbf{+0.50\%} & \textbf{$p=0.0491$} & \textbf{Significant} \\
-\bottomrule
-\end{tabular}%
-}
-\footnotesize{\\$^{*}$~Only 3--5 discordant cases exist between B2 and B3 for classification (ceiling effect at $>$99.2\% accuracy). McNemar's test is underpowered at this operating point; the $p$-value of 1.0000 reflects insufficient discordant pairs rather than a meaningful statistical claim. The Wilcoxon signed-rank test on continuous Dice scores is not subject to this limitation.}
-\end{table}
-
-The Wilcoxon signed-rank test establishes that plane conditioning produces statistically significant gains on tumor-containing slices ($p = 0.0344$), verifying the empirical benefit of explicit anatomical conditioning.
-
-\subsection{Architectural Ablation Study}
-Table~\ref{tab:ablations} presents the sequential ablation suite evaluating single-task vs joint models and cross-task coupling mechanisms.
-
-\begin{table}[h]
-\caption{Single-Run Architectural Ablation Suite on BRISC2025 (Seed 42, Single Run)$^\S$}
-\label{tab:ablations}
-\centering
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{llcccc}
-\toprule
-\textbf{ID} & \textbf{Architecture} & \textbf{Acc (\%)} & \textbf{F1 (\%)} & \textbf{Dice (\%)} & \textbf{Healthy FP (\%)} \\
-\midrule
-B0 & Classification-Only & 99.10\% & 99.23\% & --- & --- \\
-B1 & Segmentation-Only & --- & --- & 87.99\% & --- \\
-B2 & Joint (No Plane) & 99.40\% & 99.47\% & 87.86\% & 0.00\% \\
-\textbf{B3} & \textbf{Joint + Plane (Proposed)} & \textbf{99.50\%} & \textbf{99.56\%} & \textbf{87.70\%} & \textbf{0.00\%} \\
-A2 & B3 + Seg-Guided Cls & 99.10\% & 99.15\% & 87.77\% & 0.00\% \\
-A3 & A2 + Consistency Loss & 98.80\% & 98.87\% & 88.09\% & 0.71\% \\
-A4 & A3 + MC Dropout ($T$=10) & 98.80\% & 98.87\% & 88.09\% & 0.71\% \\
-A5 & A4 + Uncertainty Loss & 98.70\% & 98.87\% & 88.12\% & 0.71\% \\
-\bottomrule
-\end{tabular}%
-}
-\footnotesize{\\$^\S$~Ablation results are from a single training run (seed 42) for computational tractability. B3 single-run accuracy (99.50\%) and Dice (87.70\%) differ from the multi-seed mean (99.30\%, 87.93\%) due to stochastic run-to-run variation, as reported in Table~\ref{tab:b3_results}. The ablation purpose is to identify the relative contribution of each component, not to report final performance estimates.}
-\end{table}
-
-Attempting to couple tasks via segmentation feature concatenation (A2) or cross-task consistency losses (A3) consistently degraded classification performance (from 99.50\% to 98.80\%) and reintroduced false-positive masks on healthy scans (0.71\%). Since classification operates near a performance ceiling ($>$99\%), its gradients are small; tightly coupling it to the harder segmentation objective introduces gradient interference that destabilizes classification convergence.
-
-\subsection{Model Calibration \& Reliability}
-Table~\ref{tab:calibration} details Expected Calibration Error (ECE), Maximum Calibration Error (MCE), and Brier score across single-task and multi-task models.
-
-\begin{table}[h]
-\caption{Predictive Calibration Metrics on BRISC2025 Test Set}
-\label{tab:calibration}
-\centering
-\small
-\resizebox{\columnwidth}{!}{%
-\begin{tabular}{lcccc}
-\toprule
-\textbf{Architecture} & \textbf{Accuracy (\%)} & \textbf{ECE (10 bins)} & \textbf{MCE (10 bins)} & \textbf{Brier Score} \\
-\midrule
-B0 (Cls-Only) & 98.90\% & 0.0800 & 0.5275 & 0.0268 \\
-B2 (Joint, No Plane) & 99.40\% & 0.0756 & 0.6817 & 0.0186 \\
-B3 (Seed 42) & 99.30\% & 0.0783 & 0.5884 & 0.0200 \\
-B3 (Seed 43) & 99.40\% & 0.0736 & 0.5438 & 0.0193 \\
-B3 (Seed 44) & 99.20\% & 0.0711 & 0.3520 & 0.0219 \\
-\textbf{B3 (Ensemble)} & \textbf{99.50\%} & \textbf{0.0786} & \textbf{0.5971} & \textbf{0.0166} \\
-\bottomrule
-\end{tabular}%
-}
-\footnotesize{\\$^\dagger$~B0 accuracy here (98.90\%) reflects the calibration-evaluation run; the ablation table (Table~\ref{tab:ablations}) reports 99.10\% from the seed-42 run. Single-run variance of $\pm$0.20\% for a classification-only model near the performance ceiling is expected and consistent with the multi-seed standard deviation (0.10\%) reported in Table~\ref{tab:b3_results}.}
-\end{table}
-
-Multi-task training substantially reduces the Brier score from 0.0268 (B0) to 0.0166 (B3 Ensemble), indicating sharper, more accurate probability estimates. However, the ECE remains elevated ($\sim$0.07--0.08) across all models, reflecting a structural overconfidence inherent to label-smoothed softmax classifiers operating near the performance ceiling. Notably, the ensemble B3 simultaneously achieves the lowest Brier score and the highest accuracy yet does not reduce ECE compared to individual B3 seeds; this counter-intuitive result arises because ensemble averaging sharpens the softmax output distribution (increasing confidence) without proportionally improving accuracy in the already high-accuracy regime, widening the calibration gap. Figure~\ref{fig:calibration} visualizes reliability diagrams and confidence distributions.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.95\textwidth]{../figures/journal/figure6_calibration_reliability_diagrams.png}
-\caption{Calibration and reliability analysis. (A) Reliability diagram comparing empirical accuracy against confidence (dashed diagonal = perfect calibration). (B) Calibration error gap per confidence bin. (C) Prediction confidence distribution, illustrating model sharpness and the overconfident peak near probability 1.0 responsible for elevated ECE.}
-\label{fig:calibration}
+\includegraphics[width=\textwidth]{figure1_architecture.png}
+\caption{PAUMT-Net. A shared ResNet-34 encoder feeds a classification head and a FiLM-modulated U-Net decoder; in B3 a learned plane embedding $\mathbf{e}_p$ is added to the pooled feature before both heads. Without plane labels, $\mathbf{e}_p$ is replaced by the mean embedding $\bar{\mathbf{e}}$. The slice gate (bottom right) is an optional inference-time rule evaluated only on external data.}
+\label{fig:architecture}
 \end{figure*}
 
-\subsection{Visual Explainability and Boundary Delineation}
-Grad-CAM saliency heatmaps confirm that feature attributions cluster tightly on neoplastic pathology across axial, sagittal, and coronal views (Fig.~\ref{fig:gradcam}). Notably, healthy brain slices exhibit diffuse, low-amplitude parenchymal activations consistent with the absence of focal pathology. Multi-panel contour overlays (Fig.~\ref{fig:contours}) demonstrate precise boundary delineation across complex non-convex tumor margins, achieving $>$90\% Dice on meningiomas and pituitary adenomas while maintaining 0.00\% false-positive area on healthy scans. Figure~\ref{fig:failures} illustrates edge-case failure modes, most notably boundary under-segmentation in infiltrative gliomas where tumor margins are not sharply defined in the T1 signal.
+\subsection{Training}
+The loss is $\mathcal{L}=\mathcal{L}_{\text{cls}}+0.5\,\mathcal{L}_{\text{seg}}$, with label-smoothed cross-entropy ($\epsilon=0.1$) for classification and $\mathcal{L}_{\text{seg}}=0.5\,\mathcal{L}_{\text{Dice}}+0.5\,\mathcal{L}_{\text{focal}}$ ($\alpha=0.75$, $\gamma=2$) \cite{lin2017focal} for segmentation. \textit{Empty-mask supervision:} healthy slices have no mask file; we assign them an all-zero mask that contributes to $\mathcal{L}_{\text{seg}}$. In an earlier run in which healthy slices were excluded from $\mathcal{L}_{\text{seg}}$, the decoder produced a non-empty mask on 134 of the 140 healthy test slices.
 
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.92\textwidth]{../figures/journal/figure3_gradcam_interpretability.png}
-\caption{Multi-class, multi-plane Grad-CAM explainability grid across Axial, Sagittal, and Coronal views. Saliency heatmaps demonstrate that feature attributions cluster tightly on neoplastic mass lesions, while healthy brain slices exhibit diffuse, low-amplitude parenchymal activations with no focal peak.}
-\label{fig:gradcam}
-\end{figure*}
+Training has two phases: a 5-epoch warm-up of the decoder alone on the segmentation images of the official training split (which includes the images later used for validation), followed by 50 epochs of joint training with AdamW (learning rate $10^{-4}$, weight decay $10^{-4}$, batch size 16) and a cosine schedule with 3-epoch linear warm-up. Augmentation consists of random horizontal and vertical flips, rotations in $[-15^\circ,15^\circ]$ (identical for image and mask; nearest-neighbour for masks), and brightness/contrast jitter ($\pm0.2$). Images are normalised with ImageNet statistics. The checkpoint with the highest validation score $0.5\,\mathrm{F1}_{\text{macro}}+0.5\,\mathrm{Dice}$ is retained. B2 and B3 were each trained with seeds 42--46; the validation split depends on the seed. Although cuDNN determinism was requested, some GPU kernels are non-deterministic, so runs with the same seed are not bit-identical (Section~\ref{sec:results}). One run takes about 35\,min on a single consumer GPU (NVIDIA RTX 5060, 8\,GB).
 
-\begin{figure*}[t]
+\textit{Ensembles.} A seed ensemble averages the softmax probabilities and the pixel-wise sigmoid probabilities of the five models of one configuration before thresholding. B2 and B3 are only ever compared at equal ensemble size.
+
+\textit{Calibration.} For each single model a temperature $T$ is fitted by minimising the negative log-likelihood (NLL) on that model's own validation split \cite{guo2017calibration}; the temperature-scaled ensemble averages the scaled member probabilities. The test set is never used for fitting.
+
+\textit{Slice gate (external data only).} Under domain shift a decoder may produce spurious activations on lesion-free slices. We therefore evaluate an inference-time gate that suppresses the predicted mask when
+\begin{equation}
+S(\mathbf{x})=\bigl(1-p_{\text{no tumor}}(\mathbf{x})\bigr)\cdot\max_{u,v}P_{\text{seg}}(u,v\mid\mathbf{x})\le\tau_{\text{gate}},
+\end{equation}
+where both factors are averaged over ensemble members; otherwise pixels are thresholded at 0.5.
+
+\subsection{Leakage-Free Retraining}
+To measure the effect of train--test overlap directly, we retrained both configurations with seeds 42--46 on a leakage-free development set. It excludes every development image that matched any test image in the audit (MD5 or perceptual-hash candidate, 394 images), and all but one copy of byte-identical development images (38 copies, 7 of them already excluded), leaving 4{,}575 of 5{,}000 images. The split, the decoder warm-up and all hyper-parameters are otherwise unchanged, and the official test set is used as is, so it is leakage-free with respect to these models (\textit{LF} models).
+
+\subsection{Ablations}
+Single runs (seed 42) evaluate classification-only (B0) and segmentation-only (B1) variants and three cross-task couplings on top of B3: concatenating the mean predicted mask probability to the classifier input (A2), adding a consistency loss between tumor probability and predicted mask area (A3, weight 0.1) \cite{luo2021semi}, and uncertainty-based loss weighting \cite{kendall2018multi} (A5). A second B3 run with identical configuration and seed quantifies non-determinism.
+
+\section{Evaluation Protocol}
+\subsection{Metrics}
+Classification: accuracy, macro F1, macro one-vs-rest AUC, Brier score, NLL, and expected calibration error (ECE, 15 equal-width bins). Segmentation masks are obtained at threshold 0.5. The primary segmentation endpoint is the mean per-slice Dice on the 860 tumor slices. We also report all-slice Dice (healthy slices score 1 when the prediction is empty), which depends on the share of healthy slices and is therefore secondary \cite{maierhein2024metrics}; tumor-slice IoU, sensitivity and precision (undefined ratios excluded); the number of tumor slices with an empty prediction; and the healthy-slice false-positive (FP) rate (fraction of healthy slices with any predicted pixel). HD95 is the 95th percentile of the pooled symmetric distances between the boundary pixels of prediction and reference \cite{maierhein2024metrics}, computed on tumor slices with a non-empty prediction and reported in pixels at $224\times224$ resolution; BRISC2025 provides no pixel spacing. Internal Dice uses an additive smoothing constant of 1 pixel; external Dice uses none.
+
+\subsection{Statistical Analysis}
+Paired differences between models are summarised by the mean difference with a 95\% percentile bootstrap confidence interval (2{,}000 resamples of test slices), complemented by the two-sided Wilcoxon signed-rank test for Dice and the exact McNemar test for accuracy. The Holm procedure \cite{holm1979simple} controls the family-wise error within pre-defined families, separately for each training setting: (i) B3 vs.\ B2 at matched size (five seed-matched pairs and the ensemble pair); (ii) each ensemble vs.\ its own members; (iii) six subgroups (planes, tumor classes) for the ensemble pair. The primary analysis of plane conditioning uses the five seed-level differences in tumor-slice Dice: we report their mean with a 95\% $t$-interval and test equivalence with two one-sided $t$-tests (TOST) against a margin of $\pm1.0$ percentage point (pp), which is larger than the difference between two identically configured runs and smaller than gains typically reported on this benchmark; for accuracy the margin is $\pm0.5$\,pp. Equivalence of the ensembles is concluded when the 90\% bootstrap CI lies within the margin. Endpoints, margins and the fine-tuning protocol were fixed in a written analysis plan before the additional seeds, the LF models and the fine-tuning experiments were run; one later amendment is described below. Because the Wilcoxon test is sensitive to small consistent shifts in large paired samples, we base conclusions on the effect size and its confidence interval and on the consistency across seeds. For AJBDS-2023, confidence intervals use a patient-level cluster bootstrap.
+
+\subsection{External Protocols}
+PMRAM is evaluated with the classification head (B3 with $\bar{\mathbf{e}}$; $\mathbf{e}=\mathbf{0}$ as sensitivity analysis). For AJBDS-2023 we pre-specified three protocols: P0, zero-shot without gate (pixel threshold 0.5); P1, zero-shot with gate at $\tau_{\text{gate}}=0.5$, fixed before inspecting any external result; and P2, target-calibrated, where either the pixel threshold (P2a; grid 0.5--0.95) or $\tau_{\text{gate}}$ (P2b; grid 0.3--0.95) is chosen by leave-one-patient-out cross-validation: for each patient, the value maximising the balanced score $\tfrac12$(tumor-slice Dice) $+\tfrac12$(1 $-$ empty-slice FP rate) on the other 16 patients is applied to the held-out patient. P2 uses target labels and is reported as calibration, not as zero-shot performance.
+
+\textit{Target-domain fine-tuning (P3).} To estimate how much labelled target data restores segmentation, the 17 AJBDS-2023 patients were split into five folds (seeded). For each fold, $k\in\{1,3,6,\text{all}\}$ patients of the remaining folds (all: 13--14) were used to fine-tune the seed-42 B2 and B3 models (B3 with the frozen mean embedding) with the segmentation loss; held-out patients were evaluated at threshold 0.5, so every patient is tested exactly once and never seen during its own fine-tuning. The pre-specified protocol used uniform sampling and 600 AdamW steps (learning rate $10^{-4}$, batch 16, 50-step warm-up, BRISC2025 augmentation, no early stopping). Because this protocol collapsed to empty predictions even on the training patients (Section~\ref{sec:results}), we added a post-hoc amended protocol with lesion-balanced sampling (lesion and lesion-free slices drawn with equal probability) and 2{,}000 steps, chosen solely on the training-patient fit of one fold. Both are reported.
+
+\subsection{Explainability}
+Saliency maps are computed with LayerCAM \cite{jiang2021layercam} for the classification logit of the reference class (B3 seed 42; encoder stage 3 and projected stage 4, averaged), without using the segmentation branch. Localisation is quantified on all correctly classified tumor slices by the fraction of saliency mass inside the reference mask and by the pointing-game hit rate (saliency maximum inside the mask).
+
+\section{Results}
+\label{sec:results}
+\subsection{Internal Performance}
+Table~\ref{tab:internal} summarises the BRISC2025 test results. On the official split, single models classified 99.1--99.7\% of slices correctly and reached a tumor-slice Dice of 85.7--86.4\%; both 5-seed ensembles reached 99.6\% accuracy and 86.3--86.5\% tumor Dice. With empty-mask supervision no model produced a mask on any of the 140 healthy test slices, whereas the earlier run without it did so on 134 of 140. HD95 had a median of 2.2\,px for every official-split model; its mean (5.7--6.3\,px) was driven by a few slices with distant false-positive or missed regions. Per class, ensemble tumor Dice was highest for meningioma (94.0--94.2\%), followed by pituitary tumors (87.1--87.4\%) and gliomas (75.9--76.4\%), whose diffuse margins are also the main source of the lower-decile cases in Fig.~\ref{fig:failures}. Representative median-Dice cases are shown in Fig.~\ref{fig:contours}.
+
+\begin{table*}[!t]
+\caption{Internal Test Results on BRISC2025 ($N=1{,}000$; 860 Tumor, 140 Healthy Slices). Single Models: Mean $\pm$ SD Over Seeds 42--46. Ensembles (5 Seeds): Point Estimate [95\% Bootstrap CI]. LF: Leakage-Free Retraining.}
+\label{tab:internal}
 \centering
-\includegraphics[width=0.88\textwidth]{../figures/journal/figure4_segmentation_contour_overlays.png}
-\caption{Publication-grade segmentation contour overlays across representative tumor categories and acquisition planes. Column 1: Original T1-MRI. Column 2: Ground truth mask. Column 3: Predicted segmentation mask with per-slice Dice. Column 4: Subpixel contour overlays (green = ground truth, magenta = prediction).}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccccc}
+\toprule
+Model & Acc. (\%) & Macro F1 (\%) & AUC (\%) & Tumor Dice (\%) & All-slice Dice (\%) & Tumor IoU (\%) & Sens. (\%) & Prec. (\%) & HD95 mean (px) & Healthy FP \\
+\midrule
+\multicolumn{11}{l}{\textit{Official split}} \\
+B2, single & 99.40 $\pm$ 0.21 & 99.47 $\pm$ 0.18 & 99.89 $\pm$ 0.06 & 86.06 $\pm$ 0.22 & 88.02 $\pm$ 0.19 & 78.63 $\pm$ 0.25 & 87.58 $\pm$ 0.13 & 87.59 $\pm$ 0.33 & 6.10 $\pm$ 0.17 & 0/140 \\
+B3, single & 99.32 $\pm$ 0.13 & 99.39 $\pm$ 0.14 & 99.95 $\pm$ 0.03 & 85.87 $\pm$ 0.26 & 87.84 $\pm$ 0.22 & 78.41 $\pm$ 0.26 & 87.79 $\pm$ 0.45 & 87.17 $\pm$ 0.33 & 6.14 $\pm$ 0.12 & 0/140 \\
+B2, ensemble & 99.60 [99.20, 99.90] & 99.65 & 99.94 & 86.51 [85.28, 87.58] & 88.40 & 79.22 & 87.83 & 88.22 & 5.73 & 0/140 \\
+B3, ensemble & 99.60 [99.20, 99.90] & 99.65 & 99.95 & 86.31 [85.05, 87.43] & 88.22 & 79.01 & 88.08 & 87.68 & 5.85 & 0/140 \\
+\midrule
+\multicolumn{11}{l}{\textit{Leakage-free retraining (LF)}} \\
+B2 LF, single & 97.72 $\pm$ 0.72 & 97.60 $\pm$ 0.78 & 99.66 $\pm$ 0.19 & 84.62 $\pm$ 0.69 & 86.77 $\pm$ 0.59 & 77.07 $\pm$ 0.73 & 86.15 $\pm$ 0.26 & 87.38 $\pm$ 0.85 & 6.56 $\pm$ 0.31 & 0/140 \\
+B3 LF, single & 97.72 $\pm$ 0.56 & 97.58 $\pm$ 0.65 & 99.65 $\pm$ 0.24 & 84.35 $\pm$ 0.16 & 86.54 $\pm$ 0.13 & 76.77 $\pm$ 0.14 & 86.05 $\pm$ 0.32 & 87.02 $\pm$ 0.31 & 6.60 $\pm$ 0.15 & 0/140 \\
+B2 LF, ensemble & 98.10 [97.20, 98.90] & 97.95 & 99.89 & 85.22 [83.86, 86.47] & 87.29 & 77.81 & 86.43 & 88.17 & 6.03 & 0/140 \\
+B3 LF, ensemble & 98.30 [97.40, 99.00] & 98.15 & 99.85 & 85.12 [83.74, 86.38] & 87.20 & 77.67 & 86.58 & 87.92 & 5.90 & 0/140 \\
+\bottomrule
+\end{tabular}}
+\\[2pt]
+\parbox{\textwidth}{\footnotesize Sensitivity, precision and HD95 are computed on tumor slices; HD95 excludes tumor slices with an empty prediction (4--8 per official-split model, 9--18 per LF model). Its median is 2.2--2.8\,px for every model. Results for every individual model are given in Supplementary Table~S2.}
+\end{table*}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.82\textwidth]{figure4_segmentation_contour_overlays.png}
+\caption{Representative segmentations of the B3 5-seed ensemble (official split): for each class--plane pair the test slice with the median Dice of that group is shown. Solid: reference; dashed: prediction. HD95 in pixels at $224\times224$.}
 \label{fig:contours}
 \end{figure*}
 
-\begin{figure*}[t]
+\subsection{Effect of Plane Conditioning}
+Table~\ref{tab:matched} and Fig.~\ref{fig:internal}(A) compare B3 with B2 at matched size. On the official split the five seed-matched differences in tumor-slice Dice were $+0.39$, $-0.39$, $-0.25$, $-0.27$ and $-0.48$\,pp, mean $-0.20\pm0.34$\,pp (95\% CI $-0.63$ to $0.23$); no pair differed significantly after Holm correction. The 90\% CI ($-0.53$ to $0.13$) lay within the pre-specified $\pm1.0$\,pp margin, establishing equivalence (TOST $p=0.003$). Accuracy was equivalent within $\pm0.5$\,pp ($-0.08\pm0.33$\,pp; TOST $p=0.023$). The two 5-seed ensembles differed by $-0.20$\,pp tumor Dice (95\% CI $-0.53$ to $0.08$) and misclassified the same number of slices (four each).
+
+After leakage-free retraining, the seed-level difference was $-0.26\pm0.77$\,pp (95\% CI $-1.22$ to $0.70$). Equivalence within $\pm1.0$\,pp was only borderline (90\% CI $-1.00$ to $0.47$; TOST $p=0.050$), because single LF models varied more: one seed pair favoured B3 ($+0.92$\,pp) and another B2 ($-1.15$\,pp; Holm-adjusted $p=0.019$ for both). Accuracy differences between LF seed pairs ranged from $-1.9$ to $+1.1$\,pp, so accuracy equivalence could not be shown (TOST $p=0.21$). The LF ensembles differed by $-0.10$\,pp ($-0.39$ to $0.19$). In subgroups, ensemble differences ranged from $-0.58$ to $+0.18$\,pp on the official split and from $-0.25$ to $+0.10$\,pp after LF retraining, without a direction that was consistent across seeds (Fig.~\ref{fig:internal}(A); Supplementary Table~S6).
+
+For scale, two B3 runs with identical configuration and seed differed by $-0.57$\,pp ($-1.10$ to $-0.05$), and ensembling alone changed tumor Dice relative to the members by $-0.09$ to $+1.72$\,pp with Holm-adjusted Wilcoxon $p$ values down to $10^{-26}$ (Table~\ref{tab:matched}, bottom).
+
+\begin{table}[!t]
+\caption{Paired Comparisons on Tumor Slices ($n=860$). $\Delta$: Mean Difference in Percentage Points [95\% CI]; Seed Level: $t$-Interval Over 5 Seed-Matched Pairs; Ensembles: Paired Bootstrap.}
+\label{tab:matched}
 \centering
-\includegraphics[width=0.88\textwidth]{../figures/journal/figure5_failure_mode_analysis.png}
-\caption{Failure mode and edge-case analysis. Row 1: Boundary under-segmentation in diffuse infiltrative glioma with poorly defined T1 margins. Row 2: Contrast attenuation in meningioma lesion edges. Row 3: Small-volume lesion under-prediction (lesion area $<$50 pixels). Row 4: Perfect suppression of tumor masks on healthy normal scans (zero false-positive area), demonstrating the efficacy of the empty-mask supervision correction.}
-\label{fig:failures}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccc}
+\toprule
+Comparison & $\Delta$ tumor Dice & TOST $p$ ($\pm1$\,pp) & $\Delta$ acc. \\
+\midrule
+\multicolumn{4}{l}{\textit{Plane conditioning (B3 $-$ B2), official split}} \\
+Seed level ($n=5$) & $-0.20$ [$-0.63$, $0.23$] & 0.003 & $-0.08$ [$-0.49$, $0.33$] \\
+5-seed ensembles & $-0.20$ [$-0.53$, $0.08$] & --- & $\phantom{-}0.0$ \\
+\multicolumn{4}{l}{\textit{Plane conditioning (B3 $-$ B2), leakage-free retraining}} \\
+Seed level ($n=5$) & $-0.26$ [$-1.22$, $0.70$] & 0.050 & $\phantom{-}0.00$ [$-1.55$, $1.55$] \\
+5-seed ensembles & $-0.10$ [$-0.39$, $0.19$] & --- & $+0.2$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Run-to-run variability (same configuration and seed)}} \\
+B3 run 2 $-$ run 1 & $-0.57$ [$-1.10$, $-0.05$] & --- & $+0.2$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Ensembling alone (5-seed ensemble $-$ member), range over members}} \\
+Official, B2 / B3 & $+0.16$--$0.63$ / $+0.03$--$0.65$ & --- & $-0.1$--$0.5$ \\
+LF, B2 / B3 & $-0.09$--$1.72$ / $+0.58$--$0.96$ & --- & $-0.8$--$1.3$ \\
+\bottomrule
+\end{tabular}}
+\\[2pt]
+\parbox{\columnwidth}{\footnotesize Equivalence margins were fixed before the additional runs: $\pm1.0$\,pp tumor Dice, $\pm0.5$\,pp accuracy (accuracy TOST $p$: official 0.023, LF 0.21). Per-pair results with Holm-adjusted Wilcoxon and McNemar tests are released with the code.}
+\end{table}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figure6_calibration_reliability_diagrams.png}
+\caption{Internal analysis. (A) B3 $-$ B2 difference in tumor-slice Dice overall and per plane and tumor class: 5-seed ensemble vs.\ ensemble with 95\% bootstrap CI, for the official split (circles) and leakage-free retraining (diamonds); ticks show the five seed-matched single-model pairs; shading marks the $\pm1$\,pp equivalence margin. (B) Reliability diagram (15 equal-width confidence bins with $\ge5$ slices) for the official-split ensembles, and for the B3 ensemble after temperature scaling fitted on each member's validation split. (C) Confusion matrix of the B3 ensemble (official split).}
+\label{fig:internal}
 \end{figure*}
 
-\section{External Generalization \& Domain Shift Adaptation}
-Table~\ref{tab:external_eval} reports zero-shot external evaluation on PMRAM (Bangladesh, N=1,410) and AJBDS-2023 (Jordan, N=4,826 paired slices). Figure~\ref{fig:domain_shift} illustrates the pixel intensity distribution shift across datasets.
+\subsection{Effect of Train--Test Overlap}
+Table~\ref{tab:leakage} compares official-split and LF models on the same test slices. On the full test set the official-split ensembles scored 1.2--1.3\,pp higher in tumor Dice (B2: $+1.29$ [0.73, 1.91]; B3: $+1.19$ [0.64, 1.83]) and 1.3--1.5\,pp higher in accuracy. The difference was concentrated on the 104 near-identical test images: there, official-split ensembles classified every image correctly and reached 95.5--95.6\% tumor Dice, whereas LF ensembles reached 89.4\% accuracy and 89.0--89.1\% tumor Dice ($+6.4$ to $+6.7$\,pp). Most additional LF errors were meningiomas classified as no tumor (9 of 17 errors of the B3 LF ensemble), and 11 of its 17 errors occurred on near-identical images. On the de-duplicated and strict subsets the gap shrank to 0.4--0.6\,pp tumor Dice and 0.2--0.6\,pp accuracy. Meningioma tumor Dice fell from 94.0--94.2\% to 91.3--91.5\% with LF retraining. The B3 $-$ B2 comparison was unchanged in every subset (Table~\ref{tab:leakage}, bottom).
 
-\begin{table*}[t]
-\caption{External Cross-Hospital Generalization and Test-Time Threshold Calibration}
-\label{tab:external_eval}
+\begin{table}[!t]
+\caption{Official-Split vs.\ Leakage-Free (LF) 5-Seed Ensembles on Test Subsets}
+\label{tab:leakage}
 \centering
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lllccccc}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llccc}
 \toprule
-\textbf{Benchmark} & \textbf{Target Task} & \textbf{Model \& Strategy} & \textbf{Accuracy (\%)} & \textbf{Macro AUC (\%)} & \textbf{All Dice (\%)} & \textbf{Tumor Dice (\%)} & \textbf{Empty FP Rate (\%)} \\
+Test subset ($n$) & Model & Acc. (\%) & Tumor Dice (\%) & Mening. Dice (\%) \\
 \midrule
-PMRAM & Classification & B2 Baseline (Plane-Agnostic) & 92.06\% & 97.30\% & --- & --- & --- \\
-PMRAM & Classification & \textbf{B3 (Zero-Plane Fallback, $e_p=0$)} & \textbf{92.41\%} & \textbf{97.36\%} & --- & --- & --- \\
-PMRAM & Classification & \textbf{B3 (Mean-Plane Prior, $\bar{e}$)} & \textbf{92.34\%} & \textbf{97.38\%} & --- & --- & --- \\
+\multirow{4}{*}{Full (1{,}000)} & B2 & 99.60 & 86.51 & 93.97 \\
+ & B3 & 99.60 & 86.31 & 94.16 \\
+ & B2 LF & 98.10 & 85.22 & 91.52 \\
+ & B3 LF & 98.30 & 85.12 & 91.29 \\
 \midrule
-AJBDS-2023 & Segmentation & B2 Baseline ($\tau=0.50$) & --- & --- & 59.54\% & 36.48\% & 32.43\% \\
-AJBDS-2023 & Segmentation & \textbf{B3 Mean-Plane ($\tau=0.50$)} & --- & --- & 57.15\% & \textbf{38.35\%} & 36.31\% \\
-AJBDS-2023 & Segmentation & \textbf{B3 Mean-Plane ($\tau=0.70$)} & --- & --- & 57.61\% & 38.22\% & 35.64\% \\
-AJBDS-2023 & Segmentation & \textbf{B3 Mean-Plane ($\tau=0.85$)} & --- & --- & \textbf{58.30\%} & 37.99\% & \textbf{34.64\%} \\
+\multirow{4}{*}{Near-identical only (104)} & B2 & 100.0 & 95.52 & 95.60 \\
+ & B3 & 100.0 & 95.64 & 95.72 \\
+ & B2 LF & 89.42 & 89.14 & 88.91 \\
+ & B3 LF & 89.42 & 88.95 & 88.70 \\
+\midrule
+\multirow{4}{*}{De-duplicated (896)} & B2 & 99.55 & 85.27 & 93.20 \\
+ & B3 & 99.55 & 85.02 & 93.41 \\
+ & B2 LF & 99.11 & 84.68 & 92.76 \\
+ & B3 LF & 99.33 & 84.59 & 92.52 \\
+\midrule
+\multirow{4}{*}{Strict (679)} & B2 & 99.41 & 84.34 & 92.55 \\
+ & B3 & 99.41 & 84.04 & 92.78 \\
+ & B2 LF & 98.82 & 83.77 & 91.95 \\
+ & B3 LF & 99.12 & 83.63 & 91.67 \\
+\midrule
+\multicolumn{5}{l}{B3 $-$ B2 tumor Dice (pp): official $-0.20$ (full), $-0.24$ (de-dup.), $-0.30$ (strict);} \\
+\multicolumn{5}{l}{LF $-0.10$, $-0.09$, $-0.14$; all 95\% CIs include 0.} \\
 \bottomrule
-\end{tabular}%
-}
-\footnotesize{\\At $\tau=0.50$, B3 exhibits lower all-slice Dice than B2 (57.15\% vs 59.54\%) despite higher tumor-slice Dice (38.35\% vs 36.48\%). This reversal arises because plane-aware training increases sensitivity, generating more correct activations on tumor slices but also proportionally more false-positive hallucinations on empty slices. Threshold elevation to $\tau=0.85$ suppresses the latter, recovering the all-slice Dice advantage while retaining tumor-localization gains.}
-\end{table*}
+\end{tabular}}
+\end{table}
 
-\begin{figure}[h]
+\subsection{Ablations}
+Table~\ref{tab:ablations} lists single-run ablations on the official split. The single-task models were not better than the joint models: the classification-only network (B0) reached 99.10\% accuracy, at the lower end of the ten official joint models (99.1--99.7\%), and the segmentation-only network (B1) 86.04\% tumor Dice, within their range (85.7--86.4\%). Segmentation-guided classification (A2) and the consistency and uncertainty-weighting variants (A3, A5) lowered accuracy to 98.8--99.1\%, and A3/A5 produced one false-positive healthy mask each. Because the identical B3 configuration varied by 0.57\,pp tumor Dice between two runs, none of these single-run differences in Dice can be attributed to the design changes; the accuracy losses of A2--A5 (2--7 additional errors relative to the two B3 runs) are likewise within the range expected from run-to-run variation at this sample size.
+
+\begin{table}[!t]
+\caption{Single-Run Ablations (Seed 42, Official Split)}
+\label{tab:ablations}
 \centering
-\includegraphics[width=0.9\columnwidth]{../figures/external/domain_shift_intensity.png}
-\caption{Pixel intensity distributions across BRISC2025 (internal training), PMRAM (external classification), and AJBDS-2023 (external segmentation). The substantial intensity shift in AJBDS-2023—attributable to different scanner hardware (RF coil configurations, gradient calibration), contrast administration protocols, and JPEG compression artifacts—is the primary cause of decoder hallucination in zero-shot deployment.}
-\label{fig:domain_shift}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llccc}
+\toprule
+ID & Variant & Acc. (\%) & Tumor Dice (\%) & Healthy FP \\
+\midrule
+B0 & Classification only & 99.10 & --- & --- \\
+B1 & Segmentation only & --- & 86.04 & 0/140 \\
+B2 & Joint, no plane & 99.40 & 85.88 & 0/140 \\
+B3 & Joint + plane (run 1) & 99.30 & 86.27 & 0/140 \\
+B3 & Joint + plane (run 2) & 99.50 & 85.70 & 0/140 \\
+A2 & B3 + seg.-guided cls. & 99.10 & 85.79 & 0/140 \\
+A3 & A2 + consistency loss & 98.80 & 86.21 & 1/140 \\
+A5 & A3 + uncertainty weighting & 98.80 & 86.30 & 1/140 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Calibration}
+With label smoothing, the classifiers were under-confident: confidences clustered near 0.92 while accuracy exceeded 97\%, giving an ECE of 0.060--0.080 (Fig.~\ref{fig:internal}(B)). Temperatures fitted on the validation splits were 0.51--0.61 and reduced test ECE to 0.001--0.024 and NLL for every model and ensemble (Supplementary Table~S3). Calibration did not differ meaningfully between B2 and B3.
+
+\subsection{Explainability}
+LayerCAM maps of correctly classified tumor slices placed a median of 4.9\% of their mass inside the reference mask, 3.8 times the expected share under a uniform map (mean mask area 1.9\% of the image). The saliency maximum fell inside the tumor in 59\% of slices overall, 92\% for meningiomas, 54\% for gliomas, and only 29\% for pituitary tumors, for which the maps often highlighted surrounding midline structures (Fig.~\ref{fig:gradcam}). The classification branch therefore attends to the lesion for large, well-circumscribed tumors but not consistently for small sellar lesions.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.92\textwidth]{figure3_gradcam_interpretability.png}
+\caption{LayerCAM saliency of the classification logit (B3, seed 42) for one correctly classified test slice per class and plane, chosen as the slice with the median ensemble Dice (tumor classes) or median $P(\text{no tumor})$ (healthy). Maps are min--max normalised per image; the green contour is the reference tumor boundary. Badges show the predicted probability of the reference class, which is close to 0.92 for most slices because of label smoothing.}
+\label{fig:gradcam}
+\end{figure*}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figure5_failure_mode_analysis.png}
+\caption{Lower-decile cases of the B3 5-seed ensemble (official split): for each tumor class the test slice at the 10th percentile of Dice, and the healthy slice with the lowest $P(\text{no tumor})$. Error map: true positive (green), false positive (orange), false negative (blue).}
+\label{fig:failures}
 \end{figure}
 
-\subsection{Key Findings from External Validation}
-\begin{enumerate}
-    \item \textbf{Plane Conditioning Aids Generalization}: B3 with zero-plane or mean-plane inference achieves 92.41\% accuracy on PMRAM, outperforming B2 (92.06\%), confirming that plane conditioning during training enhances semantic feature disentanglement. The 0.35\% absolute improvement in accuracy, though modest, is consistent with the small but statistically significant segmentation improvements observed internally ($p = 0.0344$) and reflects enriched encoder representations.
-    \item \textbf{The Task-Dependent Domain Gap}: Global classification generalizes effectively ($>$92\% on an entirely different hospital cohort), while dense segmentation suffers severe domain degradation (38.35\% tumor Dice vs 87.93\% internally). This asymmetry reflects the fundamentally different information requirements of the two tasks: classification relies on global semantic texture features robust to scanner-induced intensity rescaling, whereas pixel-level segmentation is critically sensitive to local intensity gradients and edge sharpness that are altered by domain shifts.
-    \item \textbf{Sensitivity-Specificity Trade-off in Threshold Calibration}: Elevating $\tau$ from 0.50 to 0.85 monotonically suppresses false-positive hallucinations (36.31\%$\to$34.64\%), monotonically improves all-slice Dice (57.15\%$\to$58.30\%), but introduces a slight reduction in tumor-slice Dice (38.35\%$\to$37.99\%). Clinical deployment requires balancing this trade-off according to application risk tolerance: under-segmentation (missed tumor) vs over-segmentation (spurious mask), both of which carry distinct clinical risks.
-\end{enumerate}
+\subsection{External Evaluation}
+Table~\ref{tab:external} and Fig.~\ref{fig:external} summarise the external results. On PMRAM, single models reached 92.1--92.4\% accuracy and 5-seed ensembles 94.7\% (B2) and 94.8\% (B3). The ensemble difference ($+0.14$\,pp; 15 vs.\ 17 discordant images) was not significant (exact McNemar $p=0.86$), whereas ensembling improved accuracy over the seed-42 models by 2.5--2.6\,pp ($p<10^{-6}$). Mean-plane and zero-plane inference gave the same accuracy within 0.1\,pp. LF ensembles reached 94.0--94.5\%, so the internal advantage of the official-split models did not carry over to this external cohort.
 
-\section{Discussion \& Clinical Implications}
-\subsection{Mechanism of Multi-Task Regularization}
-Simultaneous optimization over classification and boundary delineation forces the shared ResNet34 encoder to satisfy dual objective landscapes: semantic tumor identity and spatial margin localization. This multi-objective constraint acts as a structural regularizer, preventing the encoder from collapsing into trivial spatial shortcuts (such as skull bone contours or background intensity gradients). Evidence for this regularization is provided by the false-positive analysis: the B0 classification-only model, when applied to segmentation, generates unconstrained masks, while the joint B2/B3 models produce 0.00\% false-positive masks on healthy tissue even without post-processing. Furthermore, joint training improves calibration (Brier score 0.0268$\to$0.0166), indicating that segmentation supervision provides an additional source of probabilistic regularization for the classification head.
+AJBDS-2023 exposed a large domain gap. Without any adaptation (P0), ensemble tumor-slice Dice was 36.5\% (B2) and 38.0\% (B3), 39--41\% of lesion slices received no prediction, and 28--31\% of lesion-free slices received a false-positive mask; B3 produced more false positives than B2 ($+2.9$\,pp [1.6, 4.2]) with a non-significant gain in tumor Dice ($+1.5$\,pp [$-0.2$, 3.1]). The pre-specified gate (P1) changed little. Target-calibrated thresholds (P2) shifted both models towards fewer false positives (12--13\%) at the cost of more missed lesions (59--63\%); leave-one-patient-out selection chose thresholds of 0.8--0.95. At matched calibration the gate retained more tumor Dice than pixel thresholding at similar false-positive rates (B2: $+3.2$\,pp [1.3, 5.3]; B3: $+2.0$\,pp [0.5, 3.3]).
 
-\subsection{Anatomical Plane Conditioning}
-MRI slices acquired along different axes present distinct anatomical orientations and tumor morphology profiles. By modulating shared features via learned plane embeddings ($\mathbf{E} \in \mathbb{R}^{3 \times 256}$) and FiLM decoder scaling, the network dedicates representational capacity to orientation-specific features without requiring separate per-plane models (which would triple parameters). Paired statistical testing confirms this effect yields statistically significant improvements on tumor-containing slices ($p = 0.0344$). The effectiveness of plane marginalization in external evaluation (92.41\% PMRAM accuracy) indicates that the conditioning embeddings enrich the shared encoder in a way that generalizes even when the conditioning signal is averaged out at inference, providing a practical clinical deployment pathway.
+\textit{Fine-tuning (P3).} Under the pre-specified protocol, fine-tuned models predicted almost nothing: held-out tumor Dice was 4.5--15.8\% at every $k$ and 72--91\% of lesion slices were missed (Supplementary Table~S7). The same collapse occurred on the training patients themselves (fold 0, $k=$ all: 8.0\% training-patient tumor Dice), identifying an optimisation failure under the 74\% share of lesion-free slices rather than a generalisation failure. With the amended, lesion-balanced protocol (Fig.~\ref{fig:external}(C); Supplementary Table~S8), held-out tumor Dice rose with the number of training patients (B3: 5.6\%, 17.3\%, 24.8\% and 26.2\% for $k=1$, 3, 6 and all; B2: 6.7--23.6\%) but stayed below zero-shot (B2 36.5\%, B3 38.4\% for the seed-42 models), whereas empty-slice false positives fell from 32--36\% to 5--13\% and all-slice Dice rose from 57--60\% to 71--77\%. Even with all 13--14 training patients, 63--65\% of lesion slices in held-out patients were missed, while the fold-0 model reached 55\% tumor Dice on its own training patients. B3 and B2 did not differ in held-out tumor Dice at any $k$; B3 produced fewer false positives at $k\ge6$ ($-7.1$ and $-7.4$\,pp).
 
-\subsection{Why Complex Cross-Task Coupling Degraded Performance}
-In our ablation suite (A2--A5), feeding segmentation scalars into the classification head (A2) or adding explicit consistency losses (A3) consistently degraded accuracy (99.50\%$\to$98.80\%) and reintroduced false-positive masks (0.00\%$\to$0.71\%). We attribute this to gradient interference: at $>$99\% classification accuracy, the classification loss generates very small, near-zero gradients. Coupling the classification head to the harder segmentation task introduces large gradient contributions from segmentation losses, dominating the classification head's update and causing feature drift. A clean parameter-sharing architecture with a FiLM-modulated decoder is superior to over-engineered cross-task couplings when one task has already saturated its performance ceiling.
+\begin{table*}[!t]
+\caption{External Evaluation. PMRAM: 95\% Bootstrap CI Over Images. AJBDS-2023: 95\% Patient-Level Cluster Bootstrap CI (17 Patients). 5-Seed Ensembles Unless Stated.}
+\label{tab:external}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llccccc}
+\toprule
+\multicolumn{7}{l}{\textit{PMRAM, classification ($n=1{,}410$)}} \\
+Model & & Acc. (\%) & Macro F1 (\%) & Macro AUC (\%) & ECE & \\
+\midrule
+B2, seed 42 & & 92.06 [90.64, 93.48] & 92.04 & 97.31 [96.48, 98.05] & 0.037 & \\
+B3, seed 42 (mean plane) & & 92.34 [90.92, 93.69] & 92.21 & 97.38 [96.60, 98.14] & 0.044 & \\
+B2 ensemble & & 94.68 [93.47, 95.82] & 94.66 & 99.25 [98.84, 99.58] & 0.061 & \\
+B3 ensemble (mean plane) & & 94.82 [93.62, 95.96] & 94.81 & 99.12 [98.68, 99.51] & 0.065 & \\
+B2 LF ensemble & & 94.47 [93.26, 95.60] & 94.45 & 99.27 [98.92, 99.57] & 0.059 & \\
+B3 LF ensemble (mean plane) & & 94.04 [92.77, 95.25] & 94.01 & 99.06 [98.64, 99.41] & 0.063 & \\
+\midrule
+\multicolumn{7}{l}{\textit{AJBDS-2023, segmentation ($n=4{,}826$; 1{,}246 lesion, 3{,}580 lesion-free slices)}} \\
+Model & Protocol & Tumor Dice (\%) & All-slice Dice (\%) & Empty-slice FP (\%) & Missed lesion (\%) & $\tau$ / $k$ \\
+\midrule
+B2 ensemble & P0 zero-shot & 36.54 [27.73, 46.10] & 63.06 [59.50, 66.40] & 27.71 [23.94, 31.67] & 41.3 & 0.5 \\
+B3 ensemble & P0 zero-shot & 38.00 [29.30, 47.60] & 61.26 [58.05, 64.25] & 30.64 [26.90, 34.44] & 39.3 & 0.5 \\
+B2 ensemble & P1 zero-shot gate & 34.88 [25.96, 44.31] & 65.26 [61.73, 68.52] & 24.16 [20.64, 28.03] & 45.9 & 0.5 \\
+B3 ensemble & P1 zero-shot gate & 34.81 [26.35, 43.99] & 63.57 [60.52, 66.49] & 26.42 [23.02, 29.99] & 46.7 & 0.5 \\
+B2 ensemble & P2a LOPO pixel thr. & 25.94 [17.57, 35.42] & 71.12 [67.26, 74.44] & 13.16 [10.66, 15.92] & 58.8 & 0.85--0.95 \\
+B3 ensemble & P2a LOPO pixel thr. & 24.82 [17.11, 34.31] & 71.51 [67.70, 74.82] & 12.23 [9.67, 15.40] & 60.8 & 0.80--0.90 \\
+B2 ensemble & P2b LOPO gate & 29.18 [20.34, 38.91] & 72.00 [68.30, 75.19] & 13.10 [10.42, 15.94] & 59.1 & 0.80 \\
+B3 ensemble & P2b LOPO gate & 26.82 [18.76, 36.56] & 72.38 [68.78, 75.51] & 11.76 [9.36, 14.64] & 62.5 & 0.80--0.90 \\
+B2, seed 42 & P3 fine-tuned$^\dagger$ & 23.0 [9.3, 37.5] & 70.6 & 12.8 [5.7, 21.0] & 64.9 & all \\
+B3, seed 42 & P3 fine-tuned$^\dagger$ & 26.2 [14.0, 37.5] & 77.0 & 5.4 [2.0, 10.6] & 62.9 & all \\
+\bottomrule
+\end{tabular}}
+\\[2pt]
+\parbox{\textwidth}{\footnotesize P0/P1 use no target labels. P2 selects the threshold by leave-one-patient-out (LOPO) cross-validation on AJBDS-2023 labels; $\tau$ lists the values selected across folds. $^\dagger$P3: 5-fold patient-grouped fine-tuning with all 13--14 training patients, post-hoc lesion-balanced protocol; held-out patients only. Zero-plane, LF and per-$k$ results are in Supplementary Tables~S4, S5, S7 and S8.}
+\end{table*}
 
-\subsection{Clinical Translation Pathway}
-The results present a bifurcated clinical deployment story. Classification generalization ($>$92\% zero-shot on an unseen Asian population cohort) suggests that plane-aware classification could be deployed to assist tumor type identification in resource-limited settings without retraining, provided that T1-weighted MRI and basic metadata are available. In contrast, dense segmentation requires target-domain fine-tuning or at minimum threshold calibration using a small held-out reference set from the target institution. The test-time threshold calibration framework provides a low-resource adaptation mechanism that requires no gradient computation or retraining, making it clinically feasible. Future work should investigate domain adaptation strategies including instance normalization, histogram matching preprocessing, and few-shot fine-tuning on target-domain annotations.
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{domain_shift_intensity.png}
+\caption{External domain shift. (A) Distribution of foreground pixel intensities ($>10$) in 250 randomly sampled images per cohort. (B) Operating points on AJBDS-2023 for the B2 and B3 5-seed ensembles without target training: pixel-threshold sweep without gate (dashed, open markers) and slice-gate sweep with pixel threshold 0.5 (solid); stars mark the default operating point. (C) Held-out results after lesion-balanced fine-tuning of the seed-42 models with $k$ AJBDS-2023 patients (5-fold patient-grouped cross-validation; $k=0$: zero-shot); error bars: 95\% patient-cluster bootstrap CIs.}
+\label{fig:external}
+\end{figure*}
 
-\section{Limitations}
-\begin{enumerate}
-    \item \textbf{Absence of Patient-Level Identifiers}: BRISC2025 slices cannot be partitioned by patient ID, precluding patient-level cross-validation and volume-level assessment. All internal metrics represent slice-level benchmark performance. Future datasets with patient-linked slices would enable patient-level AUC and volumetric Dice computation.
-    \item \textbf{2D Slice Processing Only}: Each slice is processed independently without volumetric context. True 3D approaches (e.g., volumetric CNNs, recurrent slice aggregation) could leverage inter-slice continuity for more spatially coherent boundary delineation, but require 3D-organized datasets unavailable in BRISC2025.
-    \item \textbf{Single MRI Sequence (T1 Only)}: BRISC2025 provides only T1-weighted images. In clinical practice, multi-parametric MRI (T1-Gd, T2, FLAIR, DWI) provides complementary tissue contrast critical for infiltrative tumor margin delineation. Extension to multi-sequence inputs (e.g., BraTS-style 4-channel input) may substantially improve segmentation of infiltrative gliomas.
-    \item \textbf{Number of Training Seeds ($N=3$)}: While observed run-to-run variance is low ($\pm$0.10\%), $N=3$ runs provide limited statistical power ($t$-distribution 95\% CI half-width $\approx \pm 0.25\%$). This is explicitly addressed via 1,000-sample bootstrap resampling, and is standard practice for benchmark ablation papers.
-    \item \textbf{External Dataset Protocol Variance}: AJBDS-2023 utilizes JPEG compression with different scanner hardware and contrast protocols, introducing compound domain shifts (intensity, edge, resolution) that cannot be disentangled from the reported performance degradation. Controlled domain shift experiments with standardized image preprocessing pipelines are necessary to isolate individual contributing factors.
-    \item \textbf{No Prospective Clinical Validation}: All evaluations are performed on retrospective, publicly available benchmark datasets. Prospective clinical validation involving radiologist reader studies, clinical workflow integration assessment, and regulatory evaluation is required before translation to clinical decision support.
-    \item \textbf{Test-Time Threshold Calibration Requires Domain Data}: The threshold $\tau = 0.85$ was optimized on the held-out AJBDS-2023 evaluation set. In a true zero-shot deployment without any target-domain data, optimal threshold selection remains an open problem. Techniques such as prior-entropy-based calibration or conformal prediction may provide threshold-free alternatives.
-\end{enumerate}
+\section{Discussion}
+\subsection{Plane Conditioning}
+Under matched comparisons, explicit plane conditioning did not improve classification, segmentation, calibration, or external transfer. On the official split, its effect on tumor-slice Dice was statistically equivalent to zero within $\pm1$\,pp (mean $-0.20$\,pp over five seed pairs), accuracy was equivalent within $\pm0.5$\,pp, and both effects were smaller than the 0.57\,pp difference between two runs of the identical configuration. Leakage-free retraining gave the same point estimate with wider uncertainty. A plausible explanation is that the acquisition plane is trivially recognisable from the image itself, so a 768-parameter embedding adds little information that the encoder does not already extract; marginalising the embedding (mean or zero vector) also left external results unchanged. We therefore report plane conditioning as a tested and negative design choice.
+
+This conclusion differs from the one we would have drawn from a single seed or from comparing an ensemble with a single model. Seed 42 alone suggested a significant gain ($p=0.033$ before correction), one LF seed pair suggested a gain of 0.9\,pp and another a loss of 1.2\,pp, and a B3 ensemble outperformed a single B2 model with $p<10^{-9}$. These impressions disappear under matched comparisons, because ensembling alone produces effects of the same size with very small Wilcoxon $p$ values. On saturated benchmarks such as BRISC2025, where design variants differ by fractions of a percentage point, we recommend multi-seed training, matched ensemble sizes, equivalence testing against a stated margin, and an estimate of run-to-run variability \cite{bouthillier2021accounting}.
+
+\subsection{Data Integrity}
+Two data-related decisions mattered more than the architecture. First, healthy slices without mask files must be supervised with empty masks; otherwise the decoder never learns to predict an empty mask and marks almost every healthy slice. Second, about one tenth of the official BRISC2025 test set is near-identical to training images, almost all of them meningiomas. Retraining without the overlapping images shows the consequence directly: on these images accuracy fell from 100\% to 89\% and tumor Dice by 6--7\,pp, and on the full test set accuracy fell by 1.3--1.5\,pp and tumor Dice by 1.2--1.3\,pp. Accuracies around 99.5\% on the official split therefore partly reflect memorised near-copies; about 98\% is a more realistic estimate for unseen slices. Part of the remaining 0.4--0.6\,pp gap on de-duplicated subsets may stem from the 8.5\% smaller LF training set or from weaker, undetected similarities. Comparative conclusions were unaffected, but results on this benchmark should be reported with a leakage-free training split; we release the exclusion list.
+
+\subsection{Comparison With Published Results}
+Table~\ref{tab:literature} lists results reported on BRISC2025. Classification accuracies of 98.2--99.7\% have been reported, and our official-split models (99.1--99.7\%) lie in the same range; leakage-free retraining lowered our single-model accuracy to 97.0--98.9\%. The dataset paper reports segmentation as a class-weighted mean IoU (best 80.6\%); our per-slice mean tumor IoU (78.4--78.6\% seed mean on the official split) is not directly comparable because the aggregation differs. Several studies do not state whether the official split was used, none reports multi-seed or leakage-free results, and all are subject to the same train--test overlap, so small differences between methods in Table~\ref{tab:literature} should not be interpreted as rankings.
+
+\begin{table}[!t]
+\caption{Published Results on BRISC2025 (as Reported by the Authors)}
+\label{tab:literature}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lll}
+\toprule
+Study & Model & Reported result \\
+\midrule
+Fateh \textit{et al.} \cite{fateh2026brisc} & ResNet-50 & Acc.\ 98.20 $\pm$ 0.80\% \\
+ & EfficientNet-B0 & Acc.\ 99.20 $\pm$ 0.00\% \\
+ & U-Net / best (SaberNet) & Weighted mIoU 75.7\% / 80.6\% \\
+Ahmed \cite{ahmed2026enhancing} & ViT, colormap input & Acc.\ 98.90\%, AUC 99.97\% \\
+Alkharaan \textit{et al.} \cite{alkharaan2026brain} & EfficientNet-B1 & Acc.\ 99.70\% \\
+This work, official split & B2 / B3, single models & Acc.\ 99.1--99.7\%; tumor IoU 78.2--79.0\% \\
+ & B2 / B3, 5-seed ensembles & Acc.\ 99.6 / 99.6\%; tumor IoU 79.2 / 79.0\% \\
+This work, leakage-free & B2 / B3, single models & Acc.\ 97.0--98.9\%; tumor IoU 75.9--77.7\% \\
+\bottomrule
+\end{tabular}}
+\\[2pt]
+\parbox{\columnwidth}{\footnotesize Evaluation protocols differ between studies (split, metric aggregation, number of runs); entries are not a ranking.}
+\end{table}
+
+\subsection{External Generalisation}
+Classification transferred moderately to PMRAM (92--95\% accuracy without retraining), with ensembling contributing about 2.5\,pp and plane conditioning nothing. Leakage-free models transferred equally well, consistent with the view that their lower internal accuracy reflects the removal of memorised near-copies rather than weaker features. Segmentation did not transfer to AJBDS-2023: about 40\% of lesion slices were missed and 28--31\% of lesion-free slices received spurious masks. This cohort differs from BRISC2025 in several respects at once---scanner and population, but also MR sequence (T2-weighted, FLAIR, diffusion and non-contrast T1-weighted slices in addition to contrast-enhanced T1), image export, and possibly lesion definition (edema). The AJBDS-2023 results are therefore best read as a stress test, not as an estimate of scanner shift alone.
+
+Adaptation did not close this gap. Threshold calibration and the slice gate trade missed lesions for fewer false positives along the same curve (Fig.~\ref{fig:external}(B)); at matched calibration the gate retained 2--3\,pp more tumor Dice than pixel thresholding, but no operating point would be acceptable for clinical use. Fine-tuning on up to 14 target patients had the same effect more strongly: it removed most false positives but did not raise held-out tumor Dice above the zero-shot level, even though the models fitted their training patients far better than the held-out ones. With mixed sequences and few patients, lesion appearance apparently varies more between patients than a fine-tuned 2-D model can absorb. The collapse of the pre-specified protocol also shows that segmentation fine-tuning on data dominated by lesion-free slices needs lesion-aware sampling. Gains in all-slice Dice under any adaptation mainly reflect the 74\% share of lesion-free slices and should not be read as better delineation. Sequence-aware training or substantially more annotated target data appear necessary.
+
+\subsection{Calibration and Explainability}
+Label smoothing made all models under-confident on this near-saturated task; a single temperature fitted on validation data removed almost all of the miscalibration. LayerCAM maps localised meningiomas well but pointed to the lesion in fewer than a third of pituitary-tumor slices, which cautions against reading individual saliency maps as evidence that the classifier relies on the lesion.
+
+\subsection{Limitations}
+BRISC2025 has no patient identifiers, so internal results are slice-level estimates; the leakage audit can only detect near-duplicate images, not all slices from the same patient, and the LF training set is 8.5\% smaller than the official one. All models are 2-D and were trained on contrast-enhanced T1-weighted slices only. Five seeds per configuration give moderate precision for seed-level comparisons; equivalence after LF retraining was borderline, and the ablations are single runs whose differences are within run-to-run variability. The decoder warm-up used the segmentation images of the development split, including those later used for validation, which may make validation-based checkpoint selection slightly optimistic; the test set was not involved. HD95 is reported in pixels because pixel spacing is unavailable. The external segmentation cohort comprises only 17 patients; its threshold selection chose values at the upper end of the grid; the fine-tuning experiment used single seed-42 models; and its lesion-balanced protocol was introduced after the pre-specified protocol failed, although it was chosen on training-patient fit only. PMRAM was de-duplicated only for exact copies. Finally, no reader study or prospective evaluation was performed.
 
 \section{Conclusion}
-We presented PAUMT-Net, a plane-aware joint learning framework for simultaneous brain tumor classification and boundary delineation on 2D MRI slices. On BRISC2025, the model achieves 99.30\%\,$\pm$\,0.10\% classification accuracy and 87.93\%\,$\pm$\,0.26\% segmentation Dice (HD95: 3.44\,$\pm$\,0.14\,px $\approx$ 1.03\,mm), with a verified 0.00\% false-positive rate on healthy scans---a direct result of identifying and correcting an empty-mask supervision omission that previously induced a 95.71\% false-positive rate. Paired statistical testing confirms that plane conditioning provides statistically significant segmentation refinements ($p = 0.0344$), and Grad-CAM visualizations verify precise anatomical localization. Finally, plane-marginalized inference demonstrates robust cross-hospital classification generalization ($>$92\%), while exposing the pronounced vulnerability of dense segmentation to domain shift and providing threshold calibration as a clinically practical mitigation strategy. These findings underscore the necessity of healthy-scan supervision integrity, rigorous external validation, and test-time adaptation before clinical translation of deep learning segmentation models.
+A joint classification--segmentation network reached 99.6\% accuracy and 86\% tumor-slice Dice on the official BRISC2025 split, with no false-positive masks on healthy slices once these were supervised with empty masks. Conditioning the network on the acquisition plane did not improve any internal or external outcome: across five matched seeds its effect on tumor Dice was equivalent to zero within $\pm1$ percentage point, and apparent gains in less controlled comparisons were attributable to ensembling and run-to-run variability. Ten percent of the official test set is near-identical to training images; retraining without them lowered accuracy to about 98\% and tumor Dice by 1.2--1.3 points, so published results on this split are optimistic. Classification transferred moderately to an external cohort, whereas segmentation failed on a multi-sequence external cohort, and neither threshold calibration nor fine-tuning on up to 14 target patients restored lesion delineation. Future work on this benchmark should use leakage-free splits, matched multi-seed comparisons with equivalence margins, and external validation with substantially more target-domain data.
+
+\section*{Data and Code Availability}
+BRISC2025, PMRAM and AJBDS-2023 are publicly available from their original sources \cite{fateh2026brisc,prottoy2024pmram,amin2023ajbds}. Training and evaluation code, per-image predictions for all models, the leakage-audit lists, and the scripts that generate every table and figure in this article will be released at \textbf{[repository URL]}.
+
+\section*{Acknowledgment}
+\textbf{[Funding and acknowledgments.]}
 
 \bibliographystyle{IEEEtran}
 \bibliography{references}

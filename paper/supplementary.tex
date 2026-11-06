@@ -1,0 +1,85 @@
+\documentclass[10pt]{article}
+\usepackage[margin=2cm]{geometry}
+\usepackage{booktabs,longtable,array,amsmath}
+\usepackage[hidelinks]{hyperref}
+\renewcommand{\thetable}{S\arabic{table}}
+
+\title{Supplementary Material\\[4pt]\large Plane Conditioning, Train--Test Leakage and External Validity in Joint Brain Tumor Classification and Segmentation}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{S1. CLAIM Checklist}
+Checklist for Artificial Intelligence in Medical Imaging (CLAIM) \cite{mongan2020claim}. Section names refer to the main manuscript.
+
+\begin{longtable}{>{\raggedright}p{0.6cm}>{\raggedright}p{6.6cm}>{\raggedright\arraybackslash}p{8.6cm}}
+\toprule
+\# & Item & Where / how addressed \\
+\midrule
+\endhead
+\multicolumn{3}{l}{\textit{Title and abstract}} \\
+1 & Identification as AI study, category of technology & Title; Abstract (deep learning, convolutional encoder--decoder). \\
+2 & Structured summary & Abstract (design, data, methods, results, conclusion). \\
+\multicolumn{3}{l}{\textit{Introduction}} \\
+3 & Scientific and clinical background, intended use & Introduction, paragraphs 1--3. Research benchmark study; no clinical deployment is intended. \\
+4 & Objectives and hypotheses & Introduction (contributions); pre-specified hypotheses, margins and endpoints in the analysis plan (Statistical Analysis). \\
+\multicolumn{3}{l}{\textit{Methods: study design}} \\
+5 & Prospective or retrospective & Retrospective analysis of public datasets (Materials). \\
+6 & Study goal & Model development with controlled comparison, leakage audit and external validation (Introduction). \\
+\multicolumn{3}{l}{\textit{Methods: data}} \\
+7 & Data sources & BRISC2025, PMRAM, AJBDS-2023, with references and DOIs (Materials; Data and Code Availability). \\
+8 & Eligibility criteria & All images of the public releases; PMRAM exact duplicates removed; AJBDS-2023 slices with a paired mask (Materials). Patient-level clinical data are not available. \\
+9 & Pre-processing & Resizing to $224\times224$, ImageNet normalisation, binarisation of masks (Training). \\
+10 & Selection of data subsets & Leakage-free development subset (Leakage-Free Retraining); de-duplicated and strict test subsets (Materials). \\
+11 & Definitions of data elements & Four classes and binary tumor masks as defined by the dataset providers (Materials). \\
+12 & De-identification & Performed by the dataset providers; no identifiable data used (Materials). \\
+13 & Missing data & Healthy BRISC2025 slices have no mask file and are assigned an empty mask (Training); AJBDS-2023 images without a mask are excluded (Materials). \\
+\multicolumn{3}{l}{\textit{Methods: ground truth}} \\
+14 & Reference standard & Expert tumor masks and class labels released with each dataset (Materials). \\
+15 & Rationale for reference standard & Only available reference; differences in lesion definition between cohorts are discussed (Discussion). \\
+16 & Source and qualifications of annotators & As reported by the dataset providers \cite{fateh2026brisc,amin2023ajbds}; not re-annotated. \\
+17 & Annotation tools & As reported by the dataset providers. \\
+18 & Inter-/intra-rater variability & Not available for the released masks; acknowledged in Limitations. \\
+\multicolumn{3}{l}{\textit{Methods: data partitions}} \\
+19 & Sample size & Determined by the public releases; no power calculation. Precision is reported through confidence intervals and the equivalence analysis. \\
+20 & Assignment to partitions & Official BRISC2025 train/test split; seeded 80/20 train/validation split stratified by class $\times$ plane (Materials). \\
+21 & Level of disjointness & Image level; patient level impossible (no identifiers). Near-duplicate audit and leakage-free retraining quantify the consequence (Materials; Results). AJBDS-2023 fine-tuning is patient-disjoint. \\
+\multicolumn{3}{l}{\textit{Methods: model}} \\
+22 & Model description & Network (Methods; Fig.~1). \\
+23 & Software & Python 3.11, PyTorch 2.11 (CUDA 12.8), torchvision 0.26, NumPy 2.4, SciPy 1.17, scikit-learn 1.8, pandas 3.0, Pillow 12.2. \\
+24 & Initialisation & ImageNet-pretrained ResNet-34; plane embedding $\mathcal{N}(0,0.02^2)$; fine-tuning initialised from the BRISC2025 models (Methods). \\
+\multicolumn{3}{l}{\textit{Methods: training}} \\
+25 & Training details & Training (loss, optimiser, schedule, augmentation, batch size, epochs); number of models: Table~\ref{tab:s-runs}. \\
+26 & Final model selection & Highest validation score $0.5\,F1_{\text{macro}}+0.5\,\text{Dice}$; no test-set use (Training). \\
+27 & Ensembling & Averaging of softmax and pixel probabilities over five seeds (Training). \\
+\multicolumn{3}{l}{\textit{Methods: evaluation}} \\
+28 & Metrics & Metrics (classification, segmentation, calibration). \\
+29 & Statistical measures & Statistical Analysis (bootstrap CIs, Wilcoxon, McNemar, Holm, TOST equivalence, patient-cluster bootstrap). \\
+30 & Robustness / sensitivity analysis & De-duplicated and strict test subsets, leakage-free retraining, zero- vs mean-plane inference, threshold sweeps (Results). \\
+31 & Explainability and its validation & LayerCAM with quantitative localisation (energy in mask, pointing game) (Explainability). \\
+32 & External testing & PMRAM and AJBDS-2023, zero-shot and fine-tuned (External Protocols; Results). \\
+\multicolumn{3}{l}{\textit{Results}} \\
+33 & Flow of cases & Fig.~2; exclusion counts in Materials and Table~\ref{tab:s-runs}. \\
+34 & Demographic/clinical characteristics & Class and plane distribution per partition (Materials; Fig.~2). Patient demographics are not available for BRISC2025 and PMRAM. \\
+35 & Performance on all partitions & Test-set performance for every model (Table~\ref{tab:s-internal}); validation NLL and temperatures (Table~\ref{tab:s-calib}). \\
+36 & Precision of estimates & 95\% CIs throughout (Results; Tables~\ref{tab:s-internal}--\ref{tab:s-external}). \\
+37 & Failure analysis & Lower-decile cases (Fig.~5), confusion matrix (Fig.~6C), subgroup analyses, external failure modes (Results). \\
+\multicolumn{3}{l}{\textit{Discussion}} \\
+38 & Limitations & Limitations. \\
+39 & Implications for practice & Discussion (no clinical use without target-domain adaptation and prospective validation). \\
+\multicolumn{3}{l}{\textit{Other information}} \\
+40 & Registration & Not registered. The analysis plan for the revision experiments was fixed in writing before those runs (repository: \texttt{reports/revision2\_analysis\_plan.md}). \\
+41 & Protocol access & Released with the code (Data and Code Availability). \\
+42 & Funding & See Acknowledgment. \\
+\bottomrule
+\end{longtable}
+\setcounter{table}{0}
+
+\input{supp_tables}
+
+\clearpage
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

@@ -1,162 +1,121 @@
-# Multi-View Fusion Network — Plane-Aware Joint Learning for Brain Tumor Classification & Segmentation on BRISC2025
+# Acquisition-Plane Conditioning for Joint Brain Tumor Classification & Segmentation (BRISC2025)
 
-This repository contains the code, results, figures, and audit reports for a
-plane-aware joint learning framework that performs simultaneous **brain tumor
-classification** and **tumor segmentation** on the
-[BRISC2025](https://doi.org/10.1038/s41597-026-06753-y) dataset (T1-weighted
-brain MRI slices across three anatomical planes: axial, sagittal, coronal).
+Code, per-image results, figures and audit trail for a joint brain tumor
+**classification + segmentation** network (PAUMT-Net) on
+[BRISC2025](https://doi.org/10.1038/s41597-026-06753-y), and a controlled test
+of whether conditioning the network on the MRI acquisition plane
+(axial / sagittal / coronal) helps.
 
-> **Scientific note on the name.** The project was originally conceived as a
-> "multi-view fusion" network that grouped axial/sagittal/coronal slices into
-> synthetic triplets for cross-view attention. A forensic dataset audit
-> (`reports/project_audit.md`) showed this framing is **not supported**:
-> BRISC2025 provides no patient-level identifiers, so grouped slices come from
-> *different* patients and share no anatomical correspondence. The project was
-> therefore reframed as **plane-aware single-image multi-task learning**: each
-> slice is processed independently, and the acquisition plane is provided as a
-> learned conditioning embedding. The final model contains no cross-patient
-> fusion. See `reports/` for the full audit trail.
+Manuscript: [`paper/manuscript.tex`](paper/manuscript.tex) (PDF and DOCX are
+built from it); supplementary material incl. CLAIM checklist:
+[`paper/supplementary.tex`](paper/supplementary.tex).
 
-## Highlights
+> **Note on the repository name.** The project began as a "multi-view fusion"
+> network over axial/sagittal/coronal triplets. BRISC2025 has no patient
+> identifiers, so such triplets would combine different patients; the project
+> was reframed as single-slice multi-task learning with plane conditioning
+> (`reports/project_audit.md`).
 
-- **B3 (proposed)**: single-image ResNet34 encoder + learned plane embedding +
-  joint classification head + FiLM-modulated UNet segmentation decoder.
-- **99.30% ± 0.10%** classification accuracy, **99.38% ± 0.11%** macro F1,
-  **87.93% ± 0.26%** all-slice Dice, **0.00%** false-positive mask rate on
-  healthy (no-tumor) slices, across three independent seeds (42, 43, 44).
-- **Documented training-pipeline fix**: healthy scans were previously silently
-  excluded from the segmentation loss, causing a 95.71% false-positive mask
-  rate on no-tumor samples; assigning all-zero masks with `mask_valid=1`
-  reduced this to 0.00%.
-- **Controlled ablation**: joint learning and plane conditioning help;
-  segmentation-guided classification, cross-task consistency, MC Dropout, and
-  uncertainty-weighted losses do not improve performance on this dataset.
-- **Secondary external generalization** (via the plane-independent B2 baseline):
-  classification generalizes reasonably (92.06% accuracy on PMRAM) while
-  segmentation is highly sensitive to domain shift (36.48% tumor-slice Dice,
-  32.43% empty-mask hallucination rate on AJBDS-2023).
+## Main findings
 
-## Results
+All numbers below are from the BRISC2025 official test set (n = 1,000) unless
+stated otherwise. Analysis plan: [`reports/revision2_analysis_plan.md`](reports/revision2_analysis_plan.md),
+fixed before the five-seed, leakage-free and fine-tuning experiments.
 
-### Final B3 (Joint + Plane), three seeds on the held-out BRISC2025 test set (n = 1,000)
+- **Joint model performance.** Official split, five seeds per model:
+  - single models: 99.1–99.7% accuracy, 85.7–86.4% tumor-slice Dice;
+  - 5-seed ensembles: 99.6% accuracy.
+  - No false-positive masks on the 140 healthy slices.
+- **Plane conditioning has no effect.** B3 (plane-aware) − B2 (identical, no
+  plane embedding):
+  - Tumor Dice, 5 seed pairs: **−0.20 pp [95% CI −0.63, 0.23]**, equivalent
+    to zero within ±1 pp (TOST p = 0.003).
+  - Accuracy: equivalent within ±0.5 pp.
+  - Leakage-free retraining: −0.26 pp, equivalence borderline (p = 0.050).
+  - For scale, two runs of the identical configuration differ by 0.57 pp.
+- **Empty-mask supervision is essential.** Without it, 134/140 healthy test
+  slices received a tumor mask; with it, 0/140.
+- **Train–test leakage inflates the official split.**
+  - 104 test images (10.4%, 99 of them meningiomas) are near-identical to
+    training images.
+  - Retraining without the 425 overlapping development images
+    (`results/dedup_train_exclusions.txt`) lowers ensemble accuracy from
+    99.6% to 98.1–98.3% and tumor Dice by 1.2–1.3 pp.
+  - On the near-identical images themselves, accuracy falls from 100% to 89%.
+- **External validation.**
+  - PMRAM classification: 94.0–94.8% for all 5-seed ensembles; B3 vs B2 not
+    significant.
+  - AJBDS-2023 (Pakistan, multi-sequence) segmentation: tumor Dice 36.5–38.0%
+    zero-shot.
+  - Threshold calibration and patient-wise fine-tuning with up to 14 patients
+    cut false positives (to 5–13%) but did not improve lesion Dice.
+  - The pre-specified fine-tuning protocol collapsed. A lesion-balanced
+    protocol was added afterwards; both are reported.
 
-| Metric | Mean ± Std |
-|:---|:---|
-| Accuracy | 0.9930 ± 0.0010 |
-| Macro F1 | 0.9938 ± 0.0011 |
-| AUC (macro OvR) | 0.9993 ± 0.0002 |
-| Brier | 0.0204 ± 0.0014 |
-| ECE | 0.0727 ± 0.0012 |
-| Dice (all slices) | 0.8793 ± 0.0026 |
-| IoU | 0.8152 ± 0.0026 |
-| Sensitivity (seg) | 0.7551 ± 0.0053 |
-| Specificity (seg) | 0.9986 ± 0.0001 |
-| Precision (seg) | 0.7452 ± 0.0018 |
-| HD95 (px) | 3.44 ± 0.14 |
-| FP mask rate (no-tumor) | 0.00% |
+Full tables: [`results/statistical_significance_tests.md`](results/statistical_significance_tests.md)
+(internal) and [`results/external/external_evaluation.md`](results/external/external_evaluation.md) (external).
 
-Full per-seed tables: `results/final_results.{md,csv,tex}`, `reports/seed_validation.md`.
+## Reproducing the results
 
-### Ablation (single run)
-
-| Model | Architecture | Accuracy | Macro F1 | Dice | FP Mask Rate |
-|:---|:---|:---|:---|:---|:---|
-| B0 | Classification-only | 0.9910 | 0.9923 | — | — |
-| B1 | Segmentation-only | — | — | 0.8799 | — |
-| B2 | Joint (no plane) | 0.9940 | 0.9947 | 0.8786 | 0.00% |
-| **B3 / A1** | **Joint + Plane** | **0.9950** | **0.9956** | **0.8770** | **0.00%** |
-| A2 | A1 + seg-guided cls | 0.9910 | 0.9915 | 0.8777 | 0.00% |
-| A3 | A2 + consistency loss | 0.9880 | 0.9887 | 0.8809 | 0.71% |
-| A4 | A3 + MC Dropout (eval) | 0.9880 | 0.9887 | 0.8809 | 0.71% |
-| A5 | A4 + uncertainty loss | 0.9870 | 0.9887 | 0.8812 | 0.71% |
-
-## Repository Structure
-
-```
-├── paper/manuscript.md       # Final manuscript (Abstract, Method, Results, References)
-├── src/                      # Source code
-│   ├── dataset.py            # BRISC2025 loader, stratified train/val split, transforms
-│   ├── model.py              # PAUMTNet: encoder + plane embedding + FiLM decoder + MC dropout
-│   ├── losses.py             # Dice, Focal, label-smoothing CE, consistency, uncertainty
-│   ├── train.py              # 2-phase training (seg warm-up + joint) with CLI
-│   ├── evaluate.py           # Eval metrics (acc, F1, AUC, ECE, Dice, per-plane)
-│   ├── analyze_results.py    # Independent post-hoc verification + figures + CSVs
-│   ├── aggregate_seeds.py    # Multi-seed aggregation → final_results.{csv,md,tex}
-│   ├── external_ajbds_eval.py / external_pmram_eval.py  # external validation
-│   ├── domain_shift_analysis.py, debug_seg.py, plot_no_tumor.py, ... (audit tools)
-│   └── configs/default.yaml  # (legacy config; train.py uses argparse)
-├── scripts/
-│   ├── duplicate_audit.py            # MD5 + perceptual-hash leakage audit
-│   └── compute_tumor_only_dice.py    # Tumor-only Dice from per-class means
-├── run_baselines.ps1 / run_ablations.ps1 / run_experiments.ps1
-│   └── run_seeds.ps1 / evaluate_final_seeds.ps1   # Experiment runners
-├── run_in_research.py       # Run a script inside the 'research' conda env (UTF-8)
-├── results/                 # Final tables, per-seed results, ablations, external eval
-├── figures/                 # Confusion matrices, qualitative examples, external figures
-├── reports/                 # Full scientific audit trail
-└── data/                    # (ignored) literature-search cache
-```
-
-The `datasets/` folder (BRISC2025 and external MRI data, ~1.4 GB) is
-**git-ignored** and must be downloaded separately (see
-[BRISC2025](https://doi.org/10.1038/s41597-026-06753-y), PMRAM
-[Mendeley](https://doi.org/10.17632/m7w55sw88b.1), AJBDS-2023
-[Mendeley](https://doi.org/10.17632/gmr8yyn77c.1)).
-
-## Reproducibility
+Datasets (git-ignored, ~1.4 GB) go in `datasets/`:
+[BRISC2025](https://www.kaggle.com/datasets/briscdataset/brisc2025/),
+[PMRAM](https://doi.org/10.17632/m7w55sw88b.1),
+[AJBDS-2023](https://doi.org/10.17632/gmr8yyn77c.1).
+Checkpoints are written to `../experiments/paumt/`.
 
 ```bash
-# 1. Environment (or: pip install -r requirements.txt)
-conda env create -f environment.yml && conda activate research
+# 1. Train (each run ~35 min on an 8 GB GPU; the queue runs 3 at a time)
+python src/train.py --run_name B3_final --seeds 42,43,44 --lambda_cons 0.0            # B3, official split
+python src/train.py --run_name B2_final --seeds 43,44 --no_plane_emb --lambda_cons 0.0 # B2 (seed 42: corrected_B2_joint)
+python scripts/leakage_audit.py            # train/test near-duplicate audit
+python scripts/make_dedup_split.py         # exclusion list for the leakage-free split
+python scripts/run_training_queue.py       # seeds 45-46 (official) + seeds 42-46 (leakage-free)
+powershell -File run_ablations.ps1         # single-run ablations
 
-# 2. Train the primary B3 model across three seeds
-python src/train.py --run_name B3_final --seeds 42,43,44 \
-    --epochs 50 --batch_size 16 --lr 1e-4 --weight_decay 1e-4 \
-    --lambda_cls 1.0 --lambda_seg 0.5 --lambda_cons 0.0
+# 2. Evaluate and analyse
+python scripts/run_internal_evaluation.py  # per-slice predictions, temperatures (GPU)
+python scripts/run_statistics.py           # matched comparisons, TOST equivalence, leakage analysis
+python scripts/run_external_evaluation.py  # PMRAM + AJBDS-2023 zero-shot / calibrated protocols (GPU)
+python scripts/run_ajbds_finetuning.py                         # pre-specified fine-tuning (GPU)
+python scripts/run_ajbds_finetuning.py --protocol balanced     # amended fine-tuning (GPU)
 
-# 3. Evaluate all seeds and aggregate
-powershell -File evaluate_final_seeds.ps1
-
-# 4. Run the ablation suite
-powershell -File run_ablations.ps1
+# 3. Figures, supplement and manuscript
+python scripts/generate_figure1_architecture.py
+python scripts/generate_figure2_pipeline.py
+python scripts/generate_gradcam_and_overlays.py   # Figs 3-5 + explainability metrics
+python scripts/generate_calibration_figures.py    # Figs 6-7
+python scripts/make_supplementary_tables.py       # paper/supp_tables.tex
+cd paper && latexmk -pdf manuscript.tex && latexmk -pdf supplementary.tex && cd ..
+python scripts/build_docx.py                      # paper/manuscript.docx from the .tex
 ```
 
-Every checkpoint records its full configuration in `config.json`. Seed
-independence of the three final runs is verified in `reports/seed_validation.md`
-(an earlier runner bug that silently used seed 42 for all runs is documented
-there and its results are superseded).
+All figures and tables are generated from the files in `results/`; none
+contain hand-entered metric values.
 
-## Key Method (B3)
+## Repository structure
 
 ```
-MRI image x ∈ R^(3×H×W)   +   plane index p ∈ {axial, sagittal, coronal}
-        │
-        ▼
- Shared ResNet34 encoder → pooled (R^D) + pyramid (p4..p1)
-        │
-        └── plane embedding e_p → conditioned = pooled + e_p
-                    │
-        ┌───────────┴───────────┐
-        ▼                       ▼
- Classification head      UNet decoder (FiLM-modulated by conditioned)
-   → logits_cls (4)          → logits_seg (1×H×W)
+paper/                 manuscript.tex (single source), references.bib, PDF/DOCX builds
+src/                   dataset, model (PAUMTNet), losses, training, metric functions
+scripts/               evaluation, statistics, leakage audit, figure generation
+results/internal/      per-slice predictions of all models/ensembles, temperatures
+results/external/      PMRAM / AJBDS-2023 per-image outputs and summaries
+results/leakage_*      leakage audit outputs
+figures/               journal figures (generated)
+reports/               audit trail; analysis plan in reports/revision2_analysis_plan.md
+archive/superseded/    files replaced during the pre-submission revision (do not cite)
 ```
 
-Loss: `L = λ_cls·L_cls(LS-CE, ε=0.1) + λ_seg·L_seg(0.5·Dice + 0.5·Focal)` with
-`λ_cls=1.0`, `λ_seg=0.5`, no consistency term for B3. no-tumor slices receive an
-all-zero mask with `mask_valid=1` (see `reports/final_scientific_audit.md` §5).
+Legacy outputs in `results/` (`final_results.*`, `baseline_comparison.*`,
+`calibration_metrics.*`, per-run folders such as `results/B3_final_seed42/`)
+were produced with the earlier HD95 and sensitivity/precision definitions and
+are superseded by `results/internal/` and `results/statistical_significance_tests.*`.
 
-## Limitations (disclosed in the manuscript)
+## Limitations
 
-- BRISC2025 has no patient-level identifiers → slice-level results only; true
-  patient-level multi-view fusion is impossible on this dataset.
-- Only three seeds (n=3) → wide 95% CIs.
-- External validation used the plane-independent B2 baseline because PMRAM and
-  AJBDS-2023 lack reliable plane metadata.
-- No clinical reader study; benchmark results only.
-
-## References
-
-- BRISC2025 dataset paper: Fateh et al., *Scientific Data* **13**:6753, 2026.
-  doi:[10.1038/s41597-026-06753-y](https://doi.org/10.1038/s41597-026-06753-y)
-- Full reference list in `paper/manuscript.md`.
+- No patient identifiers in BRISC2025: slice-level results only.
+- 2-D, contrast-enhanced T1 training data; five seeds per configuration;
+  ablations are single runs; leakage-free training set is 8.5% smaller.
+- HD95 in pixels (no pixel spacing available).
+- External segmentation cohort has 17 patients and mixed MR sequences.
+- No reader study or prospective evaluation.
