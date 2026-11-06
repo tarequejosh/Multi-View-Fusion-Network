@@ -40,3 +40,18 @@ paper/*.synctex.gz
 .DS_Store
 Thumbs.db
 nul
+
+# Office lock files / run logs
+~$*
+logs/
+analysis/
+
+# Journal correspondence and internal notes (kept local, never published)
+submission/
+scripts/build_submission_package.py
+reports/pre_submission_revision.md
+archive/superseded/scripts/build_manuscript_docx.py
+
+# Generated documents (built from paper/*.tex by scripts/build_docx.py)
+paper/*.docx
+paper/ieee.csl
